@@ -50,6 +50,18 @@ impl TorService {
         socks_port: u16,
         policy: SocksPolicy,
     ) -> Result<Self, TorFailure> {
+        Self::start_with_connect_timeout(state_dir, cache_dir, socks_port, policy, None).await
+    }
+
+    /// Create the client and bind the SOCKS listener with a custom Tor
+    /// connection budget in milliseconds. `None` uses the 30-second default.
+    pub async fn start_with_connect_timeout(
+        state_dir: &str,
+        cache_dir: &str,
+        socks_port: u16,
+        policy: SocksPolicy,
+        connect_timeout_ms: Option<u64>,
+    ) -> Result<Self, TorFailure> {
         Self::start_with_transport(
             state_dir,
             cache_dir,
@@ -57,6 +69,7 @@ impl TorService {
             TorTransport::Direct,
             None,
             policy,
+            connect_timeout_ms,
         )
         .await
     }
@@ -72,6 +85,27 @@ impl TorService {
         snowflake_port: u16,
         policy: SocksPolicy,
     ) -> Result<Self, TorFailure> {
+        Self::start_with_snowflake_connect_timeout(
+            state_dir,
+            cache_dir,
+            socks_port,
+            snowflake_port,
+            policy,
+            None,
+        )
+        .await
+    }
+
+    /// Create a Snowflake-routed client with a custom Tor connection budget in
+    /// milliseconds. `None` uses the 30-second default.
+    pub async fn start_with_snowflake_connect_timeout(
+        state_dir: &str,
+        cache_dir: &str,
+        socks_port: u16,
+        snowflake_port: u16,
+        policy: SocksPolicy,
+        connect_timeout_ms: Option<u64>,
+    ) -> Result<Self, TorFailure> {
         if snowflake_port == 0 {
             return Err(TorFailure::configuration(
                 "Snowflake proxy port must not be zero",
@@ -84,6 +118,7 @@ impl TorService {
             TorTransport::Snowflake,
             Some(snowflake_port),
             policy,
+            connect_timeout_ms,
         )
         .await
     }
@@ -95,6 +130,7 @@ impl TorService {
         transport: TorTransport,
         snowflake_port: Option<u16>,
         policy: SocksPolicy,
+        connect_timeout_ms: Option<u64>,
     ) -> Result<Self, TorFailure> {
         let runtime = TokioNativeTlsRuntime::current()
             .map_err(|e| TorFailure::configuration(format!("no tokio runtime: {e}")))?;
@@ -121,7 +157,8 @@ impl TorService {
             .create_unbootstrapped()
             .map_err(|e| TorFailure::configuration(format!("create client: {e}")))?;
 
-        let default_session = TorSession::start(&client, socks_port, policy).await?;
+        let default_session =
+            TorSession::start(&client, socks_port, policy, connect_timeout_ms).await?;
         let sessions = vec![default_session.downgrade()];
         let (shutdown, _) = watch::channel(false);
 
@@ -152,6 +189,18 @@ impl TorService {
         socks_port: u16,
         policy: SocksPolicy,
     ) -> Result<TorSession, TorFailure> {
+        self.open_session_with_connect_timeout(socks_port, policy, None)
+            .await
+    }
+
+    /// Open an isolated SOCKS listener with a custom Tor connection budget in
+    /// milliseconds. `None` uses the 30-second default.
+    pub async fn open_session_with_connect_timeout(
+        &self,
+        socks_port: u16,
+        policy: SocksPolicy,
+        connect_timeout_ms: Option<u64>,
+    ) -> Result<TorSession, TorFailure> {
         {
             let mut registry = self
                 .sessions
@@ -170,7 +219,7 @@ impl TorService {
         let client = self
             .client()
             .ok_or_else(|| TorFailure::not_running("cannot open a session after service stop"))?;
-        let session = TorSession::start(&client, socks_port, policy).await?;
+        let session = TorSession::start(&client, socks_port, policy, connect_timeout_ms).await?;
 
         let stopped_during_open = {
             let mut registry = self

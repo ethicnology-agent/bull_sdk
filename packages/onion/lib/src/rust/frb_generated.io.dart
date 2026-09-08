@@ -90,6 +90,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   TorStatus dco_decode_box_autoadd_tor_status(dynamic raw);
 
   @protected
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw);
+
+  @protected
   double dco_decode_f_32(dynamic raw);
 
   @protected
@@ -100,6 +103,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   Blockage? dco_decode_opt_box_autoadd_blockage(dynamic raw);
+
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
   SocksPolicy dco_decode_socks_policy(dynamic raw);
@@ -121,6 +127,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int dco_decode_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -194,6 +203,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   TorStatus sse_decode_box_autoadd_tor_status(SseDeserializer deserializer);
 
   @protected
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer);
 
   @protected
@@ -204,6 +216,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   Blockage? sse_decode_opt_box_autoadd_blockage(SseDeserializer deserializer);
+
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
   SocksPolicy sse_decode_socks_policy(SseDeserializer deserializer);
@@ -225,6 +240,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -282,6 +300,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   }
 
   @protected
+  ffi.Pointer<ffi.Uint64> cst_encode_box_autoadd_u_64(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_64(cst_encode_u_64(raw));
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
     Uint8List raw,
   ) {
@@ -297,6 +321,18 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_box_autoadd_blockage(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint64> cst_encode_opt_box_autoadd_u_64(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_64(raw);
+  }
+
+  @protected
+  int cst_encode_u_64(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.toSigned(64).toInt();
   }
 
   @protected
@@ -495,6 +531,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer);
 
   @protected
@@ -511,6 +550,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     Blockage? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
   void sse_encode_socks_policy(SocksPolicy self, SseSerializer serializer);
@@ -535,6 +577,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
@@ -618,6 +663,42 @@ class OnionCoreWire implements BaseWire {
   late final _wire__crate__api__client__TorService_open_session =
       _wire__crate__api__client__TorService_open_sessionPtr
           .asFunction<void Function(int, int, int, int)>();
+
+  void wire__crate__api__client__TorService_open_session_with_connect_timeout(
+    int port_,
+    int that,
+    int socks_port,
+    int policy,
+    ffi.Pointer<ffi.Uint64> connect_timeout_ms,
+  ) {
+    return _wire__crate__api__client__TorService_open_session_with_connect_timeout(
+      port_,
+      that,
+      socks_port,
+      policy,
+      connect_timeout_ms,
+    );
+  }
+
+  late final _wire__crate__api__client__TorService_open_session_with_connect_timeoutPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.UintPtr,
+            ffi.Uint16,
+            ffi.Int32,
+            ffi.Pointer<ffi.Uint64>,
+          )
+        >
+      >(
+        'frbgen_onion_wire__crate__api__client__TorService_open_session_with_connect_timeout',
+      );
+  late final _wire__crate__api__client__TorService_open_session_with_connect_timeout =
+      _wire__crate__api__client__TorService_open_session_with_connect_timeoutPtr
+          .asFunction<
+            void Function(int, int, int, int, ffi.Pointer<ffi.Uint64>)
+          >();
 
   void wire__crate__api__client__TorService_probe(
     int port_,
@@ -746,6 +827,52 @@ class OnionCoreWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__client__TorService_start_with_connect_timeout(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> state_dir,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> cache_dir,
+    int socks_port,
+    int policy,
+    ffi.Pointer<ffi.Uint64> connect_timeout_ms,
+  ) {
+    return _wire__crate__api__client__TorService_start_with_connect_timeout(
+      port_,
+      state_dir,
+      cache_dir,
+      socks_port,
+      policy,
+      connect_timeout_ms,
+    );
+  }
+
+  late final _wire__crate__api__client__TorService_start_with_connect_timeoutPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint16,
+            ffi.Int32,
+            ffi.Pointer<ffi.Uint64>,
+          )
+        >
+      >(
+        'frbgen_onion_wire__crate__api__client__TorService_start_with_connect_timeout',
+      );
+  late final _wire__crate__api__client__TorService_start_with_connect_timeout =
+      _wire__crate__api__client__TorService_start_with_connect_timeoutPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+              int,
+              ffi.Pointer<ffi.Uint64>,
+            )
+          >();
+
   void wire__crate__api__client__TorService_start_with_snowflake(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> state_dir,
@@ -789,6 +916,57 @@ class OnionCoreWire implements BaseWire {
               int,
               int,
               int,
+            )
+          >();
+
+  void
+  wire__crate__api__client__TorService_start_with_snowflake_connect_timeout(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> state_dir,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> cache_dir,
+    int socks_port,
+    int snowflake_port,
+    int policy,
+    ffi.Pointer<ffi.Uint64> connect_timeout_ms,
+  ) {
+    return _wire__crate__api__client__TorService_start_with_snowflake_connect_timeout(
+      port_,
+      state_dir,
+      cache_dir,
+      socks_port,
+      snowflake_port,
+      policy,
+      connect_timeout_ms,
+    );
+  }
+
+  late final _wire__crate__api__client__TorService_start_with_snowflake_connect_timeoutPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint16,
+            ffi.Uint16,
+            ffi.Int32,
+            ffi.Pointer<ffi.Uint64>,
+          )
+        >
+      >(
+        'frbgen_onion_wire__crate__api__client__TorService_start_with_snowflake_connect_timeout',
+      );
+  late final _wire__crate__api__client__TorService_start_with_snowflake_connect_timeout =
+      _wire__crate__api__client__TorService_start_with_snowflake_connect_timeoutPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+              int,
+              int,
+              ffi.Pointer<ffi.Uint64>,
             )
           >();
 
@@ -1032,6 +1210,17 @@ class OnionCoreWire implements BaseWire {
   late final _cst_new_box_autoadd_tor_status =
       _cst_new_box_autoadd_tor_statusPtr
           .asFunction<ffi.Pointer<wire_cst_tor_status> Function()>();
+
+  ffi.Pointer<ffi.Uint64> cst_new_box_autoadd_u_64(int value) {
+    return _cst_new_box_autoadd_u_64(value);
+  }
+
+  late final _cst_new_box_autoadd_u_64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint64> Function(ffi.Uint64)>>(
+        'frbgen_onion_cst_new_box_autoadd_u_64',
+      );
+  late final _cst_new_box_autoadd_u_64 = _cst_new_box_autoadd_u_64Ptr
+      .asFunction<ffi.Pointer<ffi.Uint64> Function(int)>();
 
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,

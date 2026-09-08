@@ -68,7 +68,7 @@ class OnionCore
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 1473461345;
+  int get rustContentHash => -1426353639;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -86,6 +86,13 @@ abstract class OnionCoreApi extends BaseApi {
     required TorService that,
     required int socksPort,
     required SocksPolicy policy,
+  });
+
+  Future<TorSession> crateApiClientTorServiceOpenSessionWithConnectTimeout({
+    required TorService that,
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
   });
 
   Future<int> crateApiClientTorServiceProbe({
@@ -111,12 +118,29 @@ abstract class OnionCoreApi extends BaseApi {
     required SocksPolicy policy,
   });
 
+  Future<TorService> crateApiClientTorServiceStartWithConnectTimeout({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  });
+
   Future<TorService> crateApiClientTorServiceStartWithSnowflake({
     required String stateDir,
     required String cacheDir,
     required int socksPort,
     required int snowflakePort,
     required SocksPolicy policy,
+  });
+
+  Future<TorService> crateApiClientTorServiceStartWithSnowflakeConnectTimeout({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required int snowflakePort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
   });
 
   Future<TorStatus> crateApiClientTorServiceStatus({required TorService that});
@@ -240,6 +264,52 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       const TaskConstMeta(
         debugName: "TorService_open_session",
         argNames: ["that", "socksPort", "policy"],
+      );
+
+  @override
+  Future<TorSession> crateApiClientTorServiceOpenSessionWithConnectTimeout({
+    required TorService that,
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
+                that,
+              );
+          var arg1 = cst_encode_u_16(socksPort);
+          var arg2 = cst_encode_socks_policy(policy);
+          var arg3 = cst_encode_opt_box_autoadd_u_64(connectTimeoutMs);
+          return wire
+              .wire__crate__api__client__TorService_open_session_with_connect_timeout(
+                port_,
+                arg0,
+                arg1,
+                arg2,
+                arg3,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta:
+            kCrateApiClientTorServiceOpenSessionWithConnectTimeoutConstMeta,
+        argValues: [that, socksPort, policy, connectTimeoutMs],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiClientTorServiceOpenSessionWithConnectTimeoutConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_open_session_with_connect_timeout",
+        argNames: ["that", "socksPort", "policy", "connectTimeoutMs"],
       );
 
   @override
@@ -425,6 +495,56 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       );
 
   @override
+  Future<TorService> crateApiClientTorServiceStartWithConnectTimeout({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(stateDir);
+          var arg1 = cst_encode_String(cacheDir);
+          var arg2 = cst_encode_u_16(socksPort);
+          var arg3 = cst_encode_socks_policy(policy);
+          var arg4 = cst_encode_opt_box_autoadd_u_64(connectTimeoutMs);
+          return wire
+              .wire__crate__api__client__TorService_start_with_connect_timeout(
+                port_,
+                arg0,
+                arg1,
+                arg2,
+                arg3,
+                arg4,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiClientTorServiceStartWithConnectTimeoutConstMeta,
+        argValues: [stateDir, cacheDir, socksPort, policy, connectTimeoutMs],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClientTorServiceStartWithConnectTimeoutConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_start_with_connect_timeout",
+        argNames: [
+          "stateDir",
+          "cacheDir",
+          "socksPort",
+          "policy",
+          "connectTimeoutMs",
+        ],
+      );
+
+  @override
   Future<TorService> crateApiClientTorServiceStartWithSnowflake({
     required String stateDir,
     required String cacheDir,
@@ -470,6 +590,69 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
           "socksPort",
           "snowflakePort",
           "policy",
+        ],
+      );
+
+  @override
+  Future<TorService> crateApiClientTorServiceStartWithSnowflakeConnectTimeout({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required int snowflakePort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(stateDir);
+          var arg1 = cst_encode_String(cacheDir);
+          var arg2 = cst_encode_u_16(socksPort);
+          var arg3 = cst_encode_u_16(snowflakePort);
+          var arg4 = cst_encode_socks_policy(policy);
+          var arg5 = cst_encode_opt_box_autoadd_u_64(connectTimeoutMs);
+          return wire
+              .wire__crate__api__client__TorService_start_with_snowflake_connect_timeout(
+                port_,
+                arg0,
+                arg1,
+                arg2,
+                arg3,
+                arg4,
+                arg5,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta:
+            kCrateApiClientTorServiceStartWithSnowflakeConnectTimeoutConstMeta,
+        argValues: [
+          stateDir,
+          cacheDir,
+          socksPort,
+          snowflakePort,
+          policy,
+          connectTimeoutMs,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiClientTorServiceStartWithSnowflakeConnectTimeoutConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_start_with_snowflake_connect_timeout",
+        argNames: [
+          "stateDir",
+          "cacheDir",
+          "socksPort",
+          "snowflakePort",
+          "policy",
+          "connectTimeoutMs",
         ],
       );
 
@@ -881,6 +1064,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_u_64(raw);
+  }
+
+  @protected
   double dco_decode_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
@@ -902,6 +1091,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   Blockage? dco_decode_opt_box_autoadd_blockage(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_blockage(raw);
+  }
+
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_64(raw);
   }
 
   @protected
@@ -958,6 +1153,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   int dco_decode_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
   }
 
   @protected
@@ -1106,6 +1307,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_64(deserializer));
+  }
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getFloat32();
@@ -1130,6 +1337,17 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_blockage(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_64(deserializer));
     } else {
       return null;
     }
@@ -1189,6 +1407,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   int sse_decode_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint32();
+  }
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
   }
 
   @protected
@@ -1482,6 +1706,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self, serializer);
+  }
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putFloat32(self);
@@ -1513,6 +1743,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_blockage(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_64(self, serializer);
     }
   }
 
@@ -1563,6 +1803,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   void sse_encode_u_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint32(self);
+  }
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
   }
 
   @protected
@@ -1619,6 +1865,20 @@ class TorServiceImpl extends RustOpaque implements TorService {
     socksPort: socksPort,
     policy: policy,
   );
+
+  /// Open an isolated SOCKS listener with a custom Tor connection budget in
+  /// milliseconds. `None` uses the 30-second default.
+  Future<TorSession> openSessionWithConnectTimeout({
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  }) => OnionCore.instance.api
+      .crateApiClientTorServiceOpenSessionWithConnectTimeout(
+        that: this,
+        socksPort: socksPort,
+        policy: policy,
+        connectTimeoutMs: connectTimeoutMs,
+      );
 
   /// Open and immediately close a circuit to `host:port`, returning how long
   /// it took.

@@ -29,6 +29,14 @@ abstract class TorService implements RustOpaqueInterface {
     required SocksPolicy policy,
   });
 
+  /// Open an isolated SOCKS listener with a custom Tor connection budget in
+  /// milliseconds. `None` uses the 30-second default.
+  Future<TorSession> openSessionWithConnectTimeout({
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  });
+
   /// Open and immediately close a circuit to `host:port`, returning how long
   /// it took.
   ///
@@ -84,6 +92,22 @@ abstract class TorService implements RustOpaqueInterface {
     policy: policy,
   );
 
+  /// Create the client and bind the SOCKS listener with a custom Tor
+  /// connection budget in milliseconds. `None` uses the 30-second default.
+  static Future<TorService> startWithConnectTimeout({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  }) => OnionCore.instance.api.crateApiClientTorServiceStartWithConnectTimeout(
+    stateDir: stateDir,
+    cacheDir: cacheDir,
+    socksPort: socksPort,
+    policy: policy,
+    connectTimeoutMs: connectTimeoutMs,
+  );
+
   /// Create a client routed through an already-running Snowflake SOCKS proxy.
   ///
   /// The proxy is unmanaged: the native plugin owns its process-wide
@@ -101,6 +125,25 @@ abstract class TorService implements RustOpaqueInterface {
     snowflakePort: snowflakePort,
     policy: policy,
   );
+
+  /// Create a Snowflake-routed client with a custom Tor connection budget in
+  /// milliseconds. `None` uses the 30-second default.
+  static Future<TorService> startWithSnowflakeConnectTimeout({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required int snowflakePort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+  }) => OnionCore.instance.api
+      .crateApiClientTorServiceStartWithSnowflakeConnectTimeout(
+        stateDir: stateDir,
+        cacheDir: cacheDir,
+        socksPort: socksPort,
+        snowflakePort: snowflakePort,
+        policy: policy,
+        connectTimeoutMs: connectTimeoutMs,
+      );
 
   /// Current readiness snapshot.
   Future<TorStatus> status();

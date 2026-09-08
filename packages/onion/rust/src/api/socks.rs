@@ -34,6 +34,7 @@ use arti_client::{HasKind as _, IntoTorAddr as _, TorClient};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::task::JoinSet;
+use tor_error::ErrorKind;
 use tor_rtcompat::tokio::TokioNativeTlsRuntime;
 use tor_socksproto::{
     Buffer, Handshake as _, NextStep, SocksCmd, SocksProxyHandshake, SocksRequest, SocksStatus,
@@ -45,7 +46,42 @@ use super::session::SocksPolicy;
 
 const MAX_CONNECTIONS: usize = 64;
 const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(10);
-const CONNECT_TIMEOUT: Duration = Duration::from_secs(60);
+const DEFAULT_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
+
+fn connect_timeout(timeout_ms: Option<u64>) -> Duration {
+    timeout_ms.map_or(DEFAULT_CONNECT_TIMEOUT, Duration::from_millis)
+}
+
+fn socks_status_for_error(kind: ErrorKind) -> SocksStatus {
+    match kind {
+        ErrorKind::TorDirectoryError
+        | ErrorKind::TorDirectoryUnusable
+        | ErrorKind::NoPath
+        | ErrorKind::NoExit
+        | ErrorKind::CircuitCollapse
+        | ErrorKind::CircuitRefused
+        | ErrorKind::BootstrapRequired
+        | ErrorKind::RemoteNetworkTimeout => SocksStatus::NETWORK_UNREACHABLE,
+        ErrorKind::OnionServiceNotFound
+        | ErrorKind::OnionServiceNotRunning
+        | ErrorKind::OnionServiceConnectionFailed
+        | ErrorKind::RemoteHostNotFound
+        | ErrorKind::RemoteHostResolutionFailed => SocksStatus::HOST_UNREACHABLE,
+        ErrorKind::RemoteConnectionRefused
+        | ErrorKind::RemoteStreamClosed
+        | ErrorKind::RemoteStreamReset
+        | ErrorKind::RemoteStreamError
+        | ErrorKind::OnionServiceProtocolViolation => SocksStatus::CONNECTION_REFUSED,
+        // The local timeout is handled separately because it has no Arti kind.
+        // Any future or otherwise unclassified Arti kind stays deliberately
+        // conservative and does not claim a specific network cause.
+        _ => SocksStatus::GENERAL_FAILURE,
+    }
+}
+
+fn socks_status_for_timeout() -> SocksStatus {
+    SocksStatus::TTL_EXPIRED
+}
 
 /// Bind a SOCKS5 listener on loopback.
 ///
@@ -73,6 +109,7 @@ pub(crate) async fn serve(
     listener: TcpListener,
     client: Arc<TorClient<TokioNativeTlsRuntime>>,
     policy: SocksPolicy,
+    connect_timeout_ms: Option<u64>,
 ) -> TorResult<()> {
     let mut connections = JoinSet::new();
     let permits = Arc::new(tokio::sync::Semaphore::new(MAX_CONNECTIONS));
@@ -98,7 +135,7 @@ pub(crate) async fn serve(
                 let client = Arc::clone(&client);
                 connections.spawn(async move {
                     let _permit = permit;
-                    if let Err(e) = handle_conn(stream, client, policy).await {
+                    if let Err(e) = handle_conn(stream, client, policy, connect_timeout_ms).await {
                         // Deliberately not `warn!` with the target address: that
                         // would put the user's browsing destinations in the log.
                         debug!(%peer, error = %e, "socks connection ended with an error");
@@ -119,6 +156,7 @@ async fn handle_conn(
     mut sock: TcpStream,
     client: Arc<TorClient<TokioNativeTlsRuntime>>,
     policy: SocksPolicy,
+    connect_timeout_ms: Option<u64>,
 ) -> TorResult<()> {
     let request = tokio::time::timeout(HANDSHAKE_TIMEOUT, negotiate(&mut sock))
         .await
@@ -145,25 +183,28 @@ async fn handle_conn(
         .into_tor_addr()
         .map_err(|e| TorFailure::connect(format!("rejected target address: {}", e.kind())))?;
 
-    let tor_stream = match tokio::time::timeout(CONNECT_TIMEOUT, client.connect(target)).await {
-        Err(_) => {
-            reply(&mut sock, &request, SocksStatus::HOST_UNREACHABLE).await?;
-            return Err(TorFailure::connect("tor connect timed out"));
-        }
-        Ok(Ok(s)) => s,
-        Ok(Err(e)) => {
-            // Report the failure to the SOCKS client rather than dropping the
-            // socket, so the caller sees a protocol-level refusal instead of a
-            // bare connection reset it cannot attribute.
-            reply(&mut sock, &request, SocksStatus::GENERAL_FAILURE).await?;
-            // Deliberately `e.kind()` and not `e`: arti's Display embeds the
-            // destination, and this string ends up in logs.
-            return Err(TorFailure::connect(format!(
-                "tor connect failed: {}",
-                e.kind()
-            )));
-        }
-    };
+    let tor_stream =
+        match tokio::time::timeout(connect_timeout(connect_timeout_ms), client.connect(target))
+            .await
+        {
+            Err(_) => {
+                reply(&mut sock, &request, socks_status_for_timeout()).await?;
+                return Err(TorFailure::connect("tor connect timed out"));
+            }
+            Ok(Ok(s)) => s,
+            Ok(Err(e)) => {
+                // Report the failure to the SOCKS client rather than dropping the
+                // socket, so the caller sees a protocol-level refusal instead of a
+                // bare connection reset it cannot attribute.
+                reply(&mut sock, &request, socks_status_for_error(e.kind())).await?;
+                // Deliberately `e.kind()` and not `e`: arti's Display embeds the
+                // destination, and this string ends up in logs.
+                return Err(TorFailure::connect(format!(
+                    "tor connect failed: {}",
+                    e.kind()
+                )));
+            }
+        };
 
     reply(&mut sock, &request, SocksStatus::SUCCEEDED).await?;
 
@@ -234,6 +275,57 @@ async fn reply(sock: &mut TcpStream, request: &SocksRequest, status: SocksStatus
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn maps_each_error_class_to_the_compatible_rfc1928_status() {
+        for kind in [
+            ErrorKind::TorDirectoryError,
+            ErrorKind::TorDirectoryUnusable,
+            ErrorKind::NoPath,
+            ErrorKind::NoExit,
+            ErrorKind::CircuitCollapse,
+            ErrorKind::CircuitRefused,
+            ErrorKind::BootstrapRequired,
+            ErrorKind::RemoteNetworkTimeout,
+        ] {
+            assert_eq!(
+                socks_status_for_error(kind),
+                SocksStatus::NETWORK_UNREACHABLE
+            );
+        }
+        for kind in [
+            ErrorKind::OnionServiceNotFound,
+            ErrorKind::OnionServiceNotRunning,
+            ErrorKind::OnionServiceConnectionFailed,
+            ErrorKind::RemoteHostNotFound,
+            ErrorKind::RemoteHostResolutionFailed,
+        ] {
+            assert_eq!(socks_status_for_error(kind), SocksStatus::HOST_UNREACHABLE);
+        }
+        for kind in [
+            ErrorKind::RemoteConnectionRefused,
+            ErrorKind::RemoteStreamClosed,
+            ErrorKind::RemoteStreamReset,
+            ErrorKind::RemoteStreamError,
+            ErrorKind::OnionServiceProtocolViolation,
+        ] {
+            assert_eq!(
+                socks_status_for_error(kind),
+                SocksStatus::CONNECTION_REFUSED
+            );
+        }
+        assert_eq!(
+            socks_status_for_error(ErrorKind::Other),
+            SocksStatus::GENERAL_FAILURE
+        );
+        assert_eq!(socks_status_for_timeout(), SocksStatus::TTL_EXPIRED);
+    }
+
+    #[test]
+    fn uses_thirty_seconds_by_default_and_accepts_a_caller_budget() {
+        assert_eq!(connect_timeout(None), Duration::from_secs(30));
+        assert_eq!(connect_timeout(Some(1_250)), Duration::from_millis(1_250));
+    }
 
     #[tokio::test]
     async fn bind_zero_reports_the_actual_port() {
