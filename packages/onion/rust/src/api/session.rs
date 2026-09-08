@@ -68,12 +68,18 @@ impl TorSession {
         root_client: &TorClient<TokioNativeTlsRuntime>,
         socks_port: u16,
         policy: SocksPolicy,
+        connect_timeout_ms: Option<u64>,
     ) -> Result<Self, TorFailure> {
         let (listener, addr) = socks::bind_loopback(socks_port).await?;
         let client = root_client.isolated_client();
         let bound_port = addr.port();
         info!(port = bound_port, "isolated socks session bound");
-        let proxy_task = tokio::spawn(socks::serve(listener, Arc::clone(&client), policy));
+        let proxy_task = tokio::spawn(socks::serve(
+            listener,
+            Arc::clone(&client),
+            policy,
+            connect_timeout_ms,
+        ));
 
         Ok(Self {
             inner: Arc::new(TorSessionInner {
