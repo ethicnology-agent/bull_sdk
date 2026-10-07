@@ -204,7 +204,7 @@ conflicts with a previous package which links to `sqlite3` as well
 ```
 
 - `ark_wallet` -> `ark-client 0.7.0` -> `sqlx 0.8` -> `libsqlite3-sys 0.30`
-- `onion` -> `arti-client 0.44` -> `tor-dirmgr` -> `rusqlite >=0.36 <0.40` ->
+- `onion` -> `arti-client 0.47` -> `tor-dirmgr` -> `rusqlite >=0.36 <0.41` ->
   `libsqlite3-sys 0.37`
 
 Only one package in a graph may declare `links = "sqlite3"`. `rusqlite` is a

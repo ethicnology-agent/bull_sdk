@@ -9,7 +9,7 @@
 #
 # Kept equal to bull_sdk's pin for now so both halves of the app are built by
 # the same compiler; they can diverge without harm if a future arti bumps its
-# MSRV (arti-client 0.44 requires 1.91).
+# MSRV (arti-client 0.47 requires 1.92).
 [toolchain]
 channel = "1.95.0"
 targets = [
