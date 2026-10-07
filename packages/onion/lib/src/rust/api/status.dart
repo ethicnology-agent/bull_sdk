@@ -96,6 +96,17 @@ class TorStatus {
   /// Present when arti believes it is stuck.
   final Blockage? blockage;
 
+  /// arti's one-line summary of where bootstrap is, e.g. `"36%: connecting
+  /// successfully; directory is fetching authority certificates (0/9)"`, or
+  /// `"Stuck at 0%: ..."` followed by the blockage while arti is stuck.
+  ///
+  /// This is the `Display` of [`BootstrapStatus`], which arti documents as
+  /// designed for human readability, not machine parsing: show or log it as
+  /// diagnostic detail, never switch on it, and use [`TorStatus::fraction`]
+  /// and [`TorStatus::blockage`] for logic. Not localized. Empty once the
+  /// service has stopped.
+  final String stage;
+
   /// Route configured for this client.
   ///
   /// This does not by itself mean that Snowflake connected. Consumers must
@@ -106,6 +117,7 @@ class TorStatus {
     required this.fraction,
     required this.readyForTraffic,
     this.blockage,
+    required this.stage,
     required this.transport,
   });
 
@@ -118,6 +130,7 @@ class TorStatus {
       fraction.hashCode ^
       readyForTraffic.hashCode ^
       blockage.hashCode ^
+      stage.hashCode ^
       transport.hashCode;
 
   @override
@@ -128,6 +141,7 @@ class TorStatus {
           fraction == other.fraction &&
           readyForTraffic == other.readyForTraffic &&
           blockage == other.blockage &&
+          stage == other.stage &&
           transport == other.transport;
 }
 

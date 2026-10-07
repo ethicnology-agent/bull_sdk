@@ -110,6 +110,16 @@ pub struct TorStatus {
     pub ready_for_traffic: bool,
     /// Present when arti believes it is stuck.
     pub blockage: Option<Blockage>,
+    /// arti's one-line summary of where bootstrap is, e.g. `"36%: connecting
+    /// successfully; directory is fetching authority certificates (0/9)"`, or
+    /// `"Stuck at 0%: ..."` followed by the blockage while arti is stuck.
+    ///
+    /// This is the `Display` of [`BootstrapStatus`], which arti documents as
+    /// designed for human readability, not machine parsing: show or log it as
+    /// diagnostic detail, never switch on it, and use [`TorStatus::fraction`]
+    /// and [`TorStatus::blockage`] for logic. Not localized. Empty once the
+    /// service has stopped.
+    pub stage: String,
     /// Route configured for this client.
     ///
     /// This does not by itself mean that Snowflake connected. Consumers must
@@ -123,6 +133,7 @@ impl TorStatus {
             fraction: 0.0,
             ready_for_traffic: false,
             blockage: None,
+            stage: String::new(),
             transport,
         }
     }
@@ -135,6 +146,7 @@ impl TorStatus {
                 kind: b.kind().into(),
                 message: b.message().to_string(),
             }),
+            stage: s.to_string(),
             transport,
         }
     }
@@ -202,6 +214,7 @@ mod tests {
             fraction: 1.0,
             ready_for_traffic: true,
             blockage: None,
+            stage: "100%: connecting successfully; directory is usable".into(),
             transport: TorTransport::Direct,
         };
         assert!(!s.suggests_censorship());
@@ -216,6 +229,7 @@ mod tests {
                 kind: BlockageKind::Filtering,
                 message: "Our internet connection seems filtered".into(),
             }),
+            stage: "Stuck at 10%: Our internet connection seems filtered".into(),
             transport: TorTransport::Direct,
         };
         assert!(s.suggests_censorship());
@@ -228,5 +242,28 @@ mod tests {
         assert!(!s.ready_for_traffic);
         assert!(s.fraction < 1.0);
         assert_eq!(s.transport, TorTransport::Direct);
+    }
+
+    #[test]
+    fn stage_is_arti_display_of_the_same_snapshot() {
+        let arti = BootstrapStatus::default();
+        let s = TorStatus::from_bootstrap(&arti, TorTransport::Direct);
+        assert_eq!(s.stage, arti.to_string());
+        // The percentage leads the line, so even a truncated UI label carries
+        // the progress it describes.
+        let percent = (s.fraction * 100.0).round() as u32;
+        assert!(
+            s.stage.starts_with(&format!("{percent}%"))
+                || s.stage.starts_with(&format!("Stuck at {percent}%")),
+            "unexpected stage text: {:?}",
+            s.stage
+        );
+    }
+
+    #[test]
+    fn stopped_status_has_no_stage() {
+        let s = TorStatus::stopped(TorTransport::Snowflake);
+        assert!(s.stage.is_empty());
+        assert!(!s.ready_for_traffic);
     }
 }

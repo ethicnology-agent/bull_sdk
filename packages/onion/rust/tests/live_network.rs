@@ -44,9 +44,13 @@ async fn bootstraps_and_reports_progress() {
     let watcher = tokio::spawn(async move {
         let mut last = 0.0f32;
         while let Some(s) = events.next().await {
+            assert!(
+                !s.stage.is_empty(),
+                "a running client must describe its stage"
+            );
             if s.fraction > last {
                 last = s.fraction;
-                eprintln!("  progress {:.0}%", s.fraction * 100.0);
+                eprintln!("  progress {:.0}%: {}", s.fraction * 100.0, s.stage);
             }
             if let Some(b) = &s.blockage {
                 eprintln!("  BLOCKED {:?}: {}", b.kind, b.message);

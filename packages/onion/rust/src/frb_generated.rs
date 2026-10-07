@@ -1169,11 +1169,13 @@ impl SseDecode for crate::api::status::TorStatus {
         let mut var_fraction = <f32>::sse_decode(deserializer);
         let mut var_readyForTraffic = <bool>::sse_decode(deserializer);
         let mut var_blockage = <Option<crate::api::status::Blockage>>::sse_decode(deserializer);
+        let mut var_stage = <String>::sse_decode(deserializer);
         let mut var_transport = <crate::api::status::TorTransport>::sse_decode(deserializer);
         return crate::api::status::TorStatus {
             fraction: var_fraction,
             ready_for_traffic: var_readyForTraffic,
             blockage: var_blockage,
+            stage: var_stage,
             transport: var_transport,
         };
     }
@@ -1404,6 +1406,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::status::TorStatus {
             self.fraction.into_into_dart().into_dart(),
             self.ready_for_traffic.into_into_dart().into_dart(),
             self.blockage.into_into_dart().into_dart(),
+            self.stage.into_into_dart().into_dart(),
             self.transport.into_into_dart().into_dart(),
         ]
         .into_dart()
@@ -1629,6 +1632,7 @@ impl SseEncode for crate::api::status::TorStatus {
         <f32>::sse_encode(self.fraction, serializer);
         <bool>::sse_encode(self.ready_for_traffic, serializer);
         <Option<crate::api::status::Blockage>>::sse_encode(self.blockage, serializer);
+        <String>::sse_encode(self.stage, serializer);
         <crate::api::status::TorTransport>::sse_encode(self.transport, serializer);
     }
 }
@@ -1843,6 +1847,7 @@ mod io {
                 fraction: self.fraction.cst_decode(),
                 ready_for_traffic: self.ready_for_traffic.cst_decode(),
                 blockage: self.blockage.cst_decode(),
+                stage: self.stage.cst_decode(),
                 transport: self.transport.cst_decode(),
             }
         }
@@ -1879,6 +1884,7 @@ mod io {
                 fraction: Default::default(),
                 ready_for_traffic: Default::default(),
                 blockage: core::ptr::null_mut(),
+                stage: core::ptr::null_mut(),
                 transport: Default::default(),
             }
         }
@@ -2195,6 +2201,7 @@ mod io {
         fraction: f32,
         ready_for_traffic: bool,
         blockage: *mut wire_cst_blockage,
+        stage: *mut wire_cst_list_prim_u_8_strict,
         transport: i32,
     }
 }

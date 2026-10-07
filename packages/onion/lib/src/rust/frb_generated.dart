@@ -1127,13 +1127,14 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   TorStatus dco_decode_tor_status(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
     return TorStatus(
       fraction: dco_decode_f_32(arr[0]),
       readyForTraffic: dco_decode_bool(arr[1]),
       blockage: dco_decode_opt_box_autoadd_blockage(arr[2]),
-      transport: dco_decode_tor_transport(arr[3]),
+      stage: dco_decode_String(arr[3]),
+      transport: dco_decode_tor_transport(arr[4]),
     );
   }
 
@@ -1381,11 +1382,13 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     var var_fraction = sse_decode_f_32(deserializer);
     var var_readyForTraffic = sse_decode_bool(deserializer);
     var var_blockage = sse_decode_opt_box_autoadd_blockage(deserializer);
+    var var_stage = sse_decode_String(deserializer);
     var var_transport = sse_decode_tor_transport(deserializer);
     return TorStatus(
       fraction: var_fraction,
       readyForTraffic: var_readyForTraffic,
       blockage: var_blockage,
+      stage: var_stage,
       transport: var_transport,
     );
   }
@@ -1784,6 +1787,7 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     sse_encode_f_32(self.fraction, serializer);
     sse_encode_bool(self.readyForTraffic, serializer);
     sse_encode_opt_box_autoadd_blockage(self.blockage, serializer);
+    sse_encode_String(self.stage, serializer);
     sse_encode_tor_transport(self.transport, serializer);
   }
 

@@ -19,6 +19,11 @@
 /// tor.watchStatus().listen((s) {
 ///   // Not monotonic: arti reports a *lower* readiness when connectivity
 ///   // drops or its directory expires. Treat every event as current truth.
+///   // `stage` is arti's human-readable line, e.g. "36%: connecting
+///   // successfully; directory is fetching authority certificates (0/9)".
+///   // Show or log it; never parse it — `fraction` and `blockage` are the
+///   // fields to act on.
+///   debugPrint(s.stage);
 ///   if (s.blockage?.kind == BlockageKind.filtering) {
 ///     // TCP works, the Tor handshake does not: the censorship signature.
 ///   }

@@ -125,6 +125,16 @@ treat each `TorStatus` as the current truth rather than latching the first
 `ready_for_traffic`. This is why the status is a stream and not a one-shot
 boolean.
 
+### Stage text
+
+`TorStatus::stage` carries arti's own one-line description of the snapshot
+(the `Display` of `BootstrapStatus`), for example `36%: connecting
+successfully; directory is fetching authority certificates (0/9)`, or
+`Stuck at …` followed by the blockage while arti believes it is stuck. arti designs that string for humans,
+not parsers, and its wording can change between releases: show it as
+diagnostic detail or log it, but act on `fraction`, `ready_for_traffic` and
+`blockage`. It is not localized, and it is empty once the service has stopped.
+
 ### Blockage kinds
 
 `TorStatus::blockage` carries the diagnostic the old wrapper threw away:

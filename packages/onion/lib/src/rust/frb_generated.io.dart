@@ -383,6 +383,7 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     wireObj.fraction = cst_encode_f_32(apiObj.fraction);
     wireObj.ready_for_traffic = cst_encode_bool(apiObj.readyForTraffic);
     wireObj.blockage = cst_encode_opt_box_autoadd_blockage(apiObj.blockage);
+    wireObj.stage = cst_encode_String(apiObj.stage);
     wireObj.transport = cst_encode_tor_transport(apiObj.transport);
   }
 
@@ -1280,6 +1281,8 @@ final class wire_cst_tor_status extends ffi.Struct {
   external bool ready_for_traffic;
 
   external ffi.Pointer<wire_cst_blockage> blockage;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> stage;
 
   @ffi.Int32()
   external int transport;
