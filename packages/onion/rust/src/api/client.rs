@@ -453,7 +453,8 @@ impl TorService {
 
 /// The Snowflake bridge lines Tor Browser ships, copied verbatim from
 /// `projects/tor-expert-bundle/pt_config.json` in `tpo/applications/
-/// tor-browser-build` (retrieved 2026-08-09).
+/// tor-browser-build` (re-checked 2026-10-07; last changed upstream by
+/// 01d3e9d3 on 2026-04-09).
 ///
 /// Hardcoded rather than fetched: a censored client cannot reach Moat to ask
 /// for them. That makes them a maintenance liability, so keep them literal and

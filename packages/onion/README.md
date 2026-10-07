@@ -62,7 +62,7 @@ defined in this crate, so an upstream change is absorbed here instead of
 rippling into the app, and the Dart side can switch exhaustively.
 
 **Snowflake is native and unmanaged.** Android and iOS use the precompiled
-IPtProxy 5.5.1 mobile library. It binds a local SOCKS5 listener; Arti's
+IPtProxy 5.6.0 mobile library. It binds a local SOCKS5 listener; Arti's
 `tor-ptmgr` connects to that listener as an unmanaged transport and never tries
 to launch a subprocess. Native process-wide leases keep one listener alive
 while multiple Flutter engines use it. The Android AAR and both iOS binary
@@ -224,9 +224,10 @@ aggregate.
 
 ## Snowflake limitations
 
-- The bridge parameters are the Fastly and AMP-cache configurations published
-  by Arti 0.44.0. Updating Arti requires reviewing these values against the
-  current official Snowflake configuration.
+- The bridge lines are copied verbatim from Tor Browser's
+  `projects/tor-expert-bundle/pt_config.json` (re-checked 2026-10-07). Updating
+  Arti or IPtProxy requires reviewing these values against the current official
+  Snowflake configuration.
 - Arti has no BridgeDB/moat client. A future dynamic bridge distribution flow
   would require a separate integration.
 - Changing between direct and Snowflake transport recreates the client; it is

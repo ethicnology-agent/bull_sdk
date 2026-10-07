@@ -27,8 +27,8 @@ apply plugin: 'com.android.library'
 def iptProxyBinary = configurations.create('iptProxyBinary')
 
 dependencies {
-    implementation 'com.netzarchitekten:IPtProxy:5.5.1'
-    add(iptProxyBinary.name, 'com.netzarchitekten:IPtProxy:5.5.1@aar') {
+    implementation 'com.netzarchitekten:IPtProxy:5.6.0'
+    add(iptProxyBinary.name, 'com.netzarchitekten:IPtProxy:5.6.0@aar') {
         transitive = false
     }
 }
@@ -47,7 +47,7 @@ def verifyIPtProxyBinary = tasks.register('verifyIPtProxyBinary') {
             }
         }
         def actual = digest.digest().encodeHex().toString()
-        def expected = '8692b0f8705dafde45ea791ef04ff75c26118f3e91677a4afce46b63df17616c'
+        def expected = '4eab74a060f8ebec908e31d03f0bf9daee386f586e054bd6f0a0a0d907192c32'
         if (actual != expected) {
             throw new GradleException("IPtProxy AAR checksum mismatch: ${actual}")
         }
