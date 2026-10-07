@@ -9,7 +9,23 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'simple.freezed.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+
+@freezed
+sealed class OutputDestination with _$OutputDestination {
+  const OutputDestination._();
+
+  const factory OutputDestination.silentPayment({
+    required String address,
+    required String scanKey,
+    required String spendKey,
+    int? label,
+  }) = OutputDestination_SilentPayment;
+  const factory OutputDestination.address({required String address}) =
+      OutputDestination_Address;
+  const factory OutputDestination.script({required String scriptHex}) =
+      OutputDestination_Script;
+}
 
 @freezed
 sealed class RecipientView with _$RecipientView {
@@ -36,6 +52,17 @@ sealed class SpError with _$SpError implements FrbException {
   const factory SpError.disposeTimedOut() = SpError_DisposeTimedOut;
   const factory SpError.simulationDrifted({required String detail}) =
       SpError_SimulationDrifted;
+  const factory SpError.tooManyCoins({required int count, required int max}) =
+      SpError_TooManyCoins;
+  const factory SpError.nothingToSendAfterFee({required BigInt remainderSat}) =
+      SpError_NothingToSendAfterFee;
+  const factory SpError.invalidDescriptor({required String reason}) =
+      SpError_InvalidDescriptor;
+  const factory SpError.signing({required String reason}) = SpError_Signing;
+  const factory SpError.signedPsbtMismatch({required String detail}) =
+      SpError_SignedPsbtMismatch;
+  const factory SpError.verification({required String reason}) =
+      SpError_Verification;
   const factory SpError.other({required String message}) = SpError_Other;
 }
 

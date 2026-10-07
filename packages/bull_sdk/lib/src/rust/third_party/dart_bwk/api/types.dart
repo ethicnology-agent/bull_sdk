@@ -7,7 +7,7 @@ import '../../../api/simple.dart';
 import '../../../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`
 
 enum CoinSource { sp, segwit, taproot, other }
 
@@ -46,6 +46,40 @@ class RegtestDefaults {
           blindbitUrl == other.blindbitUrl &&
           p2PNode == other.p2PNode &&
           electrumUrl == other.electrumUrl;
+}
+
+/// One output of a simulated transaction, in transaction order.
+class SimulatedOutput {
+  final int vout;
+  final BigInt amountSat;
+  final OutputDestination destination;
+
+  /// Pays the account's own SP change address.
+  final bool isChange;
+
+  const SimulatedOutput({
+    required this.vout,
+    required this.amountSat,
+    required this.destination,
+    required this.isChange,
+  });
+
+  @override
+  int get hashCode =>
+      vout.hashCode ^
+      amountSat.hashCode ^
+      destination.hashCode ^
+      isChange.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SimulatedOutput &&
+          runtimeType == other.runtimeType &&
+          vout == other.vout &&
+          amountSat == other.amountSat &&
+          destination == other.destination &&
+          isChange == other.isChange;
 }
 
 class SpBalanceView {
@@ -112,6 +146,34 @@ class SpCoinView {
 
 enum SpNetwork { bitcoin, signet, testnet, regtest }
 
+/// An output of a signed transaction that the account owns, as
+/// [`crate::api::sp_account::SpAccount::owned_outputs`] finds it.
+class SpOwnedOutput {
+  final int vout;
+  final BigInt amountSat;
+
+  /// Paid to the account's SP change label (`m = 0`).
+  final bool isChange;
+
+  const SpOwnedOutput({
+    required this.vout,
+    required this.amountSat,
+    required this.isChange,
+  });
+
+  @override
+  int get hashCode => vout.hashCode ^ amountSat.hashCode ^ isChange.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SpOwnedOutput &&
+          runtimeType == other.runtimeType &&
+          vout == other.vout &&
+          amountSat == other.amountSat &&
+          isChange == other.isChange;
+}
+
 /// Typed payment direction surfaced to Dart so consumers can `match` on
 /// it exhaustively instead of string-comparing.
 enum SpPaymentDirection { receive, send, selfSend }
@@ -174,22 +236,50 @@ enum SpRecipientAddressKind { sp, standard }
 
 enum SubAccountKind { segwit, taproot }
 
+/// A transaction the user confirms before it is signed.
+///
+/// `psbt` is the unsigned PSBTv2 to hand to
+/// [`crate::api::sp_signer::sign_silent_payment_psbt`]; every other field is
+/// read from it, for display. [`crate::api::sp_account::SpAccount::finalize`]
+/// takes the simulation back with the signed PSBT and refuses one whose
+/// transaction differs from it.
 class TxSimulation {
+  /// The coins spent, in transaction order.
   final List<UnifiedCoinView> inputs;
+
+  /// The requested recipients, a max amount resolved to what it pays.
   final List<RecipientView> outputs;
+
+  /// Every output of the transaction, change included.
+  final List<SimulatedOutput> txOutputs;
   final BigInt feeSat;
   final BigInt changeSat;
+
+  /// The fee rate the transaction was built at, in sat/vB.
+  final BigInt feeRateSatVb;
+
+  /// The unsigned PSBTv2.
+  final Uint8List psbt;
 
   const TxSimulation({
     required this.inputs,
     required this.outputs,
+    required this.txOutputs,
     required this.feeSat,
     required this.changeSat,
+    required this.feeRateSatVb,
+    required this.psbt,
   });
 
   @override
   int get hashCode =>
-      inputs.hashCode ^ outputs.hashCode ^ feeSat.hashCode ^ changeSat.hashCode;
+      inputs.hashCode ^
+      outputs.hashCode ^
+      txOutputs.hashCode ^
+      feeSat.hashCode ^
+      changeSat.hashCode ^
+      feeRateSatVb.hashCode ^
+      psbt.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -198,8 +288,11 @@ class TxSimulation {
           runtimeType == other.runtimeType &&
           inputs == other.inputs &&
           outputs == other.outputs &&
+          txOutputs == other.txOutputs &&
           feeSat == other.feeSat &&
-          changeSat == other.changeSat;
+          changeSat == other.changeSat &&
+          feeRateSatVb == other.feeRateSatVb &&
+          psbt == other.psbt;
 }
 
 enum UnifiedCoinStatus { unconfirmed, unspent, spent }

@@ -301,18 +301,87 @@ pub enum SpError {
     ScannerAlreadyRunning,
     DisposeTimedOut,
     SimulationDrifted { detail: String },
+    TooManyCoins { count: u32, max: u32 },
+    NothingToSendAfterFee { remainder_sat: u64 },
+    InvalidDescriptor { reason: String },
+    Signing { reason: String },
+    SignedPsbtMismatch { detail: String },
+    Verification { reason: String },
     Other { message: String },
 }
 
 impl From<dart_bwk::api::types::SpError> for SpError {
     fn from(val: dart_bwk::api::types::SpError) -> SpError {
+        use dart_bwk::api::types::SpError as E;
         match val {
-            dart_bwk::api::types::SpError::ScannerAlreadyRunning => SpError::ScannerAlreadyRunning,
-            dart_bwk::api::types::SpError::DisposeTimedOut => SpError::DisposeTimedOut,
-            dart_bwk::api::types::SpError::SimulationDrifted { detail } => {
-                SpError::SimulationDrifted { detail }
+            E::ScannerAlreadyRunning => SpError::ScannerAlreadyRunning,
+            E::DisposeTimedOut => SpError::DisposeTimedOut,
+            E::SimulationDrifted { detail } => SpError::SimulationDrifted { detail },
+            E::TooManyCoins { count, max } => SpError::TooManyCoins { count, max },
+            E::NothingToSendAfterFee { remainder_sat } => {
+                SpError::NothingToSendAfterFee { remainder_sat }
             }
-            dart_bwk::api::types::SpError::Other { message } => SpError::Other { message },
+            E::InvalidDescriptor { reason } => SpError::InvalidDescriptor { reason },
+            E::Signing { reason } => SpError::Signing { reason },
+            E::SignedPsbtMismatch { detail } => SpError::SignedPsbtMismatch { detail },
+            E::Verification { reason } => SpError::Verification { reason },
+            E::Other { message } => SpError::Other { message },
+        }
+    }
+}
+
+// Where a simulated output pays: carries data, so it needs a mirror for the
+// same reason as the enums above.
+#[flutter_rust_bridge::frb(mirror(dart_bwk::api::types::OutputDestination))]
+pub enum OutputDestination {
+    SilentPayment {
+        address: String,
+        scan_key: String,
+        spend_key: String,
+        label: Option<u32>,
+    },
+    Address { address: String },
+    Script { script_hex: String },
+}
+
+impl From<OutputDestination> for dart_bwk::api::types::OutputDestination {
+    fn from(val: OutputDestination) -> dart_bwk::api::types::OutputDestination {
+        use dart_bwk::api::types::OutputDestination as D;
+        match val {
+            OutputDestination::SilentPayment {
+                address,
+                scan_key,
+                spend_key,
+                label,
+            } => D::SilentPayment {
+                address,
+                scan_key,
+                spend_key,
+                label,
+            },
+            OutputDestination::Address { address } => D::Address { address },
+            OutputDestination::Script { script_hex } => D::Script { script_hex },
+        }
+    }
+}
+
+impl From<dart_bwk::api::types::OutputDestination> for OutputDestination {
+    fn from(val: dart_bwk::api::types::OutputDestination) -> OutputDestination {
+        use dart_bwk::api::types::OutputDestination as D;
+        match val {
+            D::SilentPayment {
+                address,
+                scan_key,
+                spend_key,
+                label,
+            } => OutputDestination::SilentPayment {
+                address,
+                scan_key,
+                spend_key,
+                label,
+            },
+            D::Address { address } => OutputDestination::Address { address },
+            D::Script { script_hex } => OutputDestination::Script { script_hex },
         }
     }
 }

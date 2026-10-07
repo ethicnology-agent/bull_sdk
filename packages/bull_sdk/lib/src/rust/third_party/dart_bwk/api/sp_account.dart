@@ -8,6 +8,7 @@ import '../../../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'types.dart';
 
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `DescribedPsbt`, `WantedDestination`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `drop`
 
 Future<SpRecipientAddressKind> validateRecipientAddress({
@@ -35,7 +36,7 @@ abstract class SpAccount implements RustOpaqueInterface {
   int blockHeight();
 
   /// Start broadcasting a signed transaction to the network via Electrum.
-  /// tx_hex: hex-encoded raw transaction bytes (hex::encode the sign_psbt result).
+  /// tx_hex: hex-encoded raw transaction bytes.
   /// Completion is delivered as Broadcasted or BroadcastFailed notification.
   Future<void> broadcast({required String txHex});
 
@@ -45,51 +46,30 @@ abstract class SpAccount implements RustOpaqueInterface {
 
   BigInt confirmedBalance();
 
-  /// Build a hot SP account from a BIP39 mnemonic. SP scan/spend keys are
-  /// derived the standard BIP352 way (bwk_sp `new_from_mnemonic`), so the same
-  /// mnemonic yields the same SP wallet as other BIP352 software. The taproot
-  /// sub-account is added from the same mnemonic.
+  /// Open a watch-only SP account, creating its store under
+  /// `data_dir/name` or reopening the one already there.
   ///
-  /// Not `#[frb(sync)]`: this derives the BIP352 keys, opens `account.sqlite`,
-  /// opens the header store and spawns the scan runtime, which would freeze
-  /// the Dart UI isolate for the whole of it, on first setup and on every
-  /// session re-establish including cold start. Async rather than the usual
-  /// notification-thread pattern because there is no sink to push to yet:
-  /// this call creates the `SpAccount` that owns the single
-  /// `StreamSink<SpNotification>`. FRB runs it on a worker isolate.
-  static Future<SpAccount> createFromMnemonic({
+  /// `sp_descriptor` is a BIP392 `sp(scan_priv, spend_pub)` descriptor. A
+  /// descriptor carrying the spend secret key is refused: the account holds
+  /// no spend authority. `taproot_descriptor`, when given, is the public
+  /// descriptor of the BIP86 sub-account,
+  /// `tr([fingerprint/86'/coin'/0']xpub/<0;1>/*)`; private keys in it are
+  /// refused. Neither descriptor is written to disk: only coins, labels,
+  /// history and scan progress are persisted (sqlite), so a caller reopens
+  /// an account by passing the descriptors again.
+  ///
+  /// Not `#[frb(sync)]`: this opens `account.sqlite`, opens the header store
+  /// and spawns the scan runtime, which would freeze the Dart UI isolate for
+  /// the whole of it, on first setup and on every session re-establish
+  /// including cold start. Async rather than the usual notification-thread
+  /// pattern because there is no sink to push to yet: this call creates the
+  /// `SpAccount` that owns the single `StreamSink<SpNotification>`. FRB runs
+  /// it on a worker isolate.
+  static Future<SpAccount> createFromDescriptors({
     required String name,
     required SpNetwork network,
-    required String mnemonic,
-    required String blindbitUrl,
-    required String electrumUrl,
-    required String dataDir,
-    int? birthdayHeight,
-    BigInt? dustLimit,
-  }) => BullSdk.instance.api.dartBwkApiSpAccountSpAccountCreateFromMnemonic(
-    name: name,
-    network: network,
-    mnemonic: mnemonic,
-    blindbitUrl: blindbitUrl,
-    electrumUrl: electrumUrl,
-    dataDir: dataDir,
-    birthdayHeight: birthdayHeight,
-    dustLimit: dustLimit,
-  );
-
-  /// [create_from_mnemonic] with an explicit scan runtime.
-  ///
-  /// Not `#[frb(sync)]`: this derives the BIP352 keys, opens `account.sqlite`,
-  /// opens the header store and spawns the scan runtime, which would freeze
-  /// the Dart UI isolate for the whole of it, on first setup and on every
-  /// session re-establish including cold start. Async rather than the usual
-  /// notification-thread pattern because there is no sink to push to yet:
-  /// this call creates the `SpAccount` that owns the single
-  /// `StreamSink<SpNotification>`. FRB runs it on a worker isolate.
-  static Future<SpAccount> createFromMnemonicWithScanRuntime({
-    required String name,
-    required SpNetwork network,
-    required String mnemonic,
+    required String spDescriptor,
+    String? taprootDescriptor,
     required String blindbitUrl,
     required String electrumUrl,
     required String dataDir,
@@ -97,19 +77,19 @@ abstract class SpAccount implements RustOpaqueInterface {
     BigInt? dustLimit,
     int? fetchConcurrencyFactor,
     int? matchConcurrencyFactor,
-  }) => BullSdk.instance.api
-      .dartBwkApiSpAccountSpAccountCreateFromMnemonicWithScanRuntime(
-        name: name,
-        network: network,
-        mnemonic: mnemonic,
-        blindbitUrl: blindbitUrl,
-        electrumUrl: electrumUrl,
-        dataDir: dataDir,
-        birthdayHeight: birthdayHeight,
-        dustLimit: dustLimit,
-        fetchConcurrencyFactor: fetchConcurrencyFactor,
-        matchConcurrencyFactor: matchConcurrencyFactor,
-      );
+  }) => BullSdk.instance.api.dartBwkApiSpAccountSpAccountCreateFromDescriptors(
+    name: name,
+    network: network,
+    spDescriptor: spDescriptor,
+    taprootDescriptor: taprootDescriptor,
+    blindbitUrl: blindbitUrl,
+    electrumUrl: electrumUrl,
+    dataDir: dataDir,
+    birthdayHeight: birthdayHeight,
+    dustLimit: dustLimit,
+    fetchConcurrencyFactor: fetchConcurrencyFactor,
+    matchConcurrencyFactor: matchConcurrencyFactor,
+  );
 
   /// Cooperatively stop the notification thread and release the inner
   /// Account (and its sqlite handle). Safe to call multiple times; the
@@ -122,32 +102,23 @@ abstract class SpAccount implements RustOpaqueInterface {
   /// Arc may outlive the Dart-side handle for a finalizer cycle, leaking
   /// an open sqlite connection in the meantime.
   ///
-  /// If a `scan_once` is in flight when `dispose()` is called, the
-  /// scan still holds the inner mutex via `&mut self`. Flipping
-  /// `scan_cancel` causes spdk-core's `process_blocks` to bail at the
-  /// next per-block checkpoint, the scan returns, and the inner Account
-  /// becomes free to drop. Without this signal, the next
-  /// `SpAccount::load` would open `account.sqlite` while the previous
-  /// scan was still writing — the exact double-handle race we are
-  /// trying to prevent.
+  /// If a `scan_once` is in flight when `dispose()` is called, flipping
+  /// `scan_cancel` makes the scan bail at the next per-block checkpoint and
+  /// the inner Account becomes free to drop. Without this signal, the next
+  /// account opened on the same `data_dir` would open `account.sqlite`
+  /// while the previous scan was still writing — the exact double-handle
+  /// race we are trying to prevent.
   ///
-  /// Not `#[frb(sync)]`: dispose() now waits for an in-flight
-  /// scan to release the lock, which can take up to ~30 seconds (the
-  /// `update_time` checkpoint cadence in spdk-core's `process_blocks`)
-  /// in the worst case. Running that on the Dart UI isolate would freeze
-  /// the UI. FRB dispatches `async` methods on a worker isolate.
+  /// Not `#[frb(sync)]`: dispose() waits for an in-flight call to release
+  /// the lock, which can take seconds. Running that on the Dart UI isolate
+  /// would freeze the UI. FRB dispatches `async` methods on a worker isolate.
   ///
-  /// Return contract: returns `Ok(())` when the inner mutex
-  /// became reacquirable within the bounded budget (i.e. the previous
-  /// holder of the lock — a scan, a long `unified_history`/
-  /// `unified_coins`, an `prepare_psbt`/`finalize_psbt`/`sign_psbt`
-  /// invocation — actually released it). Returns `Err("dispose timed
-  /// out: inner lock still held; retry or restart")` when the budget
-  /// elapsed without the lock becoming free. The caller MUST treat the
-  /// timeout case as "previous SpAccount is still in flight" and MUST
-  /// NOT proceed to call `SpAccount::load(...)` against the same
-  /// `data_dir` — doing so would race the sqlite handle and is the
-  /// exact double-open we are trying to prevent.
+  /// Return contract: returns `Ok(())` when the inner mutex became
+  /// reacquirable within the bounded budget. Returns
+  /// [`SpError::DisposeTimedOut`] when the budget elapsed without the lock
+  /// becoming free. The caller MUST treat the timeout case as "previous
+  /// SpAccount is still in flight" and MUST NOT open another account on the
+  /// same `data_dir`.
   ///
   /// We still flip the cancel + shutdown flags, join the notification
   /// thread, and drop the cached sink on the timeout path so the
@@ -157,41 +128,30 @@ abstract class SpAccount implements RustOpaqueInterface {
   @override
   Future<void> dispose();
 
-  /// Build and serialize an unsigned PSBT ready for signing, consuming the
-  /// `TxSimulation` the user confirmed in the previous `prepare_psbt`.
+  /// Verify a signed PSBT against the simulation the user confirmed and
+  /// extract the transaction. Returns the raw serialized transaction;
+  /// hex-encode it for [broadcast].
   ///
-  /// This method DOES NOT run coin selection: it pins the input set and the
-  /// output set to exactly what the simulation contains. If the coin store
-  /// has drifted since the simulation was produced (an incoming SP coin
-  /// from a completed scan, an Electrum push for a sub-account coin, a
-  /// reorg evicting an input), the method returns
-  /// [`SpError::SimulationDrifted`] so the caller can surface a re-confirm
-  /// prompt instead of broadcasting a tx that differs from what the user
-  /// reviewed.
-  ///
-  /// Rationale: finalize → sign → broadcast is irreversible; an auto-
-  /// re-selection here could ship a tx with different inputs, fee, or
-  /// change address from the one shown on the Confirm page.
-  Future<Uint8List> finalizePsbt({required TxSimulation simulation});
+  /// Refused, with nothing extracted, when:
+  /// - `simulation` no longer describes its own unsigned PSBT, or
+  ///   `signed_psbt` spends other inputs, pays other outputs (amount,
+  ///   script, silent-payment recipient keys) or pays another fee:
+  ///   [`SpError::SignedPsbtMismatch`];
+  /// - a spent coin is no longer in the wallet or no longer spendable:
+  ///   [`SpError::SimulationDrifted`];
+  /// - the account's BIP375 verification (shares, DLEQ proofs, every
+  ///   silent-payment output script) or the signatures fail:
+  ///   [`SpError::Verification`].
+  Future<Uint8List> finalize({
+    required TxSimulation simulation,
+    required List<int> signedPsbt,
+  });
 
   Stream<SpNotification> init();
 
   bool isScanning();
 
   int? lastScannedHeight();
-
-  /// Reopen an account already on disk.
-  ///
-  /// Not `#[frb(sync)]` for the same reason as [create_from_mnemonic]: it
-  /// opens `account.sqlite` and the header store, and it runs before the
-  /// notification sink exists.
-  static Future<SpAccount> load({
-    required String name,
-    required String dataDir,
-  }) => BullSdk.instance.api.dartBwkApiSpAccountSpAccountLoad(
-    name: name,
-    dataDir: dataDir,
-  );
 
   /// Earliest height a scan may start from (taproot activation on mainnet, a
   /// low constant on test networks). The scan start chooser uses this as its
@@ -210,25 +170,37 @@ abstract class SpAccount implements RustOpaqueInterface {
 
   /// Reveal a fresh receive address for the BIP86 taproot sub-account.
   ///
-  /// Each call derives the next never-before-issued address via
-  /// [`bwk::Account::new_addr`], which bumps and persists the receive-chain
-  /// tip (sqlite under `PersistenceKind::Sqlite`) *before* deriving. So an
-  /// address is never handed out twice — even across restarts, and
-  /// regardless of whether the previously revealed one has received a coin
-  /// yet. Callers MUST treat this as "give me a new address to hand out"
-  /// (an explicit user action), never as a stable display getter.
+  /// Each call derives the next never-before-issued address, bumping and
+  /// persisting the receive-chain tip *before* deriving. So an address is
+  /// never handed out twice — even across restarts, and regardless of
+  /// whether the previously revealed one has received a coin yet. Callers
+  /// MUST treat this as "give me a new address to hand out" (an explicit
+  /// user action), never as a stable display getter.
   ///
   /// Store-only / pure-descriptor: it never contacts Electrum or Blindbit,
   /// so it does not violate the no-chain-query-outside-`scan_once` invariant.
   ///
-  /// New SP wallets only register a taproot sub-account. Legacy wallets that
-  /// were persisted with both a segwit and a taproot sub-account keep both
-  /// for backward compatibility; the segwit one is only used internally
-  /// (change / payment provenance) and never exposes a hand-out address.
+  /// Fails when the account was opened without a taproot descriptor.
   Future<String> newTaprootAddress();
 
-  /// Preview a transaction: run coin selection and return fee/change estimates.
-  /// Does NOT produce a signable PSBT — use finalize_psbt() for that.
+  /// The outputs of a signed transaction (the raw bytes [finalize]
+  /// returns) that this account owns. They are found the way the scanner
+  /// finds payments, from the scan key, the transaction's input public keys
+  /// and the account's labels, independently of the code that built the
+  /// transaction. Call it before broadcast to check that the expected SP
+  /// change is there, reported with `is_change`.
+  ///
+  /// Every input must spend a coin of this account (SP or sub-account), to
+  /// know its prevout; otherwise the call fails.
+  Future<List<SpOwnedOutput>> ownedOutputs({required List<int> txBytes});
+
+  /// Build the transaction to confirm: run coin selection, build the
+  /// unsigned PSBTv2 with the selected coins pinned, and describe it.
+  ///
+  /// The returned [`TxSimulation`] carries the PSBT to sign
+  /// ([`crate::api::sp_signer::sign_silent_payment_psbt`]) and what it
+  /// spends and pays, read from that PSBT. Silent-payment outputs are left
+  /// unscripted: the signer derives them, and `finalize` verifies them.
   ///
   /// feerate_sat_vb: fee rate in satoshis per virtual byte.
   Future<TxSimulation> preparePsbt({
@@ -238,9 +210,7 @@ abstract class SpAccount implements RustOpaqueInterface {
 
   /// Restart the sub-account electrum listeners in place (stop then start),
   /// keeping the account and its notification channel alive. Used on app
-  /// foreground to recover after Android killed the backgrounded socket:
-  /// `stop_electrum` reclaims each listener's statuses store, so `start_electrum`
-  /// reconnects + re-subscribes + re-syncs (re-detecting coins received away).
+  /// foreground to recover after Android killed the backgrounded socket.
   Future<void> restartElectrum();
 
   /// USER-TRIGGERED ONLY. The bb-mobile app contract is that this method
@@ -249,53 +219,37 @@ abstract class SpAccount implements RustOpaqueInterface {
   /// Do not call from app lifecycle hooks, route observers, timers, or
   /// background services. Doing so violates the documented invariant.
   ///
-  /// Not `#[frb(sync)]`: the underlying bwk_sp scan walker is fully
-  /// synchronous and would freeze the Dart UI isolate for the entire
-  /// scan duration if dispatched there. FRB runs `async` methods on a
-  /// worker isolate. The inner mutex is held for the full scan — that
-  /// serializes against other methods, which is acceptable because SP
-  /// scans are user-triggered and rare.
+  /// Starts a one-shot scan from `start_height` (None resumes from the last
+  /// scanned position; bwk_sp clamps it to the birthday height). The scan
+  /// itself runs on a bwk_sp thread and reports through the notification
+  /// channel; poll [is_scanning] or wait for `ScanCompleted`.
   ///
   /// Cancellation: `stop_scan` flips `self.scan_cancel` (a clone of the
   /// bwk_sp::Account's internal `scanner_stop`), which causes the scan
-  /// to bail at the next per-block checkpoint inside spdk-core's
-  /// `process_blocks`. bwk_sp resets the cancel flag at the start of
-  /// every OneShot run, so a stale `true` from a previous cancel does
-  /// not affect subsequent scans.
+  /// to bail at the next per-block checkpoint. bwk_sp resets the cancel
+  /// flag at the start of every OneShot run, so a stale `true` from a
+  /// previous cancel does not affect subsequent scans.
   Future<void> scanOnce({int? startHeight});
 
   /// Update the Blindbit backend URL at runtime.
   void setBlindbitUrl({required String url});
 
-  /// Update the Electrum server endpoint for all sub-accounts (in-memory, no persist).
-  /// Accepts `[scheme://]host[:port]` with `scheme` ∈ `{tcp, ssl}`.
+  /// Point every sub-account, the header validator and the broadcaster at
+  /// this Electrum server (in memory: the account's config is not
+  /// persisted). Accepts `[scheme://]host[:port]` with `scheme` ∈ `{tcp, ssl}`.
   void setElectrumUrl({required String url});
-
-  /// Sign and finalize an unsigned PSBT (returned by finalize_psbt).
-  /// Returns the raw serialized transaction bytes.
-  /// Hex-encode the result before passing to broadcast().
-  Future<Uint8List> signPsbt({required List<int> psbt});
 
   String spAddress();
 
-  /// Start the always-on electrum listeners for every sub-account (segwit +
-  /// taproot) so incoming txs are pushed in real time without a chain scan.
-  /// Set the sub-account electrum URL first via `set_electrum_url`. Idempotent:
-  /// bwk only spawns a listener when one is not already running. Not
+  /// Start the always-on electrum listeners for every sub-account so
+  /// incoming txs are pushed in real time without a chain scan. Set the
+  /// sub-account electrum URL first via `set_electrum_url`. Not
   /// `#[frb(sync)]` so the listener setup runs off the Dart UI isolate.
   Future<void> startElectrum();
 
   /// Cooperatively cancel an in-flight `scan_once`. Returns immediately
-  /// without touching the inner mutex (which the scan call still holds
-  /// via `&mut self` for its full duration); spdk-core's `process_blocks`
-  /// observes `scan_cancel` between blocks and returns `Ok(())` after
-  /// persisting state. The scan handler then emits `ScanCompleted` and
-  /// the cubit's `_onNotification` transitions out of `isScanning`.
-  ///
-  /// Was `#[frb(sync)]`: that meant Dart's Stop button ran on the
-  /// UI isolate and blocked waiting for the inner mutex held by the
-  /// scan, freezing the UI for the rest of the scan. The new
-  /// signature is async + non-locking; the Stop button never deadlocks.
+  /// without touching the inner mutex; the scan observes `scan_cancel`
+  /// between blocks and returns after persisting state.
   ///
   /// Idempotent: re-flipping an already-`true` flag is a no-op.
   Future<void> stopScan();

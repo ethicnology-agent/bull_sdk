@@ -12,6 +12,376 @@ part of 'simple.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
+mixin _$OutputDestination {
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OutputDestination);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'OutputDestination()';
+}
+
+
+}
+
+/// @nodoc
+class $OutputDestinationCopyWith<$Res>  {
+$OutputDestinationCopyWith(OutputDestination _, $Res Function(OutputDestination) __);
+}
+
+
+/// Adds pattern-matching-related methods to [OutputDestination].
+extension OutputDestinationPatterns on OutputDestination {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( OutputDestination_SilentPayment value)?  silentPayment,TResult Function( OutputDestination_Address value)?  address,TResult Function( OutputDestination_Script value)?  script,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case OutputDestination_SilentPayment() when silentPayment != null:
+return silentPayment(_that);case OutputDestination_Address() when address != null:
+return address(_that);case OutputDestination_Script() when script != null:
+return script(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( OutputDestination_SilentPayment value)  silentPayment,required TResult Function( OutputDestination_Address value)  address,required TResult Function( OutputDestination_Script value)  script,}){
+final _that = this;
+switch (_that) {
+case OutputDestination_SilentPayment():
+return silentPayment(_that);case OutputDestination_Address():
+return address(_that);case OutputDestination_Script():
+return script(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( OutputDestination_SilentPayment value)?  silentPayment,TResult? Function( OutputDestination_Address value)?  address,TResult? Function( OutputDestination_Script value)?  script,}){
+final _that = this;
+switch (_that) {
+case OutputDestination_SilentPayment() when silentPayment != null:
+return silentPayment(_that);case OutputDestination_Address() when address != null:
+return address(_that);case OutputDestination_Script() when script != null:
+return script(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String address,  String scanKey,  String spendKey,  int? label)?  silentPayment,TResult Function( String address)?  address,TResult Function( String scriptHex)?  script,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case OutputDestination_SilentPayment() when silentPayment != null:
+return silentPayment(_that.address,_that.scanKey,_that.spendKey,_that.label);case OutputDestination_Address() when address != null:
+return address(_that.address);case OutputDestination_Script() when script != null:
+return script(_that.scriptHex);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String address,  String scanKey,  String spendKey,  int? label)  silentPayment,required TResult Function( String address)  address,required TResult Function( String scriptHex)  script,}) {final _that = this;
+switch (_that) {
+case OutputDestination_SilentPayment():
+return silentPayment(_that.address,_that.scanKey,_that.spendKey,_that.label);case OutputDestination_Address():
+return address(_that.address);case OutputDestination_Script():
+return script(_that.scriptHex);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String address,  String scanKey,  String spendKey,  int? label)?  silentPayment,TResult? Function( String address)?  address,TResult? Function( String scriptHex)?  script,}) {final _that = this;
+switch (_that) {
+case OutputDestination_SilentPayment() when silentPayment != null:
+return silentPayment(_that.address,_that.scanKey,_that.spendKey,_that.label);case OutputDestination_Address() when address != null:
+return address(_that.address);case OutputDestination_Script() when script != null:
+return script(_that.scriptHex);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class OutputDestination_SilentPayment extends OutputDestination {
+  const OutputDestination_SilentPayment({required this.address, required this.scanKey, required this.spendKey, this.label}): super._();
+  
+
+ final  String address;
+ final  String scanKey;
+ final  String spendKey;
+ final  int? label;
+
+/// Create a copy of OutputDestination
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$OutputDestination_SilentPaymentCopyWith<OutputDestination_SilentPayment> get copyWith => _$OutputDestination_SilentPaymentCopyWithImpl<OutputDestination_SilentPayment>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OutputDestination_SilentPayment&&(identical(other.address, address) || other.address == address)&&(identical(other.scanKey, scanKey) || other.scanKey == scanKey)&&(identical(other.spendKey, spendKey) || other.spendKey == spendKey)&&(identical(other.label, label) || other.label == label));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,address,scanKey,spendKey,label);
+
+@override
+String toString() {
+  return 'OutputDestination.silentPayment(address: $address, scanKey: $scanKey, spendKey: $spendKey, label: $label)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $OutputDestination_SilentPaymentCopyWith<$Res> implements $OutputDestinationCopyWith<$Res> {
+  factory $OutputDestination_SilentPaymentCopyWith(OutputDestination_SilentPayment value, $Res Function(OutputDestination_SilentPayment) _then) = _$OutputDestination_SilentPaymentCopyWithImpl;
+@useResult
+$Res call({
+ String address, String scanKey, String spendKey, int? label
+});
+
+
+
+
+}
+/// @nodoc
+class _$OutputDestination_SilentPaymentCopyWithImpl<$Res>
+    implements $OutputDestination_SilentPaymentCopyWith<$Res> {
+  _$OutputDestination_SilentPaymentCopyWithImpl(this._self, this._then);
+
+  final OutputDestination_SilentPayment _self;
+  final $Res Function(OutputDestination_SilentPayment) _then;
+
+/// Create a copy of OutputDestination
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? address = null,Object? scanKey = null,Object? spendKey = null,Object? label = freezed,}) {
+  return _then(OutputDestination_SilentPayment(
+address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String,scanKey: null == scanKey ? _self.scanKey : scanKey // ignore: cast_nullable_to_non_nullable
+as String,spendKey: null == spendKey ? _self.spendKey : spendKey // ignore: cast_nullable_to_non_nullable
+as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class OutputDestination_Address extends OutputDestination {
+  const OutputDestination_Address({required this.address}): super._();
+  
+
+ final  String address;
+
+/// Create a copy of OutputDestination
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$OutputDestination_AddressCopyWith<OutputDestination_Address> get copyWith => _$OutputDestination_AddressCopyWithImpl<OutputDestination_Address>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OutputDestination_Address&&(identical(other.address, address) || other.address == address));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,address);
+
+@override
+String toString() {
+  return 'OutputDestination.address(address: $address)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $OutputDestination_AddressCopyWith<$Res> implements $OutputDestinationCopyWith<$Res> {
+  factory $OutputDestination_AddressCopyWith(OutputDestination_Address value, $Res Function(OutputDestination_Address) _then) = _$OutputDestination_AddressCopyWithImpl;
+@useResult
+$Res call({
+ String address
+});
+
+
+
+
+}
+/// @nodoc
+class _$OutputDestination_AddressCopyWithImpl<$Res>
+    implements $OutputDestination_AddressCopyWith<$Res> {
+  _$OutputDestination_AddressCopyWithImpl(this._self, this._then);
+
+  final OutputDestination_Address _self;
+  final $Res Function(OutputDestination_Address) _then;
+
+/// Create a copy of OutputDestination
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? address = null,}) {
+  return _then(OutputDestination_Address(
+address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class OutputDestination_Script extends OutputDestination {
+  const OutputDestination_Script({required this.scriptHex}): super._();
+  
+
+ final  String scriptHex;
+
+/// Create a copy of OutputDestination
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$OutputDestination_ScriptCopyWith<OutputDestination_Script> get copyWith => _$OutputDestination_ScriptCopyWithImpl<OutputDestination_Script>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OutputDestination_Script&&(identical(other.scriptHex, scriptHex) || other.scriptHex == scriptHex));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,scriptHex);
+
+@override
+String toString() {
+  return 'OutputDestination.script(scriptHex: $scriptHex)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $OutputDestination_ScriptCopyWith<$Res> implements $OutputDestinationCopyWith<$Res> {
+  factory $OutputDestination_ScriptCopyWith(OutputDestination_Script value, $Res Function(OutputDestination_Script) _then) = _$OutputDestination_ScriptCopyWithImpl;
+@useResult
+$Res call({
+ String scriptHex
+});
+
+
+
+
+}
+/// @nodoc
+class _$OutputDestination_ScriptCopyWithImpl<$Res>
+    implements $OutputDestination_ScriptCopyWith<$Res> {
+  _$OutputDestination_ScriptCopyWithImpl(this._self, this._then);
+
+  final OutputDestination_Script _self;
+  final $Res Function(OutputDestination_Script) _then;
+
+/// Create a copy of OutputDestination
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? scriptHex = null,}) {
+  return _then(OutputDestination_Script(
+scriptHex: null == scriptHex ? _self.scriptHex : scriptHex // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$RecipientView {
 
  String get address; BigInt get amountSat; bool get isMax;
@@ -390,13 +760,19 @@ extension SpErrorPatterns on SpError {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SpError_ScannerAlreadyRunning value)?  scannerAlreadyRunning,TResult Function( SpError_DisposeTimedOut value)?  disposeTimedOut,TResult Function( SpError_SimulationDrifted value)?  simulationDrifted,TResult Function( SpError_Other value)?  other,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SpError_ScannerAlreadyRunning value)?  scannerAlreadyRunning,TResult Function( SpError_DisposeTimedOut value)?  disposeTimedOut,TResult Function( SpError_SimulationDrifted value)?  simulationDrifted,TResult Function( SpError_TooManyCoins value)?  tooManyCoins,TResult Function( SpError_NothingToSendAfterFee value)?  nothingToSendAfterFee,TResult Function( SpError_InvalidDescriptor value)?  invalidDescriptor,TResult Function( SpError_Signing value)?  signing,TResult Function( SpError_SignedPsbtMismatch value)?  signedPsbtMismatch,TResult Function( SpError_Verification value)?  verification,TResult Function( SpError_Other value)?  other,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case SpError_ScannerAlreadyRunning() when scannerAlreadyRunning != null:
 return scannerAlreadyRunning(_that);case SpError_DisposeTimedOut() when disposeTimedOut != null:
 return disposeTimedOut(_that);case SpError_SimulationDrifted() when simulationDrifted != null:
-return simulationDrifted(_that);case SpError_Other() when other != null:
+return simulationDrifted(_that);case SpError_TooManyCoins() when tooManyCoins != null:
+return tooManyCoins(_that);case SpError_NothingToSendAfterFee() when nothingToSendAfterFee != null:
+return nothingToSendAfterFee(_that);case SpError_InvalidDescriptor() when invalidDescriptor != null:
+return invalidDescriptor(_that);case SpError_Signing() when signing != null:
+return signing(_that);case SpError_SignedPsbtMismatch() when signedPsbtMismatch != null:
+return signedPsbtMismatch(_that);case SpError_Verification() when verification != null:
+return verification(_that);case SpError_Other() when other != null:
 return other(_that);case _:
   return orElse();
 
@@ -415,13 +791,19 @@ return other(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SpError_ScannerAlreadyRunning value)  scannerAlreadyRunning,required TResult Function( SpError_DisposeTimedOut value)  disposeTimedOut,required TResult Function( SpError_SimulationDrifted value)  simulationDrifted,required TResult Function( SpError_Other value)  other,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SpError_ScannerAlreadyRunning value)  scannerAlreadyRunning,required TResult Function( SpError_DisposeTimedOut value)  disposeTimedOut,required TResult Function( SpError_SimulationDrifted value)  simulationDrifted,required TResult Function( SpError_TooManyCoins value)  tooManyCoins,required TResult Function( SpError_NothingToSendAfterFee value)  nothingToSendAfterFee,required TResult Function( SpError_InvalidDescriptor value)  invalidDescriptor,required TResult Function( SpError_Signing value)  signing,required TResult Function( SpError_SignedPsbtMismatch value)  signedPsbtMismatch,required TResult Function( SpError_Verification value)  verification,required TResult Function( SpError_Other value)  other,}){
 final _that = this;
 switch (_that) {
 case SpError_ScannerAlreadyRunning():
 return scannerAlreadyRunning(_that);case SpError_DisposeTimedOut():
 return disposeTimedOut(_that);case SpError_SimulationDrifted():
-return simulationDrifted(_that);case SpError_Other():
+return simulationDrifted(_that);case SpError_TooManyCoins():
+return tooManyCoins(_that);case SpError_NothingToSendAfterFee():
+return nothingToSendAfterFee(_that);case SpError_InvalidDescriptor():
+return invalidDescriptor(_that);case SpError_Signing():
+return signing(_that);case SpError_SignedPsbtMismatch():
+return signedPsbtMismatch(_that);case SpError_Verification():
+return verification(_that);case SpError_Other():
 return other(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -436,13 +818,19 @@ return other(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SpError_ScannerAlreadyRunning value)?  scannerAlreadyRunning,TResult? Function( SpError_DisposeTimedOut value)?  disposeTimedOut,TResult? Function( SpError_SimulationDrifted value)?  simulationDrifted,TResult? Function( SpError_Other value)?  other,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SpError_ScannerAlreadyRunning value)?  scannerAlreadyRunning,TResult? Function( SpError_DisposeTimedOut value)?  disposeTimedOut,TResult? Function( SpError_SimulationDrifted value)?  simulationDrifted,TResult? Function( SpError_TooManyCoins value)?  tooManyCoins,TResult? Function( SpError_NothingToSendAfterFee value)?  nothingToSendAfterFee,TResult? Function( SpError_InvalidDescriptor value)?  invalidDescriptor,TResult? Function( SpError_Signing value)?  signing,TResult? Function( SpError_SignedPsbtMismatch value)?  signedPsbtMismatch,TResult? Function( SpError_Verification value)?  verification,TResult? Function( SpError_Other value)?  other,}){
 final _that = this;
 switch (_that) {
 case SpError_ScannerAlreadyRunning() when scannerAlreadyRunning != null:
 return scannerAlreadyRunning(_that);case SpError_DisposeTimedOut() when disposeTimedOut != null:
 return disposeTimedOut(_that);case SpError_SimulationDrifted() when simulationDrifted != null:
-return simulationDrifted(_that);case SpError_Other() when other != null:
+return simulationDrifted(_that);case SpError_TooManyCoins() when tooManyCoins != null:
+return tooManyCoins(_that);case SpError_NothingToSendAfterFee() when nothingToSendAfterFee != null:
+return nothingToSendAfterFee(_that);case SpError_InvalidDescriptor() when invalidDescriptor != null:
+return invalidDescriptor(_that);case SpError_Signing() when signing != null:
+return signing(_that);case SpError_SignedPsbtMismatch() when signedPsbtMismatch != null:
+return signedPsbtMismatch(_that);case SpError_Verification() when verification != null:
+return verification(_that);case SpError_Other() when other != null:
 return other(_that);case _:
   return null;
 
@@ -460,12 +848,18 @@ return other(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  scannerAlreadyRunning,TResult Function()?  disposeTimedOut,TResult Function( String detail)?  simulationDrifted,TResult Function( String message)?  other,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  scannerAlreadyRunning,TResult Function()?  disposeTimedOut,TResult Function( String detail)?  simulationDrifted,TResult Function( int count,  int max)?  tooManyCoins,TResult Function( BigInt remainderSat)?  nothingToSendAfterFee,TResult Function( String reason)?  invalidDescriptor,TResult Function( String reason)?  signing,TResult Function( String detail)?  signedPsbtMismatch,TResult Function( String reason)?  verification,TResult Function( String message)?  other,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SpError_ScannerAlreadyRunning() when scannerAlreadyRunning != null:
 return scannerAlreadyRunning();case SpError_DisposeTimedOut() when disposeTimedOut != null:
 return disposeTimedOut();case SpError_SimulationDrifted() when simulationDrifted != null:
-return simulationDrifted(_that.detail);case SpError_Other() when other != null:
+return simulationDrifted(_that.detail);case SpError_TooManyCoins() when tooManyCoins != null:
+return tooManyCoins(_that.count,_that.max);case SpError_NothingToSendAfterFee() when nothingToSendAfterFee != null:
+return nothingToSendAfterFee(_that.remainderSat);case SpError_InvalidDescriptor() when invalidDescriptor != null:
+return invalidDescriptor(_that.reason);case SpError_Signing() when signing != null:
+return signing(_that.reason);case SpError_SignedPsbtMismatch() when signedPsbtMismatch != null:
+return signedPsbtMismatch(_that.detail);case SpError_Verification() when verification != null:
+return verification(_that.reason);case SpError_Other() when other != null:
 return other(_that.message);case _:
   return orElse();
 
@@ -484,12 +878,18 @@ return other(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  scannerAlreadyRunning,required TResult Function()  disposeTimedOut,required TResult Function( String detail)  simulationDrifted,required TResult Function( String message)  other,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  scannerAlreadyRunning,required TResult Function()  disposeTimedOut,required TResult Function( String detail)  simulationDrifted,required TResult Function( int count,  int max)  tooManyCoins,required TResult Function( BigInt remainderSat)  nothingToSendAfterFee,required TResult Function( String reason)  invalidDescriptor,required TResult Function( String reason)  signing,required TResult Function( String detail)  signedPsbtMismatch,required TResult Function( String reason)  verification,required TResult Function( String message)  other,}) {final _that = this;
 switch (_that) {
 case SpError_ScannerAlreadyRunning():
 return scannerAlreadyRunning();case SpError_DisposeTimedOut():
 return disposeTimedOut();case SpError_SimulationDrifted():
-return simulationDrifted(_that.detail);case SpError_Other():
+return simulationDrifted(_that.detail);case SpError_TooManyCoins():
+return tooManyCoins(_that.count,_that.max);case SpError_NothingToSendAfterFee():
+return nothingToSendAfterFee(_that.remainderSat);case SpError_InvalidDescriptor():
+return invalidDescriptor(_that.reason);case SpError_Signing():
+return signing(_that.reason);case SpError_SignedPsbtMismatch():
+return signedPsbtMismatch(_that.detail);case SpError_Verification():
+return verification(_that.reason);case SpError_Other():
 return other(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -504,12 +904,18 @@ return other(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  scannerAlreadyRunning,TResult? Function()?  disposeTimedOut,TResult? Function( String detail)?  simulationDrifted,TResult? Function( String message)?  other,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  scannerAlreadyRunning,TResult? Function()?  disposeTimedOut,TResult? Function( String detail)?  simulationDrifted,TResult? Function( int count,  int max)?  tooManyCoins,TResult? Function( BigInt remainderSat)?  nothingToSendAfterFee,TResult? Function( String reason)?  invalidDescriptor,TResult? Function( String reason)?  signing,TResult? Function( String detail)?  signedPsbtMismatch,TResult? Function( String reason)?  verification,TResult? Function( String message)?  other,}) {final _that = this;
 switch (_that) {
 case SpError_ScannerAlreadyRunning() when scannerAlreadyRunning != null:
 return scannerAlreadyRunning();case SpError_DisposeTimedOut() when disposeTimedOut != null:
 return disposeTimedOut();case SpError_SimulationDrifted() when simulationDrifted != null:
-return simulationDrifted(_that.detail);case SpError_Other() when other != null:
+return simulationDrifted(_that.detail);case SpError_TooManyCoins() when tooManyCoins != null:
+return tooManyCoins(_that.count,_that.max);case SpError_NothingToSendAfterFee() when nothingToSendAfterFee != null:
+return nothingToSendAfterFee(_that.remainderSat);case SpError_InvalidDescriptor() when invalidDescriptor != null:
+return invalidDescriptor(_that.reason);case SpError_Signing() when signing != null:
+return signing(_that.reason);case SpError_SignedPsbtMismatch() when signedPsbtMismatch != null:
+return signedPsbtMismatch(_that.detail);case SpError_Verification() when verification != null:
+return verification(_that.reason);case SpError_Other() when other != null:
 return other(_that.message);case _:
   return null;
 
@@ -641,6 +1047,404 @@ class _$SpError_SimulationDriftedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? detail = null,}) {
   return _then(SpError_SimulationDrifted(
 detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SpError_TooManyCoins extends SpError {
+  const SpError_TooManyCoins({required this.count, required this.max}): super._();
+  
+
+ final  int count;
+ final  int max;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SpError_TooManyCoinsCopyWith<SpError_TooManyCoins> get copyWith => _$SpError_TooManyCoinsCopyWithImpl<SpError_TooManyCoins>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpError_TooManyCoins&&(identical(other.count, count) || other.count == count)&&(identical(other.max, max) || other.max == max));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,count,max);
+
+@override
+String toString() {
+  return 'SpError.tooManyCoins(count: $count, max: $max)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SpError_TooManyCoinsCopyWith<$Res> implements $SpErrorCopyWith<$Res> {
+  factory $SpError_TooManyCoinsCopyWith(SpError_TooManyCoins value, $Res Function(SpError_TooManyCoins) _then) = _$SpError_TooManyCoinsCopyWithImpl;
+@useResult
+$Res call({
+ int count, int max
+});
+
+
+
+
+}
+/// @nodoc
+class _$SpError_TooManyCoinsCopyWithImpl<$Res>
+    implements $SpError_TooManyCoinsCopyWith<$Res> {
+  _$SpError_TooManyCoinsCopyWithImpl(this._self, this._then);
+
+  final SpError_TooManyCoins _self;
+  final $Res Function(SpError_TooManyCoins) _then;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? count = null,Object? max = null,}) {
+  return _then(SpError_TooManyCoins(
+count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as int,max: null == max ? _self.max : max // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SpError_NothingToSendAfterFee extends SpError {
+  const SpError_NothingToSendAfterFee({required this.remainderSat}): super._();
+  
+
+ final  BigInt remainderSat;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SpError_NothingToSendAfterFeeCopyWith<SpError_NothingToSendAfterFee> get copyWith => _$SpError_NothingToSendAfterFeeCopyWithImpl<SpError_NothingToSendAfterFee>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpError_NothingToSendAfterFee&&(identical(other.remainderSat, remainderSat) || other.remainderSat == remainderSat));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,remainderSat);
+
+@override
+String toString() {
+  return 'SpError.nothingToSendAfterFee(remainderSat: $remainderSat)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SpError_NothingToSendAfterFeeCopyWith<$Res> implements $SpErrorCopyWith<$Res> {
+  factory $SpError_NothingToSendAfterFeeCopyWith(SpError_NothingToSendAfterFee value, $Res Function(SpError_NothingToSendAfterFee) _then) = _$SpError_NothingToSendAfterFeeCopyWithImpl;
+@useResult
+$Res call({
+ BigInt remainderSat
+});
+
+
+
+
+}
+/// @nodoc
+class _$SpError_NothingToSendAfterFeeCopyWithImpl<$Res>
+    implements $SpError_NothingToSendAfterFeeCopyWith<$Res> {
+  _$SpError_NothingToSendAfterFeeCopyWithImpl(this._self, this._then);
+
+  final SpError_NothingToSendAfterFee _self;
+  final $Res Function(SpError_NothingToSendAfterFee) _then;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? remainderSat = null,}) {
+  return _then(SpError_NothingToSendAfterFee(
+remainderSat: null == remainderSat ? _self.remainderSat : remainderSat // ignore: cast_nullable_to_non_nullable
+as BigInt,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SpError_InvalidDescriptor extends SpError {
+  const SpError_InvalidDescriptor({required this.reason}): super._();
+  
+
+ final  String reason;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SpError_InvalidDescriptorCopyWith<SpError_InvalidDescriptor> get copyWith => _$SpError_InvalidDescriptorCopyWithImpl<SpError_InvalidDescriptor>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpError_InvalidDescriptor&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,reason);
+
+@override
+String toString() {
+  return 'SpError.invalidDescriptor(reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SpError_InvalidDescriptorCopyWith<$Res> implements $SpErrorCopyWith<$Res> {
+  factory $SpError_InvalidDescriptorCopyWith(SpError_InvalidDescriptor value, $Res Function(SpError_InvalidDescriptor) _then) = _$SpError_InvalidDescriptorCopyWithImpl;
+@useResult
+$Res call({
+ String reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$SpError_InvalidDescriptorCopyWithImpl<$Res>
+    implements $SpError_InvalidDescriptorCopyWith<$Res> {
+  _$SpError_InvalidDescriptorCopyWithImpl(this._self, this._then);
+
+  final SpError_InvalidDescriptor _self;
+  final $Res Function(SpError_InvalidDescriptor) _then;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? reason = null,}) {
+  return _then(SpError_InvalidDescriptor(
+reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SpError_Signing extends SpError {
+  const SpError_Signing({required this.reason}): super._();
+  
+
+ final  String reason;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SpError_SigningCopyWith<SpError_Signing> get copyWith => _$SpError_SigningCopyWithImpl<SpError_Signing>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpError_Signing&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,reason);
+
+@override
+String toString() {
+  return 'SpError.signing(reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SpError_SigningCopyWith<$Res> implements $SpErrorCopyWith<$Res> {
+  factory $SpError_SigningCopyWith(SpError_Signing value, $Res Function(SpError_Signing) _then) = _$SpError_SigningCopyWithImpl;
+@useResult
+$Res call({
+ String reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$SpError_SigningCopyWithImpl<$Res>
+    implements $SpError_SigningCopyWith<$Res> {
+  _$SpError_SigningCopyWithImpl(this._self, this._then);
+
+  final SpError_Signing _self;
+  final $Res Function(SpError_Signing) _then;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? reason = null,}) {
+  return _then(SpError_Signing(
+reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SpError_SignedPsbtMismatch extends SpError {
+  const SpError_SignedPsbtMismatch({required this.detail}): super._();
+  
+
+ final  String detail;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SpError_SignedPsbtMismatchCopyWith<SpError_SignedPsbtMismatch> get copyWith => _$SpError_SignedPsbtMismatchCopyWithImpl<SpError_SignedPsbtMismatch>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpError_SignedPsbtMismatch&&(identical(other.detail, detail) || other.detail == detail));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,detail);
+
+@override
+String toString() {
+  return 'SpError.signedPsbtMismatch(detail: $detail)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SpError_SignedPsbtMismatchCopyWith<$Res> implements $SpErrorCopyWith<$Res> {
+  factory $SpError_SignedPsbtMismatchCopyWith(SpError_SignedPsbtMismatch value, $Res Function(SpError_SignedPsbtMismatch) _then) = _$SpError_SignedPsbtMismatchCopyWithImpl;
+@useResult
+$Res call({
+ String detail
+});
+
+
+
+
+}
+/// @nodoc
+class _$SpError_SignedPsbtMismatchCopyWithImpl<$Res>
+    implements $SpError_SignedPsbtMismatchCopyWith<$Res> {
+  _$SpError_SignedPsbtMismatchCopyWithImpl(this._self, this._then);
+
+  final SpError_SignedPsbtMismatch _self;
+  final $Res Function(SpError_SignedPsbtMismatch) _then;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? detail = null,}) {
+  return _then(SpError_SignedPsbtMismatch(
+detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SpError_Verification extends SpError {
+  const SpError_Verification({required this.reason}): super._();
+  
+
+ final  String reason;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SpError_VerificationCopyWith<SpError_Verification> get copyWith => _$SpError_VerificationCopyWithImpl<SpError_Verification>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SpError_Verification&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,reason);
+
+@override
+String toString() {
+  return 'SpError.verification(reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SpError_VerificationCopyWith<$Res> implements $SpErrorCopyWith<$Res> {
+  factory $SpError_VerificationCopyWith(SpError_Verification value, $Res Function(SpError_Verification) _then) = _$SpError_VerificationCopyWithImpl;
+@useResult
+$Res call({
+ String reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$SpError_VerificationCopyWithImpl<$Res>
+    implements $SpError_VerificationCopyWith<$Res> {
+  _$SpError_VerificationCopyWithImpl(this._self, this._then);
+
+  final SpError_Verification _self;
+  final $Res Function(SpError_Verification) _then;
+
+/// Create a copy of SpError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? reason = null,}) {
+  return _then(SpError_Verification(
+reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

@@ -114,80 +114,72 @@ if idx != -1:
         f.write(content)
 "
 
-# Step 6: TxSimulation is a real (concrete) dart_bwk struct whose 'outputs' field
-# is Vec<dart_bwk RecipientView>, but the mirror makes codegen reference
-# Vec<crate::api::simple::RecipientView> at TxSimulation's codec call sites.
-# Bridge those exact sites with .into() conversions (mirror <-> dart_bwk).
-python3 -c "
-with open('$FILE', 'r') as f:
-    content = f.read()
+# Step 6: a dart_bwk struct that FRB treats as transparent (TxSimulation,
+# SimulatedOutput) can hold a field whose type we mirror in the primary crate
+# (RecipientView, OutputDestination). Codegen then uses the mirror type at that
+# field's codec sites while the struct holds dart_bwk's own type. Convert at
+# exactly those sites, each searched for only inside its own impl block, so a
+# new field elsewhere in the struct does not break the patch.
+python3 - "$FILE" <<'PY'
+import re, sys
+path = sys.argv[1]
+content = open(path).read()
+REAL = 'dart_bwk::api::types::'
+MIRROR = 'crate::api::simple::'
+# (struct, field, mirrored type, is the field a Vec)
+FIELDS = [
+    ('TxSimulation', 'outputs', 'RecipientView', True),
+    ('SimulatedOutput', 'destination', 'OutputDestination', False),
+]
 
-# 6a: SseDecode for TxSimulation — decoded mirror Vec must be converted to the
-# dart_bwk field type before constructing the struct.
-content = content.replace(
-    '        let mut var_outputs = <Vec<crate::api::simple::RecipientView>>::sse_decode(deserializer);\n'
-    '        let mut var_feeSat = <u64>::sse_decode(deserializer);\n'
-    '        let mut var_changeSat = <u64>::sse_decode(deserializer);\n'
-    '        return dart_bwk::api::types::TxSimulation {\n'
-    '            inputs: var_inputs,\n'
-    '            outputs: var_outputs,',
-    '        let mut var_outputs = <Vec<crate::api::simple::RecipientView>>::sse_decode(deserializer);\n'
-    '        let mut var_feeSat = <u64>::sse_decode(deserializer);\n'
-    '        let mut var_changeSat = <u64>::sse_decode(deserializer);\n'
-    '        return dart_bwk::api::types::TxSimulation {\n'
-    '            inputs: var_inputs,\n'
-    '            outputs: var_outputs.into_iter().map(Into::into).collect::<Vec<dart_bwk::api::types::RecipientView>>(),',
-    1,
-)
+def camel(name):
+    head, *rest = name.split('_')
+    return head + ''.join(w[:1].upper() + w[1:] for w in rest)
 
-# 6b: SseEncode for TxSimulation — convert dart_bwk field to mirror before encode.
-content = content.replace(
-    '        <Vec<crate::api::simple::RecipientView>>::sse_encode(self.outputs, serializer);',
-    '        <Vec<crate::api::simple::RecipientView>>::sse_encode(\n'
-    '            self.outputs.into_iter().map(Into::into).collect::<Vec<crate::api::simple::RecipientView>>(),\n'
-    '            serializer,\n'
-    '        );',
-    1,
-)
+def snake(name):
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
 
-# 6c: IntoDart for FrbWrapper<TxSimulation> — convert dart_bwk field to mirror.
-content = content.replace(
-    '        [\n'
-    '            self.0.inputs.into_into_dart().into_dart(),\n'
-    '            self.0.outputs.into_into_dart().into_dart(),\n'
-    '            self.0.fee_sat.into_into_dart().into_dart(),\n'
-    '            self.0.change_sat.into_into_dart().into_dart(),\n'
-    '        ]',
-    '        [\n'
-    '            self.0.inputs.into_into_dart().into_dart(),\n'
-    '            self.0.outputs.into_iter().map(|o| -> crate::api::simple::RecipientView { o.into() }).collect::<Vec<_>>().into_into_dart().into_dart(),\n'
-    '            self.0.fee_sat.into_into_dart().into_dart(),\n'
-    '            self.0.change_sat.into_into_dart().into_dart(),\n'
-    '        ]',
-    1,
-)
+def block(header):
+    start = content.find(header)
+    if start == -1:
+        sys.exit('fix_frb_generated: missing ' + header)
+    ends = [e for e in (content.find('\nimpl ', start + 1), content.find('\n    impl ', start + 1)) if e != -1]
+    return start, (min(ends) if ends else len(content))
 
-# 7d: CstDecode for wire_cst_tx_simulation — convert mirror Vec to dart_bwk field.
-content = content.replace(
-    '            dart_bwk::api::types::TxSimulation {\n'
-    '                inputs: self.inputs.cst_decode(),\n'
-    '                outputs: self.outputs.cst_decode(),',
-    '            dart_bwk::api::types::TxSimulation {\n'
-    '                inputs: self.inputs.cst_decode(),\n'
-    '                outputs: { let __m: Vec<crate::api::simple::RecipientView> = self.outputs.cst_decode(); __m.into_iter().map(Into::into).collect::<Vec<dart_bwk::api::types::RecipientView>>() },',
-    1,
-)
+def patch(header, old, new):
+    global content
+    start, end = block(header)
+    body = content[start:end]
+    if old not in body:
+        sys.exit('fix_frb_generated: %r not found under %s' % (old, header))
+    content = content[:start] + body.replace(old, new, 1) + content[end:]
 
-# 7e: dead-code type-assert block uses the mirror type for the real field.
-content = content.replace(
-    '        let _: Vec<crate::api::simple::RecipientView> = TxSimulation.outputs;',
-    '        let _: Vec<dart_bwk::api::types::RecipientView> = TxSimulation.outputs;',
-    1,
-)
+for struct, field, ty, is_vec in FIELDS:
+    real_ty = 'Vec<%s%s>' % (REAL, ty) if is_vec else REAL + ty
+    mirror_ty = 'Vec<%s%s>' % (MIRROR, ty) if is_vec else MIRROR + ty
+    to_real = (lambda x, t=ty: '%s.into_iter().map(Into::into).collect::<Vec<%s%s>>()' % (x, REAL, t)) if is_vec \
+        else (lambda x, t=ty: '<%s%s>::from(%s)' % (REAL, t, x))
+    to_mirror = (lambda x, t=ty: '%s.into_iter().map(Into::into).collect::<Vec<%s%s>>()' % (x, MIRROR, t)) if is_vec \
+        else (lambda x, t=ty: '<%s%s>::from(%s)' % (MIRROR, t, x))
+    var = 'var_' + camel(field)
+    patch('impl SseDecode for %s%s {' % (REAL, struct),
+          '%s: %s,' % (field, var), '%s: %s,' % (field, to_real(var)))
+    patch('impl SseEncode for %s%s {' % (REAL, struct),
+          '<%s>::sse_encode(self.%s, serializer);' % (mirror_ty, field),
+          '<%s>::sse_encode(%s, serializer);' % (mirror_ty, to_mirror('self.' + field)))
+    patch('impl flutter_rust_bridge::IntoDart for FrbWrapper<%s%s> {' % (REAL, struct),
+          'self.0.%s.into_into_dart().into_dart(),' % field,
+          '(%s).into_into_dart().into_dart(),' % to_mirror('self.0.' + field))
+    patch('impl CstDecode<%s%s> for wire_cst_%s {' % (REAL, struct, snake(struct)),
+          '%s: self.%s.cst_decode(),' % (field, field),
+          '%s: { let __m: %s = self.%s.cst_decode(); %s },' % (field, mirror_ty, field, to_real('__m')))
+    old_assert = 'let _: %s = %s.%s;' % (mirror_ty, struct, field)
+    if old_assert not in content:
+        sys.exit('fix_frb_generated: missing ' + old_assert)
+    content = content.replace(old_assert, 'let _: %s = %s.%s;' % (real_ty, struct, field), 1)
 
-with open('$FILE', 'w') as f:
-    f.write(content)
-"
+open(path, 'w').write(content)
+PY
 
 # Step 7: FRB 2.12 may emit the same call sites on compact single lines.
 python3 -c "
