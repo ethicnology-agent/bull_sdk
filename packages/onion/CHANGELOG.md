@@ -1,5 +1,7 @@
 ## 0.2.0
 
+- Add physical-device diagnostic checks and a prebuilt-APK driver for native log redaction, isolated connection history and the Snowflake method channel.
+
 - Expose bounded per-session SOCKS connection histories with anonymous attempt IDs, monotonic timing and typed local/Arti failure causes; preserve compatible SOCKS wire replies and expose cancellation on task teardown.
 
 - Name the Snowflake error milestone `transportError` because IPtProxy also emits it after a proxy connection was established.

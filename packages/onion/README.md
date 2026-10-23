@@ -111,6 +111,18 @@ java -cp "$classes" com.bullbitcoin.onion.SnowflakeEventBufferTest
 rm -r "$classes"
 ```
 
+## Mobile plugin checks
+
+The example has device checks for native log redaction, isolated connection histories and the real Snowflake method channel. They exercise plugin registration and FFI without bootstrapping Tor or contacting a key server. With the pinned Flutter SDK, build only the connected device's ABI; splitting the APK is necessary to exclude the other native ABI slices carried by IPtProxy's AAR.
+
+```sh
+cd example
+fvm flutter build apk --debug --target-platform android-arm64 --split-per-abi --target integration_test/diagnostics_integration_test.dart
+fvm flutter drive -d DEVICE_SERIAL --use-application-binary=build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk --driver=test_driver/integration_test.dart --target=integration_test/diagnostics_integration_test.dart
+```
+
+These checks passed on a physical Pixel 5 on 2026-10-23 with Flutter 3.44.9, Rust 1.95.0 and IPtProxy 5.6.0. The debug APK was verified to contain only `arm64-v8a` libraries. This validates the Android diagnostic plumbing; it does not establish live Tor reliability or validate the iOS build.
+
 ## Per-session connection diagnostics
 
 `TorService.connectionEvents(afterSequence: cursor)` exposes the default listener's history. Each `TorSession.connectionEvents` has an independent history and anonymous attempt IDs. Both APIs work without enabling textual native logs and remain readable after `stop()` while the handle is retained.
