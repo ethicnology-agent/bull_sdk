@@ -1,5 +1,7 @@
 ## 0.2.0
 
+- Expose typed native Snowflake lifecycle and connection events on Android and iOS through an independently readable, bounded history with generation IDs, timing and loss counts; never forward native error messages.
+
 - Expose opt-in native Arti diagnostics through `OnionLogs` and the lower-level `TorLogStream`, with synchronous registration before Tor startup.
 - Pull bounded batches across FFI, stop native reads while Dart is paused, and expose queue-loss and routing-contention counters.
 - Preserve safe logging and redact onion hosts, IP addresses and 64-character hexadecimal identifiers before delivery; bound message formatting and reject trace filters.

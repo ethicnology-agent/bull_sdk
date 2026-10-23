@@ -86,6 +86,35 @@ process/network timing; this is unlinkability between application streams, not
 protection from a global observer. Stopping one session leaves the others
 running. Stopping or dropping `TorService` stops every registered session.
 
+## Snowflake transport events
+
+`SnowflakeTransport.readEvents(afterSequence: cursor)` reads a process-wide native history on Android and iOS. It does not require a native log capture or a transport lease. Each reader keeps its own cursor; reads never consume another reader's events. No timer or background Dart subscription is installed.
+
+```dart
+var cursor = 0; // Keep in memory; reset after a process restart.
+final batch = await SnowflakeTransport.readEvents(afterSequence: cursor);
+cursor = batch.latestSequence;
+for (final event in batch.events) {
+  // event.kind, event.generation, event.elapsedMs, event.hasError
+}
+// batch.dropped counts records overwritten since this reader's cursor.
+```
+
+The native ring holds at most 64 records. Every record has a process-local sequence, a controller-attempt generation and monotonic milliseconds since that attempt began. A late callback retains its original generation even after a new controller starts. A future or negative cursor is rejected; callers must not persist cursors across process restarts. Returned event lists are immutable.
+
+`starting`, `listening`, `startFailed` and `released` describe local controller lifecycle. `listening` only means that a local SOCKS port was bound; `released` means that the last lease requested teardown. IPtProxy's `connected` means a connection to a Snowflake proxy succeeded. `discoveryFailed` reports a discovery error, and `connectionStopped` can describe one connection stopping while the local listener remains available. Neither callback proves Arti has bootstrapped, nor should either trigger an unconditional core restart. Continue to use `TorStatus.readyForTraffic` for Tor readiness.
+
+The callback semantics were checked against [IPtProxy 5.6.0's controller source](https://github.com/tladesignz/IPtProxy/blob/5d9cb01547d507f97f205076e61353de7881c8bc/IPtProxy.go/controller.go) on 2026-10-23. Native error objects, messages, transport names and addresses are not forwarded. `hasError` only indicates whether the callback carried an error. Native logging and unsafe logging remain disabled. These records stay in memory unless the host deliberately exports them; timing and event ordering still reveal connection activity.
+
+Run the hermetic JVM history checks from this package (JDK 17 or newer):
+
+```sh
+classes=$(mktemp -d)
+javac --release 17 -d "$classes" android/src/main/java/com/bullbitcoin/onion/SnowflakeEventBuffer.java android/src/test/java/com/bullbitcoin/onion/SnowflakeEventBufferTest.java
+java -cp "$classes" com.bullbitcoin.onion.SnowflakeEventBufferTest
+rm -r "$classes"
+```
+
 ## What it provides
 
 ```rust
