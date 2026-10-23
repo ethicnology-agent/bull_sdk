@@ -1,3 +1,10 @@
+## 0.2.0
+
+- Expose opt-in native Arti diagnostics through `OnionLogs` and the lower-level `TorLogStream`, with synchronous registration before Tor startup.
+- Pull bounded batches across FFI, stop native reads while Dart is paused, and expose queue-loss and routing-contention counters.
+- Preserve safe logging and redact onion hosts, IP addresses and 64-character hexadecimal identifiers before delivery; bound message formatting and reject trace filters.
+- Support capture replacement, explicit close and cancellation without installing multiple native subscribers; document lifecycle, filters, privacy limits and future host integration.
+
 ## 0.1.0
 
 - Add an embedded Arti client and loopback SOCKS5 proxy for `.onion` traffic.

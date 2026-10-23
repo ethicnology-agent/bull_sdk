@@ -5,6 +5,7 @@
 
 import 'api/client.dart';
 import 'api/error.dart';
+import 'api/log.dart';
 import 'api/session.dart';
 import 'api/status.dart';
 import 'dart:async';
@@ -22,6 +23,10 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   });
 
   CrossPlatformFinalizerArg
+  get rust_arc_decrement_strong_count_TorLogStreamPtr => wire
+      ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStreamPtr;
+
+  CrossPlatformFinalizerArg
   get rust_arc_decrement_strong_count_TorServicePtr => wire
       ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorServicePtr;
 
@@ -31,6 +36,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  TorLogStream
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    dynamic raw,
+  );
 
   @protected
   TorService
@@ -45,6 +56,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   );
 
   @protected
+  TorLogStream
+  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    dynamic raw,
+  );
+
+  @protected
   TorService
   dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     dynamic raw,
@@ -53,6 +70,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   @protected
   TorSession
   dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
+    dynamic raw,
+  );
+
+  @protected
+  TorLogStream
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     dynamic raw,
   );
 
@@ -102,6 +125,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<TorLogRecord> dco_decode_list_tor_log_record(dynamic raw);
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
+
+  @protected
   Blockage? dco_decode_opt_box_autoadd_blockage(dynamic raw);
 
   @protected
@@ -115,6 +144,15 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   TorFailureKind dco_decode_tor_failure_kind(dynamic raw);
+
+  @protected
+  TorLogLevel dco_decode_tor_log_level(dynamic raw);
+
+  @protected
+  TorLogRecord dco_decode_tor_log_record(dynamic raw);
+
+  @protected
+  TorLogStats dco_decode_tor_log_stats(dynamic raw);
 
   @protected
   TorStatus dco_decode_tor_status(dynamic raw);
@@ -144,6 +182,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  TorLogStream
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   TorService
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     SseDeserializer deserializer,
@@ -156,6 +200,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   );
 
   @protected
+  TorLogStream
+  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   TorService
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     SseDeserializer deserializer,
@@ -164,6 +214,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   @protected
   TorSession
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  TorLogStream
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     SseDeserializer deserializer,
   );
 
@@ -215,6 +271,14 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<TorLogRecord> sse_decode_list_tor_log_record(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
   Blockage? sse_decode_opt_box_autoadd_blockage(SseDeserializer deserializer);
 
   @protected
@@ -228,6 +292,15 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   TorFailureKind sse_decode_tor_failure_kind(SseDeserializer deserializer);
+
+  @protected
+  TorLogLevel sse_decode_tor_log_level(SseDeserializer deserializer);
+
+  @protected
+  TorLogRecord sse_decode_tor_log_record(SseDeserializer deserializer);
+
+  @protected
+  TorLogStats sse_decode_tor_log_stats(SseDeserializer deserializer);
 
   @protected
   TorStatus sse_decode_tor_status(SseDeserializer deserializer);
@@ -316,6 +389,26 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_tor_log_record> cst_encode_list_tor_log_record(
+    List<TorLogRecord> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_tor_log_record(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_tor_log_record(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_opt_String(
+    String? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_String(raw);
+  }
+
+  @protected
   ffi.Pointer<wire_cst_blockage> cst_encode_opt_box_autoadd_blockage(
     Blockage? raw,
   ) {
@@ -376,6 +469,26 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   }
 
   @protected
+  void cst_api_fill_to_wire_tor_log_record(
+    TorLogRecord apiObj,
+    wire_cst_tor_log_record wireObj,
+  ) {
+    wireObj.level = cst_encode_tor_log_level(apiObj.level);
+    wireObj.target = cst_encode_String(apiObj.target);
+    wireObj.message = cst_encode_String(apiObj.message);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_tor_log_stats(
+    TorLogStats apiObj,
+    wire_cst_tor_log_stats wireObj,
+  ) {
+    wireObj.accepted = cst_encode_u_64(apiObj.accepted);
+    wireObj.dropped = cst_encode_u_64(apiObj.dropped);
+    wireObj.routing_dropped = cst_encode_u_64(apiObj.routingDropped);
+  }
+
+  @protected
   void cst_api_fill_to_wire_tor_status(
     TorStatus apiObj,
     wire_cst_tor_status wireObj,
@@ -386,6 +499,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     wireObj.stage = cst_encode_String(apiObj.stage);
     wireObj.transport = cst_encode_tor_transport(apiObj.transport);
   }
+
+  @protected
+  int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream raw,
+  );
 
   @protected
   int
@@ -401,6 +520,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int
+  cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream raw,
+  );
+
+  @protected
+  int
   cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService raw,
   );
@@ -409,6 +534,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   int
   cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
     TorSession raw,
+  );
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream raw,
   );
 
   @protected
@@ -442,6 +573,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   int cst_encode_tor_failure_kind(TorFailureKind raw);
 
   @protected
+  int cst_encode_tor_log_level(TorLogLevel raw);
+
+  @protected
   int cst_encode_tor_transport(TorTransport raw);
 
   @protected
@@ -464,6 +598,13 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
   sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService self,
     SseSerializer serializer,
@@ -478,6 +619,13 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void
+  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService self,
     SseSerializer serializer,
@@ -487,6 +635,13 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
     TorSession self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream self,
     SseSerializer serializer,
   );
 
@@ -547,6 +702,15 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   );
 
   @protected
+  void sse_encode_list_tor_log_record(
+    List<TorLogRecord> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_blockage(
     Blockage? self,
     SseSerializer serializer,
@@ -566,6 +730,15 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     TorFailureKind self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_tor_log_level(TorLogLevel self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tor_log_record(TorLogRecord self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tor_log_stats(TorLogStats self, SseSerializer serializer);
 
   @protected
   void sse_encode_tor_status(TorStatus self, SseSerializer serializer);
@@ -628,6 +801,42 @@ class OnionCoreWire implements BaseWire {
       );
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+
+  WireSyncRust2DartDco wire__crate__api__log__TorLogStream_close(int that) {
+    return _wire__crate__api__log__TorLogStream_close(that);
+  }
+
+  late final _wire__crate__api__log__TorLogStream_closePtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.UintPtr)>>(
+        'frbgen_onion_wire__crate__api__log__TorLogStream_close',
+      );
+  late final _wire__crate__api__log__TorLogStream_close =
+      _wire__crate__api__log__TorLogStream_closePtr
+          .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  void wire__crate__api__log__TorLogStream_next_batch(int port_, int that) {
+    return _wire__crate__api__log__TorLogStream_next_batch(port_, that);
+  }
+
+  late final _wire__crate__api__log__TorLogStream_next_batchPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.UintPtr)>>(
+        'frbgen_onion_wire__crate__api__log__TorLogStream_next_batch',
+      );
+  late final _wire__crate__api__log__TorLogStream_next_batch =
+      _wire__crate__api__log__TorLogStream_next_batchPtr
+          .asFunction<void Function(int, int)>();
+
+  WireSyncRust2DartDco wire__crate__api__log__TorLogStream_stats(int that) {
+    return _wire__crate__api__log__TorLogStream_stats(that);
+  }
+
+  late final _wire__crate__api__log__TorLogStream_statsPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.UintPtr)>>(
+        'frbgen_onion_wire__crate__api__log__TorLogStream_stats',
+      );
+  late final _wire__crate__api__log__TorLogStream_stats =
+      _wire__crate__api__log__TorLogStream_statsPtr
+          .asFunction<WireSyncRust2DartDco Function(int)>();
 
   void wire__crate__api__client__TorService_bootstrap(int port_, int that) {
     return _wire__crate__api__client__TorService_bootstrap(port_, that);
@@ -1089,6 +1298,28 @@ class OnionCoreWire implements BaseWire {
       _wire__crate__api__status__blockage_kind_suggests_censorshipPtr
           .asFunction<WireSyncRust2DartDco Function(int)>();
 
+  WireSyncRust2DartDco wire__crate__api__log__open_log_stream(
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> filter,
+  ) {
+    return _wire__crate__api__log__open_log_stream(filter);
+  }
+
+  late final _wire__crate__api__log__open_log_streamPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_onion_wire__crate__api__log__open_log_stream');
+  late final _wire__crate__api__log__open_log_stream =
+      _wire__crate__api__log__open_log_streamPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   void wire__crate__api__session__socks_policy_default(int port_) {
     return _wire__crate__api__session__socks_policy_default(port_);
   }
@@ -1120,6 +1351,40 @@ class OnionCoreWire implements BaseWire {
           .asFunction<
             WireSyncRust2DartDco Function(ffi.Pointer<wire_cst_tor_status>)
           >();
+
+  void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStreamPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+        'frbgen_onion_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream',
+      );
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStreamPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStreamPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+        'frbgen_onion_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream',
+      );
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStreamPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
   rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
@@ -1238,6 +1503,21 @@ class OnionCoreWire implements BaseWire {
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_tor_log_record> cst_new_list_tor_log_record(
+    int len,
+  ) {
+    return _cst_new_list_tor_log_record(len);
+  }
+
+  late final _cst_new_list_tor_log_recordPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_tor_log_record> Function(ffi.Int32)
+        >
+      >('frbgen_onion_cst_new_list_tor_log_record');
+  late final _cst_new_list_tor_log_record = _cst_new_list_tor_log_recordPtr
+      .asFunction<ffi.Pointer<wire_cst_list_tor_log_record> Function(int)>();
+
   int dummy_method_to_enforce_bundling() {
     return _dummy_method_to_enforce_bundling();
   }
@@ -1288,9 +1568,36 @@ final class wire_cst_tor_status extends ffi.Struct {
   external int transport;
 }
 
+final class wire_cst_tor_log_record extends ffi.Struct {
+  @ffi.Int32()
+  external int level;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> target;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> message;
+}
+
+final class wire_cst_list_tor_log_record extends ffi.Struct {
+  external ffi.Pointer<wire_cst_tor_log_record> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_tor_failure extends ffi.Struct {
   @ffi.Int32()
   external int kind;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> log_message;
+}
+
+final class wire_cst_tor_log_stats extends ffi.Struct {
+  @ffi.Uint64()
+  external int accepted;
+
+  @ffi.Uint64()
+  external int dropped;
+
+  @ffi.Uint64()
+  external int routing_dropped;
 }

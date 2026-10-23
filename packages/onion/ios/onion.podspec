@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'onion'
-  s.version          = '0.1.0'
+  s.version          = '0.2.0'
   s.summary          = 'Embedded Tor client and loopback SOCKS5 proxy.'
   s.description      = <<-DESC
 Embedded Tor client and loopback SOCKS5 proxy for Bull Bitcoin, built on Arti.

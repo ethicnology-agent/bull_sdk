@@ -2548,17 +2548,20 @@ dependencies = [
 
 [[package]]
 name = "onion"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "arti-client",
  "flutter_rust_bridge",
  "futures",
+ "regex",
+ "safelog",
  "thiserror 2.0.20",
  "tokio",
  "tor-error",
  "tor-rtcompat",
  "tor-socksproto",
  "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

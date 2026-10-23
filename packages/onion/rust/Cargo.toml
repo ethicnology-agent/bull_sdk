@@ -2,7 +2,7 @@
 name = "onion"
 description = "Embedded Tor client and loopback SOCKS5 proxy, built on Arti. Not an official Tor Project product."
 authors = ["ethicnology <ethicnology@pm.me>"]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 
@@ -53,6 +53,9 @@ tokio = { version = "1", features = [
 futures = "0.3"
 thiserror = "2"
 tracing = "0.1"
+tracing-subscriber = { version = "=0.3.23", default-features = false, features = ["registry", "std"] }
+safelog = "=0.10.0"
+regex = { version = "=1.13.1", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full", "test-util"] }

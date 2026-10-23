@@ -117,6 +117,72 @@ try {
 }
 ```
 
+### Native Tor diagnostics
+
+After `OnionCore.init()`, call `OnionLogs.start()` **before** creating a `TorService`. Registration is synchronous: startup events can already enter the native queue when `start` returns. Capture is opt-in and available in every build mode. This package never prints records, writes support logs, or sends diagnostics to Sentry; the host decides where each level belongs.
+
+```dart
+await OnionCore.init();
+final logs = OnionLogs.start();
+final subscription = logs.records.listen(
+  (record) {
+    // Route record.level, record.target and record.message through the host's
+    // logger. Do not append destination addresses or raw foreign errors.
+  },
+  onError: (Object error, StackTrace trace) {
+    // Handle a diagnostics-stream failure separately from Tor readiness.
+  },
+);
+
+// Create and bootstrap TorService only after registering the capture.
+// Keep the capture alive across the sessions whose failures you investigate.
+// ...
+final counters = logs.stats;
+// accepted/dropped belong to this capture; routingDropped is process-wide.
+// Compare counter snapshots to measure loss during a particular operation.
+await subscription.cancel(); // stops capture and wakes a pending native read
+logs.close(); // also safe when no subscription was created; idempotent
+```
+
+Each `TorLogRecord` contains the native severity (`error`, `warn`, `info`, `debug`), the Rust module target, and a single-line message with structured `key=value` fields. Messages have at most 512 Unicode characters and targets at most 128. Oversized formatting (more than 8192 bytes) produces a fixed omission message, so an address cut in half during formatting cannot leak into the result. Treat the text as developer detail: wording and targets can change with Arti; do not parse it for application behavior or show it as localized UI.
+
+The default filter is:
+
+```text
+onion=debug,tor_hsclient=debug,tor_circmgr=info,tor_guardmgr=info,tor_dirmgr=info,arti_client=info,tor_proto=warn,warn
+```
+
+`tor_hsclient` covers hidden-service descriptor, introduction and rendezvous work; `tor_circmgr` covers circuit management; `tor_guardmgr` and `tor_dirmgr` help distinguish guard/directory failures from destination problems. A lower-level event is available only if Arti emitted it and the filter accepted it. Logging cannot manufacture an explanation for every SOCKS error.
+
+Use `OnionLogs.start(filter: 'onion=debug,tor_hsclient=debug,warn')` to override the filter. Directives use module prefixes, with the longest matching prefix winning, and an optional default level (`off`, `error`, `warn`, `info`, `debug`). This is `tracing_subscriber::filter::Targets` syntax, **not** `EnvFilter`: span/field expressions and `trace` are rejected. Invalid filters produce a configuration `TorFailure` without echoing the supplied filter or replacing the active capture. Explicit `debug` on selected modules can help an investigation, but the host must decide how much to persist after measuring a real bootstrap.
+
+**Bounded delivery and lifecycle.** Rust stores at most 1024 records. Dart pulls batches of at most 64 through one outstanding FFI read, instead of sending one isolate message per event. Pausing the single-subscription Dart stream stops further reads and retains at most one batch in Dart; there is no native forwarding task filling a paused isolate's mailbox. When the native queue fills, new events are dropped before formatting. `TorLogStats.dropped` counts them and a synthetic `onion::log` warning summarizes losses in the next batch, even if no further event arrives. `accepted` counts records queued, not records persisted by the host. `routingDropped` counts process-wide event/span routing lookups skipped on routing-lock contention; these are separate from queue overflow. Native event routing uses `try_lock` and `try_reserve`, never a blocking send or host callback. This bounds logging storage and per-event formatting input, not the total log volume over time; a slow consumer must expect gaps.
+
+Only one capture is active per loaded Onion library, across all services, sessions and Flutter engines. Opening another capture closes the previous stream and replaces its filter. Closing an old handle never stops its replacement. The global subscriber is installed once and remains installed but inactive after the capture closes. If the host already installed a native `tracing` subscriber in this library, opening a capture returns a configuration failure rather than replacing it or panicking. Onion is excluded from the bull_sdk Cargo workspace. Android builds a separate `libonion.so`; the iOS pod instead force-loads `libonion.a` into its CocoaPods target. Dispatcher isolation on iOS depends on the final link and must be checked with the consuming Xcode build; do not infer it from the separate Cargo graphs. Hosts that share a dispatcher must coordinate subscriber ownership.
+
+For Rust or lower-level Dart callers, `open_log_stream` / `openLogStream` returns a `TorLogStream` with `next_batch` / `nextBatch`, `stats` and `close`. Await one batch at a time; an empty batch means closed or replaced. Close before disposing a Dart opaque handle or waiting for a pending Rust read; dropping an idle Rust handle also stops capture. Dart callers should prefer `OnionLogs`, whose cancellation wakes pending reads immediately.
+
+**Privacy.** The resolved Arti 0.47 graph uses `safelog` **0.10.0** (it is independently versioned). Its `Sensitive` values format as `[scrubbed]` by default. The capture retains an `enforce_safe_logging` guard and never disables safe logging. Before crossing FFI, an additional scrubber removes v3 `.onion` hosts (case-insensitively), IPv4/IPv6 addresses including IPv4-mapped IPv6, and 64-character hexadecimal identifiers. Redaction precedes the final message-length limit, and control characters become spaces. This does not make arbitrary foreign text or newly introduced fields safe: preserve upstream sensitive wrappers, review new logging call sites, never add wallet secrets/destinations/user input, and audit actual exports before enabling host persistence. No host reporting policy is implied by a native `error` level.
+
+**Future wallet integration.** Initialize the library, register one capture, then start Tor; keep that capture across connection attempts. Use `TorStatus` for progress, `readyForTraffic` and blockage decisions, `probe` to distinguish Tor reachability from a failing application server, and separate `TorSession` handles for circuit isolation. Logs add the underlying diagnostic context; they do not prove readiness or force a new circuit. A possible support-log policy is warning persistence for native errors/warnings, selected `info` milestones for `onion`, `tor_hsclient` and `tor_circmgr`, and console-only routing for debug and other info events. Never escalate to Sentry merely because a Rust event is `error`. Persisted volume, cold-bootstrap behavior and mobile builds must be measured in the consuming wallet; they are not validated by the binding's hermetic tests.
+
+To reproduce the hermetic checks, use Rust 1.95.0 (`rust/rust-toolchain.toml`) and the consumer-compatible Flutter SDK (verified here with Flutter 3.44.9 / Dart 3.12.2):
+
+```sh
+cd packages/onion/rust
+cargo test --locked
+cargo clippy --all-targets --locked -- -D warnings
+cd ..
+fvm flutter analyze --fatal-warnings --fatal-infos
+fvm flutter test
+# Linux only: cargo test above also builds this debug shared library.
+fvm flutter test test/native_log_capture_smoke.dart
+```
+
+The explicit Linux smoke test loads `rust/target/debug/deps/libonion.so` (override with `ONION_NATIVE_LIBRARY`), creates an unbootstrapped client, provokes a local SOCKS protocol error, checks the redacted record across FFI, replaces the capture and cancels a pending native read. It makes no connection to the Tor network. It is separate from the default `*_test.dart` suite, which uses FRB's mock API and needs no native library. Android/iOS builds and real Tor-network behavior still require their own validation.
+
+References checked 2026-10-23: [safelog 0.10.0](https://docs.rs/safelog/0.10.0/safelog/), [Targets filter](https://docs.rs/tracing-subscriber/0.3.23/tracing_subscriber/filter/struct.Targets.html), and the exact crate sources resolved in `rust/Cargo.lock`.
+
 ### Status is not monotonic
 
 arti documents that a client can become *less* bootstrapped over time — when

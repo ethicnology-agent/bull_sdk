@@ -5,6 +5,7 @@
 
 import 'api/client.dart';
 import 'api/error.dart';
+import 'api/log.dart';
 import 'api/session.dart';
 import 'api/status.dart';
 import 'dart:async';
@@ -68,7 +69,7 @@ class OnionCore
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1426353639;
+  int get rustContentHash => -1790155228;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -80,6 +81,14 @@ class OnionCore
 }
 
 abstract class OnionCoreApi extends BaseApi {
+  void crateApiLogTorLogStreamClose({required TorLogStream that});
+
+  Future<List<TorLogRecord>> crateApiLogTorLogStreamNextBatch({
+    required TorLogStream that,
+  });
+
+  TorLogStats crateApiLogTorLogStreamStats({required TorLogStream that});
+
   Future<void> crateApiClientTorServiceBootstrap({required TorService that});
 
   Future<TorSession> crateApiClientTorServiceOpenSession({
@@ -165,9 +174,19 @@ abstract class OnionCoreApi extends BaseApi {
     required BlockageKind that,
   });
 
+  TorLogStream crateApiLogOpenLogStream({String? filter});
+
   Future<SocksPolicy> crateApiSessionSocksPolicyDefault();
 
   bool crateApiStatusTorStatusSuggestsCensorship({required TorStatus that});
+
+  RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_TorLogStream;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_TorLogStream;
+
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_TorLogStreamPtr;
 
   RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_TorService;
@@ -194,6 +213,89 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     required super.generalizedFrbRustBinding,
     required super.portManager,
   });
+
+  @override
+  void crateApiLogTorLogStreamClose({required TorLogStream that}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+                that,
+              );
+          return wire.wire__crate__api__log__TorLogStream_close(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiLogTorLogStreamCloseConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLogTorLogStreamCloseConstMeta =>
+      const TaskConstMeta(debugName: "TorLogStream_close", argNames: ["that"]);
+
+  @override
+  Future<List<TorLogRecord>> crateApiLogTorLogStreamNextBatch({
+    required TorLogStream that,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+                that,
+              );
+          return wire.wire__crate__api__log__TorLogStream_next_batch(
+            port_,
+            arg0,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_tor_log_record,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiLogTorLogStreamNextBatchConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLogTorLogStreamNextBatchConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorLogStream_next_batch",
+        argNames: ["that"],
+      );
+
+  @override
+  TorLogStats crateApiLogTorLogStreamStats({required TorLogStream that}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+                that,
+              );
+          return wire.wire__crate__api__log__TorLogStream_stats(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_tor_log_stats,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiLogTorLogStreamStatsConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLogTorLogStreamStatsConstMeta =>
+      const TaskConstMeta(debugName: "TorLogStream_stats", argNames: ["that"]);
 
   @override
   Future<void> crateApiClientTorServiceBootstrap({required TorService that}) {
@@ -892,6 +994,29 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       );
 
   @override
+  TorLogStream crateApiLogOpenLogStream({String? filter}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          var arg0 = cst_encode_opt_String(filter);
+          return wire.wire__crate__api__log__open_log_stream(arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiLogOpenLogStreamConstMeta,
+        argValues: [filter],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiLogOpenLogStreamConstMeta =>
+      const TaskConstMeta(debugName: "open_log_stream", argNames: ["filter"]);
+
+  @override
   Future<SocksPolicy> crateApiSessionSocksPolicyDefault() {
     return handler.executeNormal(
       NormalTask(
@@ -940,6 +1065,14 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       );
 
   RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_TorLogStream => wire
+      .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_TorLogStream => wire
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream;
+
+  RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_TorService => wire
       .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService;
 
@@ -962,6 +1095,15 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  TorLogStream
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return TorLogStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
   TorService
   dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     dynamic raw,
@@ -980,6 +1122,15 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  TorLogStream
+  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return TorLogStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
   TorService
   dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     dynamic raw,
@@ -995,6 +1146,15 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return TorSessionImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  TorLogStream
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return TorLogStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -1088,6 +1248,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  List<TorLogRecord> dco_decode_list_tor_log_record(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_tor_log_record).toList();
+  }
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
   Blockage? dco_decode_opt_box_autoadd_blockage(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_blockage(raw);
@@ -1121,6 +1293,38 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   TorFailureKind dco_decode_tor_failure_kind(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return TorFailureKind.values[raw as int];
+  }
+
+  @protected
+  TorLogLevel dco_decode_tor_log_level(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return TorLogLevel.values[raw as int];
+  }
+
+  @protected
+  TorLogRecord dco_decode_tor_log_record(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return TorLogRecord(
+      level: dco_decode_tor_log_level(arr[0]),
+      target: dco_decode_String(arr[1]),
+      message: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  TorLogStats dco_decode_tor_log_stats(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return TorLogStats(
+      accepted: dco_decode_u_64(arr[0]),
+      dropped: dco_decode_u_64(arr[1]),
+      routingDropped: dco_decode_u_64(arr[2]),
+    );
   }
 
   @protected
@@ -1188,6 +1392,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  TorLogStream
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return TorLogStreamImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
   TorService
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     SseDeserializer deserializer,
@@ -1212,6 +1428,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  TorLogStream
+  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return TorLogStreamImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
   TorService
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     SseDeserializer deserializer,
@@ -1230,6 +1458,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return TorSessionImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
+  TorLogStream
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return TorLogStreamImpl.frbInternalSseDecode(
       sse_decode_usize(deserializer),
       sse_decode_i_32(deserializer),
     );
@@ -1333,6 +1573,31 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  List<TorLogRecord> sse_decode_list_tor_log_record(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <TorLogRecord>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_tor_log_record(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   Blockage? sse_decode_opt_box_autoadd_blockage(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -1374,6 +1639,39 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return TorFailureKind.values[inner];
+  }
+
+  @protected
+  TorLogLevel sse_decode_tor_log_level(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return TorLogLevel.values[inner];
+  }
+
+  @protected
+  TorLogRecord sse_decode_tor_log_record(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_level = sse_decode_tor_log_level(deserializer);
+    var var_target = sse_decode_String(deserializer);
+    var var_message = sse_decode_String(deserializer);
+    return TorLogRecord(
+      level: var_level,
+      target: var_target,
+      message: var_message,
+    );
+  }
+
+  @protected
+  TorLogStats sse_decode_tor_log_stats(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_accepted = sse_decode_u_64(deserializer);
+    var var_dropped = sse_decode_u_64(deserializer);
+    var var_routingDropped = sse_decode_u_64(deserializer);
+    return TorLogStats(
+      accepted: var_accepted,
+      dropped: var_dropped,
+      routingDropped: var_routingDropped,
+    );
   }
 
   @protected
@@ -1437,6 +1735,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as TorLogStreamImpl).frbInternalCstEncode(move: true);
+  }
+
+  @protected
+  int
   cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService raw,
   ) {
@@ -1457,6 +1765,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   int
+  cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as TorLogStreamImpl).frbInternalCstEncode(move: false);
+  }
+
+  @protected
+  int
   cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService raw,
   ) {
@@ -1473,6 +1791,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Cst (C-struct based), see doc to use other codecs
     // ignore: invalid_use_of_internal_member
     return (raw as TorSessionImpl).frbInternalCstEncode(move: false);
+  }
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as TorLogStreamImpl).frbInternalCstEncode();
   }
 
   @protected
@@ -1532,6 +1860,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  int cst_encode_tor_log_level(TorLogLevel raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_tor_transport(TorTransport raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -1572,6 +1906,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as TorLogStreamImpl).frbInternalSseEncode(move: true),
+      serializer,
+    );
+  }
+
+  @protected
+  void
   sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService self,
     SseSerializer serializer,
@@ -1598,6 +1945,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   void
+  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as TorLogStreamImpl).frbInternalSseEncode(move: false),
+      serializer,
+    );
+  }
+
+  @protected
+  void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
     TorService self,
     SseSerializer serializer,
@@ -1618,6 +1978,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
       (self as TorSessionImpl).frbInternalSseEncode(move: false),
+      serializer,
+    );
+  }
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
+    TorLogStream self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as TorLogStreamImpl).frbInternalSseEncode(move: null),
       serializer,
     );
   }
@@ -1737,6 +2110,28 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_tor_log_record(
+    List<TorLogRecord> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_tor_log_record(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_blockage(
     Blockage? self,
     SseSerializer serializer,
@@ -1779,6 +2174,28 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_tor_log_level(TorLogLevel self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_tor_log_record(TorLogRecord self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_tor_log_level(self.level, serializer);
+    sse_encode_String(self.target, serializer);
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_tor_log_stats(TorLogStats self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.accepted, serializer);
+    sse_encode_u_64(self.dropped, serializer);
+    sse_encode_u_64(self.routingDropped, serializer);
   }
 
   @protected
@@ -1831,6 +2248,38 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putBigUint64(self);
   }
+}
+
+@sealed
+class TorLogStreamImpl extends RustOpaque implements TorLogStream {
+  // Not to be used by end users
+  TorLogStreamImpl.frbInternalDcoDecode(List<dynamic> wire)
+    : super.frbInternalDcoDecode(wire, _kStaticData);
+
+  // Not to be used by end users
+  TorLogStreamImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
+    : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
+
+  static final _kStaticData = RustArcStaticData(
+    rustArcIncrementStrongCount:
+        OnionCore.instance.api.rust_arc_increment_strong_count_TorLogStream,
+    rustArcDecrementStrongCount:
+        OnionCore.instance.api.rust_arc_decrement_strong_count_TorLogStream,
+    rustArcDecrementStrongCountPtr:
+        OnionCore.instance.api.rust_arc_decrement_strong_count_TorLogStreamPtr,
+  );
+
+  /// Idempotently disable this capture and wake a pending batch read. Closing an older handle never closes its replacement.
+  void close() =>
+      OnionCore.instance.api.crateApiLogTorLogStreamClose(that: this);
+
+  /// Wait for at least one record and return up to 64 records. An empty batch means closed/replaced. Queue overflow appends a warning summary to the next batch; it does not require another event to arrive.
+  Future<List<TorLogRecord>> nextBatch() =>
+      OnionCore.instance.api.crateApiLogTorLogStreamNextBatch(that: this);
+
+  /// Read counters without logging or consuming buffered records.
+  TorLogStats stats() =>
+      OnionCore.instance.api.crateApiLogTorLogStreamStats(that: this);
 }
 
 @sealed
