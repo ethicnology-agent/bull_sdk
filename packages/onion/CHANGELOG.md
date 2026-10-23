@@ -2,6 +2,7 @@
 
 - Expose bounded per-session SOCKS connection histories with anonymous attempt IDs, monotonic timing and typed local/Arti failure causes; preserve compatible SOCKS wire replies and expose cancellation on task teardown.
 
+- Name the Snowflake error milestone `transportError` because IPtProxy also emits it after a proxy connection was established.
 - Expose typed native Snowflake lifecycle and connection events on Android and iOS through an independently readable, bounded history with generation IDs, timing and loss counts; never forward native error messages.
 
 - Expose opt-in native Arti diagnostics through `OnionLogs` and the lower-level `TorLogStream`, with synchronous registration before Tor startup.

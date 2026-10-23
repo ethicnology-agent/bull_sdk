@@ -51,7 +51,7 @@ static OnionTransportObserver *OnionSnowflakeObserver;
 }
 
 - (void)error:(NSString *)name error:(NSError *)error {
-  if ([name isEqualToString:IPtProxySnowflake]) [self record:@"discoveryFailed" hasError:error != nil];
+  if ([name isEqualToString:IPtProxySnowflake]) [self record:@"transportError" hasError:error != nil];
 }
 
 - (void)stopped:(NSString *)name error:(NSError *)error {

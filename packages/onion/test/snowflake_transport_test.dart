@@ -55,6 +55,27 @@ void main() {
       },
     );
   }
+  test(
+    'a transport error remains meaningful after a connected event',
+    () async {
+      messenger.setMockMethodCallHandler(
+        channel,
+        (_) async => {
+          'events': [
+            event(1),
+            event(2, kind: 'transportError')..['hasError'] = true,
+          ],
+          'latestSequence': 2,
+          'dropped': 0,
+        },
+      );
+      final batch = await SnowflakeTransport.readEvents();
+      expect(batch.events.first.kind, SnowflakeEventKind.connected);
+      expect(batch.events.last.kind.name, 'transportError');
+      expect(batch.events.last.hasError, isTrue);
+    },
+  );
+
   test('an empty batch preserves the caller cursor', () async {
     messenger.setMockMethodCallHandler(
       channel,

@@ -189,7 +189,7 @@ public final class OnionPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
         @Override
         public void error(String name, Exception error) {
-            if (IPtProxy.Snowflake.equals(name)) record("discoveryFailed", error != null);
+            if (IPtProxy.Snowflake.equals(name)) record("transportError", error != null);
         }
 
         @Override

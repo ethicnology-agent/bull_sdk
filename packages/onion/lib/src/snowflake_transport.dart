@@ -90,7 +90,9 @@ enum SnowflakeEventKind {
 
   /// A connection to a Snowflake proxy succeeded.
   connected,
-  discoveryFailed,
+
+  /// Discovery or an established WebRTC connection failed; the native callback does not identify the phase.
+  transportError,
 
   /// One connection stopped; the local listener may still be available.
   connectionStopped,
