@@ -7,6 +7,7 @@ use tokio::task::JoinHandle;
 use tor_rtcompat::tokio::TokioNativeTlsRuntime;
 use tracing::info;
 
+use super::connection::{ConnectionEventBatch, ConnectionHistory};
 use super::error::{TorFailure, TorResult};
 use super::socks;
 
@@ -15,6 +16,7 @@ pub(crate) struct TorSessionInner {
     client: Mutex<Option<Arc<TorClient<TokioNativeTlsRuntime>>>>,
     proxy_task: Mutex<Option<JoinHandle<TorResult<()>>>>,
     socks_port: u16,
+    history: Arc<ConnectionHistory>,
 }
 
 /// Which destinations a session's SOCKS listener will relay.
@@ -74,11 +76,13 @@ impl TorSession {
         let client = root_client.isolated_client();
         let bound_port = addr.port();
         info!(port = bound_port, "isolated socks session bound");
+        let history = ConnectionHistory::new();
         let proxy_task = tokio::spawn(socks::serve(
             listener,
             Arc::clone(&client),
             policy,
             connect_timeout_ms,
+            Arc::clone(&history),
         ));
 
         Ok(Self {
@@ -86,6 +90,7 @@ impl TorSession {
                 client: Mutex::new(Some(client)),
                 proxy_task: Mutex::new(Some(proxy_task)),
                 socks_port: bound_port,
+                history,
             }),
         })
     }
@@ -93,6 +98,17 @@ impl TorSession {
     /// The loopback SOCKS port assigned to this session.
     pub fn socks_port(&self) -> u16 {
         self.inner.socks_port
+    }
+
+    /// Read bounded, destination-free connection diagnostics for this session.
+    ///
+    /// Start with zero, then pass the previous batch's latest_sequence. Cursors are
+    /// local to this session; reading after stop remains available while the handle lives.
+    pub fn connection_events(
+        &self,
+        after_sequence: u64,
+    ) -> Result<ConnectionEventBatch, TorFailure> {
+        self.inner.history.read(after_sequence)
     }
 
     /// Whether this session's SOCKS accept loop is still running.

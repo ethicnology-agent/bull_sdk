@@ -42,11 +42,7 @@ expensive to upgrade. We speak SOCKS5 ourselves via `tor-socksproto`, a normal
 non-experimental crate, and keep `arti-client` as the only high-level
 dependency.
 
-**The SOCKS proxy is load-bearing, not general-purpose.** RecoverBull's Dart
-HTTP client already accepts a SOCKS5 endpoint. Binding `TorClient::connect`
-directly would require a separate HTTP transport over Arti streams. The proxy
-therefore accepts only `.onion` destinations; it cannot accidentally route
-clearnet or IP traffic through this package.
+**The SOCKS proxy is load-bearing, not general-purpose.** RecoverBull's Dart HTTP client already accepts a SOCKS5 endpoint. Binding `TorClient::connect` directly would require a separate HTTP transport over Arti streams. The proxy defaults to `SocksPolicy.any`; hosts can select `SocksPolicy.onionOnly` to reject clearnet and IP destinations at the local SOCKS boundary.
 
 **`native-tls`, not `rustls`.** The bull_sdk aggregate already links both `ring`
 and `aws-lc-rs` transitively, which makes rustls 0.23 panic when it
@@ -115,14 +111,37 @@ java -cp "$classes" com.bullbitcoin.onion.SnowflakeEventBufferTest
 rm -r "$classes"
 ```
 
+## Per-session connection diagnostics
+
+`TorService.connectionEvents(afterSequence: cursor)` exposes the default listener's history. Each `TorSession.connectionEvents` has an independent history and anonymous attempt IDs. Both APIs work without enabling textual native logs and remain readable after `stop()` while the handle is retained.
+
+```dart
+var cursor = BigInt.zero; // Belongs to this session, not the process.
+final batch = await session.connectionEvents(afterSequence: cursor);
+cursor = batch.latestSequence;
+for (final event in batch.events) {
+  // event.attemptId, event.elapsedMs, event.kind, event.failure
+}
+```
+
+Every accepted local socket records `accepted`. A permitted CONNECT records `connecting`, followed by `connected` if Arti opened a stream and `closed` when both relay directions reach EOF. `failed` carries a finite `ConnectionFailureKind`; `cancelled` means the Rust task was dropped before another terminal milestone, including session shutdown. The local 64-connection limit also produces a failure event. Milliseconds are monotonic from socket acceptance, so the difference between `connecting` and a subsequent milestone measures that connection attempt. Neither a Tor stream nor a Snowflake connection establishes TLS or application readiness.
+
+The binding distinguishes local handshake errors/timeouts, policy refusals, its configurable connection deadline, bootstrap requirements, directory/path/circuit failures, onion descriptor/introduction/connection failures, missing or incorrect onion client authentication, invalid onion addresses, and remote connection/resolution failures. Unmapped Arti kinds become `otherTorFailure`; the category preserves Arti's classification and is not a definitive diagnosis of the remote service. Authentication diagnostics do not add an API to configure onion-service client keys. The mapping was checked against the pinned [tor-error 0.47.0 ErrorKind](https://docs.rs/tor-error/0.47.0/tor_error/enum.ErrorKind.html) on 2026-10-23.
+
+The history retains at most 64 events per session, uses pull snapshots with independent cursors, and reports overwritten events in `dropped`. It creates no extra worker, subscription or timer. Start each session's cursor at zero; never reuse a cursor from another session. A cursor beyond the latest sequence returns a configuration failure. Slow readers may lose intermediate or terminal milestones; these diagnostics do not constitute an authoritative list of active streams. Cancellation records from aborted child tasks can arrive shortly after `stop()` returns.
+
+Attempt IDs identify local sockets, not wallet operations or HTTP requests: clients can reuse a connection or open several concurrently. No destination, port, credentials, payload, peer address or upstream error text is retained in these events. Activity timing still carries metadata. Closing a SOCKS client during an in-progress Arti connect does not add immediate cancellation; existing connection budgets and session shutdown still bound that work. These APIs supply observations; retry, route renewal and presentation decisions belong to the host.
+
+SOCKS wire replies keep their existing RFC 1928 statuses. Rich causes travel through this separate API, avoiding Tor's extended reply bytes that some SOCKS consumers cannot decode. Hermetic tests cover actual local SOCKS exchanges, session separation, missing bootstrap, policy and unsupported-command refusals, handshake timeout, cancellation, bounded history and cursor loss. Run `cargo test --locked --offline` in `rust/`; after building the native library, `fvm flutter test test/native_connection_smoke.dart` checks real FFI serialization without bootstrap or external traffic. Live Tor success paths and mobile device validation are separate checks.
+
 ## What it provides
 
 ```rust
-let svc = TorService::start(state_dir, cache_dir, 0).await?;  // binds, does not bootstrap
+let svc = TorService::start(state_dir, cache_dir, 0, SocksPolicy::Any).await?;  // binds, does not bootstrap
 let port = svc.socks_port();                                   // real bound port
 let mut events = svc.status_stream();                          // progress + blockage
 svc.bootstrap().await?;
-let electrum = svc.open_session(0).await?;                     // different circuits
+let electrum = svc.open_session(0, SocksPolicy::Any).await?;                     // different circuits
 let rtt = svc.probe("check.torproject.org", 443, timeout).await?;
 electrum.stop().await;
 svc.stop().await;

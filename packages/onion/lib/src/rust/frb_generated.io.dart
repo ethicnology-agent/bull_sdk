@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api/client.dart';
+import 'api/connection.dart';
 import 'api/error.dart';
 import 'api/log.dart';
 import 'api/session.dart';
@@ -110,16 +111,36 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   Blockage dco_decode_box_autoadd_blockage(dynamic raw);
 
   @protected
+  ConnectionFailureKind dco_decode_box_autoadd_connection_failure_kind(
+    dynamic raw,
+  );
+
+  @protected
   TorStatus dco_decode_box_autoadd_tor_status(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
+  ConnectionEvent dco_decode_connection_event(dynamic raw);
+
+  @protected
+  ConnectionEventBatch dco_decode_connection_event_batch(dynamic raw);
+
+  @protected
+  ConnectionEventKind dco_decode_connection_event_kind(dynamic raw);
+
+  @protected
+  ConnectionFailureKind dco_decode_connection_failure_kind(dynamic raw);
+
+  @protected
   double dco_decode_f_32(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
+
+  @protected
+  List<ConnectionEvent> dco_decode_list_connection_event(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -132,6 +153,11 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   Blockage? dco_decode_opt_box_autoadd_blockage(dynamic raw);
+
+  @protected
+  ConnectionFailureKind? dco_decode_opt_box_autoadd_connection_failure_kind(
+    dynamic raw,
+  );
 
   @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
@@ -256,16 +282,44 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   Blockage sse_decode_box_autoadd_blockage(SseDeserializer deserializer);
 
   @protected
+  ConnectionFailureKind sse_decode_box_autoadd_connection_failure_kind(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   TorStatus sse_decode_box_autoadd_tor_status(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  ConnectionEvent sse_decode_connection_event(SseDeserializer deserializer);
+
+  @protected
+  ConnectionEventBatch sse_decode_connection_event_batch(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ConnectionEventKind sse_decode_connection_event_kind(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ConnectionFailureKind sse_decode_connection_failure_kind(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  List<ConnectionEvent> sse_decode_list_connection_event(
+    SseDeserializer deserializer,
+  );
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -280,6 +334,11 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   Blockage? sse_decode_opt_box_autoadd_blockage(SseDeserializer deserializer);
+
+  @protected
+  ConnectionFailureKind? sse_decode_opt_box_autoadd_connection_failure_kind(
+    SseDeserializer deserializer,
+  );
 
   @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
@@ -363,6 +422,16 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   }
 
   @protected
+  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_connection_failure_kind(
+    ConnectionFailureKind raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_connection_failure_kind(
+      cst_encode_connection_failure_kind(raw),
+    );
+  }
+
+  @protected
   ffi.Pointer<wire_cst_tor_status> cst_encode_box_autoadd_tor_status(
     TorStatus raw,
   ) {
@@ -376,6 +445,18 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   ffi.Pointer<ffi.Uint64> cst_encode_box_autoadd_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return wire.cst_new_box_autoadd_u_64(cst_encode_u_64(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_connection_event> cst_encode_list_connection_event(
+    List<ConnectionEvent> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_connection_event(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_connection_event(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
   }
 
   @protected
@@ -414,6 +495,16 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_box_autoadd_blockage(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_connection_failure_kind(
+    ConnectionFailureKind? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_connection_failure_kind(raw);
   }
 
   @protected
@@ -457,6 +548,30 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     ffi.Pointer<wire_cst_tor_status> wireObj,
   ) {
     cst_api_fill_to_wire_tor_status(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_connection_event(
+    ConnectionEvent apiObj,
+    wire_cst_connection_event wireObj,
+  ) {
+    wireObj.sequence = cst_encode_u_64(apiObj.sequence);
+    wireObj.attempt_id = cst_encode_u_64(apiObj.attemptId);
+    wireObj.elapsed_ms = cst_encode_u_64(apiObj.elapsedMs);
+    wireObj.kind = cst_encode_connection_event_kind(apiObj.kind);
+    wireObj.failure = cst_encode_opt_box_autoadd_connection_failure_kind(
+      apiObj.failure,
+    );
+  }
+
+  @protected
+  void cst_api_fill_to_wire_connection_event_batch(
+    ConnectionEventBatch apiObj,
+    wire_cst_connection_event_batch wireObj,
+  ) {
+    wireObj.events = cst_encode_list_connection_event(apiObj.events);
+    wireObj.latest_sequence = cst_encode_u_64(apiObj.latestSequence);
+    wireObj.dropped = cst_encode_u_64(apiObj.dropped);
   }
 
   @protected
@@ -559,6 +674,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   bool cst_encode_bool(bool raw);
+
+  @protected
+  int cst_encode_connection_event_kind(ConnectionEventKind raw);
+
+  @protected
+  int cst_encode_connection_failure_kind(ConnectionFailureKind raw);
 
   @protected
   double cst_encode_f_32(double raw);
@@ -681,6 +802,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   void sse_encode_box_autoadd_blockage(Blockage self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_connection_failure_kind(
+    ConnectionFailureKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_tor_status(
     TorStatus self,
     SseSerializer serializer,
@@ -690,10 +817,40 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
+  void sse_encode_connection_event(
+    ConnectionEvent self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_connection_event_batch(
+    ConnectionEventBatch self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_connection_event_kind(
+    ConnectionEventKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_connection_failure_kind(
+    ConnectionFailureKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_connection_event(
+    List<ConnectionEvent> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -713,6 +870,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   @protected
   void sse_encode_opt_box_autoadd_blockage(
     Blockage? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_connection_failure_kind(
+    ConnectionFailureKind? self,
     SseSerializer serializer,
   );
 
@@ -849,6 +1012,28 @@ class OnionCoreWire implements BaseWire {
   late final _wire__crate__api__client__TorService_bootstrap =
       _wire__crate__api__client__TorService_bootstrapPtr
           .asFunction<void Function(int, int)>();
+
+  void wire__crate__api__client__TorService_connection_events(
+    int port_,
+    int that,
+    int after_sequence,
+  ) {
+    return _wire__crate__api__client__TorService_connection_events(
+      port_,
+      that,
+      after_sequence,
+    );
+  }
+
+  late final _wire__crate__api__client__TorService_connection_eventsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.UintPtr, ffi.Uint64)
+        >
+      >('frbgen_onion_wire__crate__api__client__TorService_connection_events');
+  late final _wire__crate__api__client__TorService_connection_events =
+      _wire__crate__api__client__TorService_connection_eventsPtr
+          .asFunction<void Function(int, int, int)>();
 
   void wire__crate__api__client__TorService_open_session(
     int port_,
@@ -1232,6 +1417,28 @@ class OnionCoreWire implements BaseWire {
             void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
+  void wire__crate__api__session__TorSession_connection_events(
+    int port_,
+    int that,
+    int after_sequence,
+  ) {
+    return _wire__crate__api__session__TorSession_connection_events(
+      port_,
+      that,
+      after_sequence,
+    );
+  }
+
+  late final _wire__crate__api__session__TorSession_connection_eventsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.UintPtr, ffi.Uint64)
+        >
+      >('frbgen_onion_wire__crate__api__session__TorSession_connection_events');
+  late final _wire__crate__api__session__TorSession_connection_events =
+      _wire__crate__api__session__TorSession_connection_eventsPtr
+          .asFunction<void Function(int, int, int)>();
+
   void wire__crate__api__session__TorSession_proxy_is_alive(
     int port_,
     int that,
@@ -1465,6 +1672,20 @@ class OnionCoreWire implements BaseWire {
   late final _cst_new_box_autoadd_blockage = _cst_new_box_autoadd_blockagePtr
       .asFunction<ffi.Pointer<wire_cst_blockage> Function()>();
 
+  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_connection_failure_kind(
+    int value,
+  ) {
+    return _cst_new_box_autoadd_connection_failure_kind(value);
+  }
+
+  late final _cst_new_box_autoadd_connection_failure_kindPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+        'frbgen_onion_cst_new_box_autoadd_connection_failure_kind',
+      );
+  late final _cst_new_box_autoadd_connection_failure_kind =
+      _cst_new_box_autoadd_connection_failure_kindPtr
+          .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
   ffi.Pointer<wire_cst_tor_status> cst_new_box_autoadd_tor_status() {
     return _cst_new_box_autoadd_tor_status();
   }
@@ -1487,6 +1708,21 @@ class OnionCoreWire implements BaseWire {
       );
   late final _cst_new_box_autoadd_u_64 = _cst_new_box_autoadd_u_64Ptr
       .asFunction<ffi.Pointer<ffi.Uint64> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_connection_event> cst_new_list_connection_event(
+    int len,
+  ) {
+    return _cst_new_list_connection_event(len);
+  }
+
+  late final _cst_new_list_connection_eventPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_connection_event> Function(ffi.Int32)
+        >
+      >('frbgen_onion_cst_new_list_connection_event');
+  late final _cst_new_list_connection_event = _cst_new_list_connection_eventPtr
+      .asFunction<ffi.Pointer<wire_cst_list_connection_event> Function(int)>();
 
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
@@ -1568,6 +1804,29 @@ final class wire_cst_tor_status extends ffi.Struct {
   external int transport;
 }
 
+final class wire_cst_connection_event extends ffi.Struct {
+  @ffi.Uint64()
+  external int sequence;
+
+  @ffi.Uint64()
+  external int attempt_id;
+
+  @ffi.Uint64()
+  external int elapsed_ms;
+
+  @ffi.Int32()
+  external int kind;
+
+  external ffi.Pointer<ffi.Int32> failure;
+}
+
+final class wire_cst_list_connection_event extends ffi.Struct {
+  external ffi.Pointer<wire_cst_connection_event> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_tor_log_record extends ffi.Struct {
   @ffi.Int32()
   external int level;
@@ -1582,6 +1841,16 @@ final class wire_cst_list_tor_log_record extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
+}
+
+final class wire_cst_connection_event_batch extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_connection_event> events;
+
+  @ffi.Uint64()
+  external int latest_sequence;
+
+  @ffi.Uint64()
+  external int dropped;
 }
 
 final class wire_cst_tor_failure extends ffi.Struct {

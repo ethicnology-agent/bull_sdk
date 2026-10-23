@@ -11,6 +11,7 @@
 #![deny(unsafe_code)]
 
 pub mod client;
+pub mod connection;
 pub mod error;
 pub mod log;
 pub mod session;

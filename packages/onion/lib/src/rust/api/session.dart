@@ -4,6 +4,8 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+import 'connection.dart';
+import 'error.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `abort`, `allows`, `client`, `downgrade`, `is_onion_host`, `proxy_is_alive`, `start`, `stop`
@@ -12,6 +14,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // Rust type: RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<TorSession>>
 abstract class TorSession implements RustOpaqueInterface {
+  /// Read bounded, destination-free connection diagnostics for this session.
+  ///
+  /// Start with zero, then pass the previous batch's latest_sequence. Cursors are
+  /// local to this session; reading after stop remains available while the handle lives.
+  Future<ConnectionEventBatch> connectionEvents({
+    required BigInt afterSequence,
+  });
+
   /// Whether this session's SOCKS accept loop is still running.
   Future<bool> proxyIsAlive();
 

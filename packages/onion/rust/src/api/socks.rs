@@ -41,6 +41,9 @@ use tor_socksproto::{
 };
 use tracing::{debug, warn};
 
+use super::connection::{
+    ConnectionAttempt, ConnectionEventKind, ConnectionFailureKind, ConnectionHistory,
+};
 use super::error::{TorFailure, TorResult};
 use super::session::SocksPolicy;
 
@@ -110,6 +113,7 @@ pub(crate) async fn serve(
     client: Arc<TorClient<TokioNativeTlsRuntime>>,
     policy: SocksPolicy,
     connect_timeout_ms: Option<u64>,
+    history: Arc<ConnectionHistory>,
 ) -> TorResult<()> {
     let mut connections = JoinSet::new();
     let permits = Arc::new(tokio::sync::Semaphore::new(MAX_CONNECTIONS));
@@ -127,15 +131,18 @@ pub(crate) async fn serve(
                     }
                 };
 
+                let mut attempt = history.begin();
                 let Ok(permit) = Arc::clone(&permits).try_acquire_owned() else {
                     debug!(%peer, "socks connection limit reached");
+                    attempt.fail(ConnectionFailureKind::ConnectionLimit);
                     drop(stream);
                     continue;
                 };
                 let client = Arc::clone(&client);
                 connections.spawn(async move {
                     let _permit = permit;
-                    if let Err(e) = handle_conn(stream, client, policy, connect_timeout_ms).await {
+                    if let Err(e) = handle_conn(stream, client, policy, connect_timeout_ms, &mut attempt).await {
+                        if !attempt.is_finished() { attempt.fail(ConnectionFailureKind::LocalIo); }
                         // Deliberately not `warn!` with the target address: that
                         // would put the user's browsing destinations in the log.
                         debug!(%peer, error = %e, "socks connection ended with an error");
@@ -157,15 +164,25 @@ async fn handle_conn(
     client: Arc<TorClient<TokioNativeTlsRuntime>>,
     policy: SocksPolicy,
     connect_timeout_ms: Option<u64>,
+    attempt: &mut ConnectionAttempt,
 ) -> TorResult<()> {
-    let request = tokio::time::timeout(HANDSHAKE_TIMEOUT, negotiate(&mut sock))
-        .await
-        .map_err(|_| TorFailure::unexpected("socks handshake timed out"))??;
+    let request = match tokio::time::timeout(HANDSHAKE_TIMEOUT, negotiate(&mut sock)).await {
+        Err(_) => {
+            attempt.fail(ConnectionFailureKind::HandshakeTimeout);
+            return Err(TorFailure::unexpected("socks handshake timed out"));
+        }
+        Ok(Err(error)) => {
+            attempt.fail(ConnectionFailureKind::HandshakeFailed);
+            return Err(error);
+        }
+        Ok(Ok(request)) => request,
+    };
 
     let addr = request.addr().to_string();
     let port = request.port();
 
     if request.command() != SocksCmd::CONNECT {
+        attempt.fail(ConnectionFailureKind::UnsupportedCommand);
         warn!(command = ?request.command(), "unsupported SOCKS command");
         reply(&mut sock, &request, SocksStatus::COMMAND_NOT_SUPPORTED).await?;
         return Ok(());
@@ -174,25 +191,30 @@ async fn handle_conn(
     // Whether non-onion destinations are relayed is the caller's decision,
     // not this package's — see `SocksPolicy`.
     if !policy.allows(&addr) {
+        attempt.fail(ConnectionFailureKind::PolicyDenied);
         reply(&mut sock, &request, SocksStatus::NOT_ALLOWED).await?;
         return Ok(());
     }
 
     // `e` here would name the destination; report only its kind.
-    let target = (addr.as_str(), port)
-        .into_tor_addr()
-        .map_err(|e| TorFailure::connect(format!("rejected target address: {}", e.kind())))?;
+    let target = (addr.as_str(), port).into_tor_addr().map_err(|e| {
+        attempt.fail(ConnectionFailureKind::InvalidTarget);
+        TorFailure::connect(format!("rejected target address: {}", e.kind()))
+    })?;
 
+    attempt.record(ConnectionEventKind::Connecting);
     let tor_stream =
         match tokio::time::timeout(connect_timeout(connect_timeout_ms), client.connect(target))
             .await
         {
             Err(_) => {
+                attempt.fail(ConnectionFailureKind::ConnectTimeout);
                 reply(&mut sock, &request, socks_status_for_timeout()).await?;
                 return Err(TorFailure::connect("tor connect timed out"));
             }
             Ok(Ok(s)) => s,
             Ok(Err(e)) => {
+                attempt.fail(ConnectionFailureKind::from_arti(e.kind()));
                 // Report the failure to the SOCKS client rather than dropping the
                 // socket, so the caller sees a protocol-level refusal instead of a
                 // bare connection reset it cannot attribute.
@@ -206,6 +228,7 @@ async fn handle_conn(
             }
         };
 
+    attempt.record(ConnectionEventKind::Connected);
     reply(&mut sock, &request, SocksStatus::SUCCEEDED).await?;
 
     let mut tor_stream = tor_stream;
@@ -213,6 +236,7 @@ async fn handle_conn(
         .await
         .map_err(|e| TorFailure::connect(format!("relay: {e}")))?;
 
+    attempt.close();
     Ok(())
 }
 

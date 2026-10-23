@@ -36,6 +36,7 @@ library;
 
 export 'src/onion_logs.dart';
 export 'src/rust/api/client.dart';
+export 'src/rust/api/connection.dart';
 export 'src/rust/api/error.dart';
 export 'src/rust/api/log.dart';
 // `TorSession` and the `SocksPolicy` every `start`/`openSession` call must

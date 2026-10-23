@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api/client.dart';
+import 'api/connection.dart';
 import 'api/error.dart';
 import 'api/log.dart';
 import 'api/session.dart';
@@ -69,7 +70,7 @@ class OnionCore
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1790155228;
+  int get rustContentHash => 1909672741;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -90,6 +91,11 @@ abstract class OnionCoreApi extends BaseApi {
   TorLogStats crateApiLogTorLogStreamStats({required TorLogStream that});
 
   Future<void> crateApiClientTorServiceBootstrap({required TorService that});
+
+  Future<ConnectionEventBatch> crateApiClientTorServiceConnectionEvents({
+    required TorService that,
+    required BigInt afterSequence,
+  });
 
   Future<TorSession> crateApiClientTorServiceOpenSession({
     required TorService that,
@@ -158,6 +164,11 @@ abstract class OnionCoreApi extends BaseApi {
 
   Stream<TorStatus> crateApiClientTorServiceWatchStatus({
     required TorService that,
+  });
+
+  Future<ConnectionEventBatch> crateApiSessionTorSessionConnectionEvents({
+    required TorSession that,
+    required BigInt afterSequence,
   });
 
   Future<bool> crateApiSessionTorSessionProxyIsAlive({
@@ -326,6 +337,42 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       const TaskConstMeta(
         debugName: "TorService_bootstrap",
         argNames: ["that"],
+      );
+
+  @override
+  Future<ConnectionEventBatch> crateApiClientTorServiceConnectionEvents({
+    required TorService that,
+    required BigInt afterSequence,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService(
+                that,
+              );
+          var arg1 = cst_encode_u_64(afterSequence);
+          return wire.wire__crate__api__client__TorService_connection_events(
+            port_,
+            arg0,
+            arg1,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_connection_event_batch,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiClientTorServiceConnectionEventsConstMeta,
+        argValues: [that, afterSequence],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClientTorServiceConnectionEventsConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_connection_events",
+        argNames: ["that", "afterSequence"],
       );
 
   @override
@@ -848,6 +895,42 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       );
 
   @override
+  Future<ConnectionEventBatch> crateApiSessionTorSessionConnectionEvents({
+    required TorSession that,
+    required BigInt afterSequence,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
+                that,
+              );
+          var arg1 = cst_encode_u_64(afterSequence);
+          return wire.wire__crate__api__session__TorSession_connection_events(
+            port_,
+            arg0,
+            arg1,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_connection_event_batch,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiSessionTorSessionConnectionEventsConstMeta,
+        argValues: [that, afterSequence],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSessionTorSessionConnectionEventsConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorSession_connection_events",
+        argNames: ["that", "afterSequence"],
+      );
+
+  @override
   Future<bool> crateApiSessionTorSessionProxyIsAlive({
     required TorSession that,
   }) {
@@ -1218,6 +1301,14 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  ConnectionFailureKind dco_decode_box_autoadd_connection_failure_kind(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_connection_failure_kind(raw);
+  }
+
+  @protected
   TorStatus dco_decode_box_autoadd_tor_status(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_tor_status(raw);
@@ -1230,6 +1321,46 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  ConnectionEvent dco_decode_connection_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return ConnectionEvent(
+      sequence: dco_decode_u_64(arr[0]),
+      attemptId: dco_decode_u_64(arr[1]),
+      elapsedMs: dco_decode_u_64(arr[2]),
+      kind: dco_decode_connection_event_kind(arr[3]),
+      failure: dco_decode_opt_box_autoadd_connection_failure_kind(arr[4]),
+    );
+  }
+
+  @protected
+  ConnectionEventBatch dco_decode_connection_event_batch(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ConnectionEventBatch(
+      events: dco_decode_list_connection_event(arr[0]),
+      latestSequence: dco_decode_u_64(arr[1]),
+      dropped: dco_decode_u_64(arr[2]),
+    );
+  }
+
+  @protected
+  ConnectionEventKind dco_decode_connection_event_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ConnectionEventKind.values[raw as int];
+  }
+
+  @protected
+  ConnectionFailureKind dco_decode_connection_failure_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ConnectionFailureKind.values[raw as int];
+  }
+
+  @protected
   double dco_decode_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
@@ -1239,6 +1370,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  List<ConnectionEvent> dco_decode_list_connection_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_connection_event).toList();
   }
 
   @protected
@@ -1263,6 +1400,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   Blockage? dco_decode_opt_box_autoadd_blockage(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_blockage(raw);
+  }
+
+  @protected
+  ConnectionFailureKind? dco_decode_opt_box_autoadd_connection_failure_kind(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null
+        ? null
+        : dco_decode_box_autoadd_connection_failure_kind(raw);
   }
 
   @protected
@@ -1542,6 +1689,14 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  ConnectionFailureKind sse_decode_box_autoadd_connection_failure_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_connection_failure_kind(deserializer));
+  }
+
+  @protected
   TorStatus sse_decode_box_autoadd_tor_status(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_tor_status(deserializer));
@@ -1554,6 +1709,58 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  ConnectionEvent sse_decode_connection_event(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_sequence = sse_decode_u_64(deserializer);
+    var var_attemptId = sse_decode_u_64(deserializer);
+    var var_elapsedMs = sse_decode_u_64(deserializer);
+    var var_kind = sse_decode_connection_event_kind(deserializer);
+    var var_failure = sse_decode_opt_box_autoadd_connection_failure_kind(
+      deserializer,
+    );
+    return ConnectionEvent(
+      sequence: var_sequence,
+      attemptId: var_attemptId,
+      elapsedMs: var_elapsedMs,
+      kind: var_kind,
+      failure: var_failure,
+    );
+  }
+
+  @protected
+  ConnectionEventBatch sse_decode_connection_event_batch(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_events = sse_decode_list_connection_event(deserializer);
+    var var_latestSequence = sse_decode_u_64(deserializer);
+    var var_dropped = sse_decode_u_64(deserializer);
+    return ConnectionEventBatch(
+      events: var_events,
+      latestSequence: var_latestSequence,
+      dropped: var_dropped,
+    );
+  }
+
+  @protected
+  ConnectionEventKind sse_decode_connection_event_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return ConnectionEventKind.values[inner];
+  }
+
+  @protected
+  ConnectionFailureKind sse_decode_connection_failure_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return ConnectionFailureKind.values[inner];
+  }
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getFloat32();
@@ -1563,6 +1770,20 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  List<ConnectionEvent> sse_decode_list_connection_event(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <ConnectionEvent>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_connection_event(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -1603,6 +1824,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_blockage(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  ConnectionFailureKind? sse_decode_opt_box_autoadd_connection_failure_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_connection_failure_kind(deserializer));
     } else {
       return null;
     }
@@ -1833,6 +2067,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   bool cst_encode_bool(bool raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
+  }
+
+  @protected
+  int cst_encode_connection_event_kind(ConnectionEventKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_connection_failure_kind(ConnectionFailureKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
   }
 
   @protected
@@ -2073,6 +2319,15 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_connection_failure_kind(
+    ConnectionFailureKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_connection_failure_kind(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_tor_status(
     TorStatus self,
     SseSerializer serializer,
@@ -2088,6 +2343,51 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  void sse_encode_connection_event(
+    ConnectionEvent self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.sequence, serializer);
+    sse_encode_u_64(self.attemptId, serializer);
+    sse_encode_u_64(self.elapsedMs, serializer);
+    sse_encode_connection_event_kind(self.kind, serializer);
+    sse_encode_opt_box_autoadd_connection_failure_kind(
+      self.failure,
+      serializer,
+    );
+  }
+
+  @protected
+  void sse_encode_connection_event_batch(
+    ConnectionEventBatch self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_connection_event(self.events, serializer);
+    sse_encode_u_64(self.latestSequence, serializer);
+    sse_encode_u_64(self.dropped, serializer);
+  }
+
+  @protected
+  void sse_encode_connection_event_kind(
+    ConnectionEventKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_connection_failure_kind(
+    ConnectionFailureKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putFloat32(self);
@@ -2097,6 +2397,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_list_connection_event(
+    List<ConnectionEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_connection_event(item, serializer);
+    }
   }
 
   @protected
@@ -2141,6 +2453,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_blockage(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_connection_failure_kind(
+    ConnectionFailureKind? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_connection_failure_kind(self, serializer);
     }
   }
 
@@ -2305,6 +2630,16 @@ class TorServiceImpl extends RustOpaque implements TorService {
   Future<void> bootstrap() =>
       OnionCore.instance.api.crateApiClientTorServiceBootstrap(that: this);
 
+  /// Read connection diagnostics for the default SOCKS session.
+  ///
+  /// Other sessions expose their own independent TorSession::connection_events history.
+  Future<ConnectionEventBatch> connectionEvents({
+    required BigInt afterSequence,
+  }) => OnionCore.instance.api.crateApiClientTorServiceConnectionEvents(
+    that: this,
+    afterSequence: afterSequence,
+  );
+
   /// Open another loopback SOCKS listener with separate Tor circuits.
   ///
   /// Sessions share the root client's configuration, directory state,
@@ -2419,6 +2754,17 @@ class TorSessionImpl extends RustOpaque implements TorSession {
         OnionCore.instance.api.rust_arc_decrement_strong_count_TorSession,
     rustArcDecrementStrongCountPtr:
         OnionCore.instance.api.rust_arc_decrement_strong_count_TorSessionPtr,
+  );
+
+  /// Read bounded, destination-free connection diagnostics for this session.
+  ///
+  /// Start with zero, then pass the previous batch's latest_sequence. Cursors are
+  /// local to this session; reading after stop remains available while the handle lives.
+  Future<ConnectionEventBatch> connectionEvents({
+    required BigInt afterSequence,
+  }) => OnionCore.instance.api.crateApiSessionTorSessionConnectionEvents(
+    that: this,
+    afterSequence: afterSequence,
   );
 
   /// Whether this session's SOCKS accept loop is still running.

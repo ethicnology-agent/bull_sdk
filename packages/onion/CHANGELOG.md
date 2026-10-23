@@ -1,5 +1,7 @@
 ## 0.2.0
 
+- Expose bounded per-session SOCKS connection histories with anonymous attempt IDs, monotonic timing and typed local/Arti failure causes; preserve compatible SOCKS wire replies and expose cancellation on task teardown.
+
 - Expose typed native Snowflake lifecycle and connection events on Android and iOS through an independently readable, bounded history with generation IDs, timing and loss counts; never forward native error messages.
 
 - Expose opt-in native Arti diagnostics through `OnionLogs` and the lower-level `TorLogStream`, with synchronous registration before Tor startup.

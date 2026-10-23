@@ -4,6 +4,7 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+import 'connection.dart';
 import 'error.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'session.dart';
@@ -18,6 +19,13 @@ import 'status.dart';
 abstract class TorService implements RustOpaqueInterface {
   /// Bootstrap, resolving when the client is usable.
   Future<void> bootstrap();
+
+  /// Read connection diagnostics for the default SOCKS session.
+  ///
+  /// Other sessions expose their own independent TorSession::connection_events history.
+  Future<ConnectionEventBatch> connectionEvents({
+    required BigInt afterSequence,
+  });
 
   /// Open another loopback SOCKS listener with separate Tor circuits.
   ///

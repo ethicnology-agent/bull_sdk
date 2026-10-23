@@ -41,7 +41,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1790155228;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1909672741;
 
 // Section: executor
 
@@ -205,6 +205,48 @@ fn wire__crate__api__client__TorService_bootstrap_impl(
                     })()
                     .await,
                 )
+            }
+        },
+    )
+}
+fn wire__crate__api__client__TorService_connection_events_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<
+        RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<TorService>>,
+    >,
+    after_sequence: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "TorService_connection_events",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            let api_after_sequence = after_sequence.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, crate::api::error::TorFailure>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::api::client::TorService::connection_events(
+                        &*api_that_guard,
+                        api_after_sequence,
+                    )?;
+                    Ok(output_ok)
+                })())
             }
         },
     )
@@ -785,6 +827,48 @@ fn wire__crate__api__client__TorService_watch_status_impl(
         },
     )
 }
+fn wire__crate__api__session__TorSession_connection_events_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    that: impl CstDecode<
+        RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<TorSession>>,
+    >,
+    after_sequence: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "TorSession_connection_events",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.cst_decode();
+            let api_after_sequence = after_sequence.cst_decode();
+            move |context| {
+                transform_result_dco::<_, _, crate::api::error::TorFailure>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::api::session::TorSession::connection_events(
+                        &*api_that_guard,
+                        api_after_sequence,
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__session__TorSession_proxy_is_alive_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     that: impl CstDecode<
@@ -1030,6 +1114,56 @@ impl CstDecode<bool> for bool {
         self
     }
 }
+impl CstDecode<crate::api::connection::ConnectionEventKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::connection::ConnectionEventKind {
+        match self {
+            0 => crate::api::connection::ConnectionEventKind::Accepted,
+            1 => crate::api::connection::ConnectionEventKind::Connecting,
+            2 => crate::api::connection::ConnectionEventKind::Connected,
+            3 => crate::api::connection::ConnectionEventKind::Closed,
+            4 => crate::api::connection::ConnectionEventKind::Failed,
+            5 => crate::api::connection::ConnectionEventKind::Cancelled,
+            _ => unreachable!("Invalid variant for ConnectionEventKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::api::connection::ConnectionFailureKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::api::connection::ConnectionFailureKind {
+        match self {
+            0 => crate::api::connection::ConnectionFailureKind::ConnectionLimit,
+            1 => crate::api::connection::ConnectionFailureKind::HandshakeFailed,
+            2 => crate::api::connection::ConnectionFailureKind::HandshakeTimeout,
+            3 => crate::api::connection::ConnectionFailureKind::UnsupportedCommand,
+            4 => crate::api::connection::ConnectionFailureKind::PolicyDenied,
+            5 => crate::api::connection::ConnectionFailureKind::InvalidTarget,
+            6 => crate::api::connection::ConnectionFailureKind::ConnectTimeout,
+            7 => crate::api::connection::ConnectionFailureKind::BootstrapRequired,
+            8 => crate::api::connection::ConnectionFailureKind::DirectoryUnavailable,
+            9 => crate::api::connection::ConnectionFailureKind::NoPath,
+            10 => crate::api::connection::ConnectionFailureKind::NoExit,
+            11 => crate::api::connection::ConnectionFailureKind::CircuitCollapsed,
+            12 => crate::api::connection::ConnectionFailureKind::CircuitRefused,
+            13 => crate::api::connection::ConnectionFailureKind::NetworkTimeout,
+            14 => crate::api::connection::ConnectionFailureKind::OnionServiceNotFound,
+            15 => crate::api::connection::ConnectionFailureKind::OnionServiceNotRunning,
+            16 => crate::api::connection::ConnectionFailureKind::OnionServiceConnectionFailed,
+            17 => crate::api::connection::ConnectionFailureKind::OnionServiceProtocolViolation,
+            18 => crate::api::connection::ConnectionFailureKind::OnionServiceMissingClientAuth,
+            19 => crate::api::connection::ConnectionFailureKind::OnionServiceWrongClientAuth,
+            20 => crate::api::connection::ConnectionFailureKind::OnionServiceAddressInvalid,
+            21 => crate::api::connection::ConnectionFailureKind::HostNotFound,
+            22 => crate::api::connection::ConnectionFailureKind::NameResolutionFailed,
+            23 => crate::api::connection::ConnectionFailureKind::ConnectionRefused,
+            24 => crate::api::connection::ConnectionFailureKind::RemoteStreamFailed,
+            25 => crate::api::connection::ConnectionFailureKind::ForbiddenTarget,
+            26 => crate::api::connection::ConnectionFailureKind::LocalIo,
+            27 => crate::api::connection::ConnectionFailureKind::OtherTorFailure,
+            _ => unreachable!("Invalid variant for ConnectionFailureKind: {}", self),
+        }
+    }
+}
 impl CstDecode<f32> for f32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> f32 {
@@ -1241,6 +1375,94 @@ impl SseDecode for bool {
     }
 }
 
+impl SseDecode for crate::api::connection::ConnectionEvent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_sequence = <u64>::sse_decode(deserializer);
+        let mut var_attemptId = <u64>::sse_decode(deserializer);
+        let mut var_elapsedMs = <u64>::sse_decode(deserializer);
+        let mut var_kind = <crate::api::connection::ConnectionEventKind>::sse_decode(deserializer);
+        let mut var_failure =
+            <Option<crate::api::connection::ConnectionFailureKind>>::sse_decode(deserializer);
+        return crate::api::connection::ConnectionEvent {
+            sequence: var_sequence,
+            attempt_id: var_attemptId,
+            elapsed_ms: var_elapsedMs,
+            kind: var_kind,
+            failure: var_failure,
+        };
+    }
+}
+
+impl SseDecode for crate::api::connection::ConnectionEventBatch {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_events =
+            <Vec<crate::api::connection::ConnectionEvent>>::sse_decode(deserializer);
+        let mut var_latestSequence = <u64>::sse_decode(deserializer);
+        let mut var_dropped = <u64>::sse_decode(deserializer);
+        return crate::api::connection::ConnectionEventBatch {
+            events: var_events,
+            latest_sequence: var_latestSequence,
+            dropped: var_dropped,
+        };
+    }
+}
+
+impl SseDecode for crate::api::connection::ConnectionEventKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::connection::ConnectionEventKind::Accepted,
+            1 => crate::api::connection::ConnectionEventKind::Connecting,
+            2 => crate::api::connection::ConnectionEventKind::Connected,
+            3 => crate::api::connection::ConnectionEventKind::Closed,
+            4 => crate::api::connection::ConnectionEventKind::Failed,
+            5 => crate::api::connection::ConnectionEventKind::Cancelled,
+            _ => unreachable!("Invalid variant for ConnectionEventKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::connection::ConnectionFailureKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::connection::ConnectionFailureKind::ConnectionLimit,
+            1 => crate::api::connection::ConnectionFailureKind::HandshakeFailed,
+            2 => crate::api::connection::ConnectionFailureKind::HandshakeTimeout,
+            3 => crate::api::connection::ConnectionFailureKind::UnsupportedCommand,
+            4 => crate::api::connection::ConnectionFailureKind::PolicyDenied,
+            5 => crate::api::connection::ConnectionFailureKind::InvalidTarget,
+            6 => crate::api::connection::ConnectionFailureKind::ConnectTimeout,
+            7 => crate::api::connection::ConnectionFailureKind::BootstrapRequired,
+            8 => crate::api::connection::ConnectionFailureKind::DirectoryUnavailable,
+            9 => crate::api::connection::ConnectionFailureKind::NoPath,
+            10 => crate::api::connection::ConnectionFailureKind::NoExit,
+            11 => crate::api::connection::ConnectionFailureKind::CircuitCollapsed,
+            12 => crate::api::connection::ConnectionFailureKind::CircuitRefused,
+            13 => crate::api::connection::ConnectionFailureKind::NetworkTimeout,
+            14 => crate::api::connection::ConnectionFailureKind::OnionServiceNotFound,
+            15 => crate::api::connection::ConnectionFailureKind::OnionServiceNotRunning,
+            16 => crate::api::connection::ConnectionFailureKind::OnionServiceConnectionFailed,
+            17 => crate::api::connection::ConnectionFailureKind::OnionServiceProtocolViolation,
+            18 => crate::api::connection::ConnectionFailureKind::OnionServiceMissingClientAuth,
+            19 => crate::api::connection::ConnectionFailureKind::OnionServiceWrongClientAuth,
+            20 => crate::api::connection::ConnectionFailureKind::OnionServiceAddressInvalid,
+            21 => crate::api::connection::ConnectionFailureKind::HostNotFound,
+            22 => crate::api::connection::ConnectionFailureKind::NameResolutionFailed,
+            23 => crate::api::connection::ConnectionFailureKind::ConnectionRefused,
+            24 => crate::api::connection::ConnectionFailureKind::RemoteStreamFailed,
+            25 => crate::api::connection::ConnectionFailureKind::ForbiddenTarget,
+            26 => crate::api::connection::ConnectionFailureKind::LocalIo,
+            27 => crate::api::connection::ConnectionFailureKind::OtherTorFailure,
+            _ => unreachable!("Invalid variant for ConnectionFailureKind: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for f32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1252,6 +1474,20 @@ impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_i32::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for Vec<crate::api::connection::ConnectionEvent> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::connection::ConnectionEvent>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
     }
 }
 
@@ -1295,6 +1531,19 @@ impl SseDecode for Option<crate::api::status::Blockage> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::api::status::Blockage>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::connection::ConnectionFailureKind> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::connection::ConnectionFailureKind>::sse_decode(
+                deserializer,
+            ));
         } else {
             return None;
         }
@@ -1582,6 +1831,124 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::status::BlockageKind>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::connection::ConnectionEvent {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.sequence.into_into_dart().into_dart(),
+            self.attempt_id.into_into_dart().into_dart(),
+            self.elapsed_ms.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.failure.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::connection::ConnectionEvent
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::connection::ConnectionEvent>
+    for crate::api::connection::ConnectionEvent
+{
+    fn into_into_dart(self) -> crate::api::connection::ConnectionEvent {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::connection::ConnectionEventBatch {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.events.into_into_dart().into_dart(),
+            self.latest_sequence.into_into_dart().into_dart(),
+            self.dropped.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::connection::ConnectionEventBatch
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::connection::ConnectionEventBatch>
+    for crate::api::connection::ConnectionEventBatch
+{
+    fn into_into_dart(self) -> crate::api::connection::ConnectionEventBatch {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::connection::ConnectionEventKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Accepted => 0.into_dart(),
+            Self::Connecting => 1.into_dart(),
+            Self::Connected => 2.into_dart(),
+            Self::Closed => 3.into_dart(),
+            Self::Failed => 4.into_dart(),
+            Self::Cancelled => 5.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::connection::ConnectionEventKind
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::connection::ConnectionEventKind>
+    for crate::api::connection::ConnectionEventKind
+{
+    fn into_into_dart(self) -> crate::api::connection::ConnectionEventKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::connection::ConnectionFailureKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::ConnectionLimit => 0.into_dart(),
+            Self::HandshakeFailed => 1.into_dart(),
+            Self::HandshakeTimeout => 2.into_dart(),
+            Self::UnsupportedCommand => 3.into_dart(),
+            Self::PolicyDenied => 4.into_dart(),
+            Self::InvalidTarget => 5.into_dart(),
+            Self::ConnectTimeout => 6.into_dart(),
+            Self::BootstrapRequired => 7.into_dart(),
+            Self::DirectoryUnavailable => 8.into_dart(),
+            Self::NoPath => 9.into_dart(),
+            Self::NoExit => 10.into_dart(),
+            Self::CircuitCollapsed => 11.into_dart(),
+            Self::CircuitRefused => 12.into_dart(),
+            Self::NetworkTimeout => 13.into_dart(),
+            Self::OnionServiceNotFound => 14.into_dart(),
+            Self::OnionServiceNotRunning => 15.into_dart(),
+            Self::OnionServiceConnectionFailed => 16.into_dart(),
+            Self::OnionServiceProtocolViolation => 17.into_dart(),
+            Self::OnionServiceMissingClientAuth => 18.into_dart(),
+            Self::OnionServiceWrongClientAuth => 19.into_dart(),
+            Self::OnionServiceAddressInvalid => 20.into_dart(),
+            Self::HostNotFound => 21.into_dart(),
+            Self::NameResolutionFailed => 22.into_dart(),
+            Self::ConnectionRefused => 23.into_dart(),
+            Self::RemoteStreamFailed => 24.into_dart(),
+            Self::ForbiddenTarget => 25.into_dart(),
+            Self::LocalIo => 26.into_dart(),
+            Self::OtherTorFailure => 27.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::connection::ConnectionFailureKind
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::connection::ConnectionFailureKind>
+    for crate::api::connection::ConnectionFailureKind
+{
+    fn into_into_dart(self) -> crate::api::connection::ConnectionFailureKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::session::SocksPolicy {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         match self {
@@ -1860,6 +2227,91 @@ impl SseEncode for bool {
     }
 }
 
+impl SseEncode for crate::api::connection::ConnectionEvent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.sequence, serializer);
+        <u64>::sse_encode(self.attempt_id, serializer);
+        <u64>::sse_encode(self.elapsed_ms, serializer);
+        <crate::api::connection::ConnectionEventKind>::sse_encode(self.kind, serializer);
+        <Option<crate::api::connection::ConnectionFailureKind>>::sse_encode(
+            self.failure,
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::connection::ConnectionEventBatch {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::connection::ConnectionEvent>>::sse_encode(self.events, serializer);
+        <u64>::sse_encode(self.latest_sequence, serializer);
+        <u64>::sse_encode(self.dropped, serializer);
+    }
+}
+
+impl SseEncode for crate::api::connection::ConnectionEventKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::connection::ConnectionEventKind::Accepted => 0,
+                crate::api::connection::ConnectionEventKind::Connecting => 1,
+                crate::api::connection::ConnectionEventKind::Connected => 2,
+                crate::api::connection::ConnectionEventKind::Closed => 3,
+                crate::api::connection::ConnectionEventKind::Failed => 4,
+                crate::api::connection::ConnectionEventKind::Cancelled => 5,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::connection::ConnectionFailureKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::connection::ConnectionFailureKind::ConnectionLimit => 0,
+                crate::api::connection::ConnectionFailureKind::HandshakeFailed => 1,
+                crate::api::connection::ConnectionFailureKind::HandshakeTimeout => 2,
+                crate::api::connection::ConnectionFailureKind::UnsupportedCommand => 3,
+                crate::api::connection::ConnectionFailureKind::PolicyDenied => 4,
+                crate::api::connection::ConnectionFailureKind::InvalidTarget => 5,
+                crate::api::connection::ConnectionFailureKind::ConnectTimeout => 6,
+                crate::api::connection::ConnectionFailureKind::BootstrapRequired => 7,
+                crate::api::connection::ConnectionFailureKind::DirectoryUnavailable => 8,
+                crate::api::connection::ConnectionFailureKind::NoPath => 9,
+                crate::api::connection::ConnectionFailureKind::NoExit => 10,
+                crate::api::connection::ConnectionFailureKind::CircuitCollapsed => 11,
+                crate::api::connection::ConnectionFailureKind::CircuitRefused => 12,
+                crate::api::connection::ConnectionFailureKind::NetworkTimeout => 13,
+                crate::api::connection::ConnectionFailureKind::OnionServiceNotFound => 14,
+                crate::api::connection::ConnectionFailureKind::OnionServiceNotRunning => 15,
+                crate::api::connection::ConnectionFailureKind::OnionServiceConnectionFailed => 16,
+                crate::api::connection::ConnectionFailureKind::OnionServiceProtocolViolation => 17,
+                crate::api::connection::ConnectionFailureKind::OnionServiceMissingClientAuth => 18,
+                crate::api::connection::ConnectionFailureKind::OnionServiceWrongClientAuth => 19,
+                crate::api::connection::ConnectionFailureKind::OnionServiceAddressInvalid => 20,
+                crate::api::connection::ConnectionFailureKind::HostNotFound => 21,
+                crate::api::connection::ConnectionFailureKind::NameResolutionFailed => 22,
+                crate::api::connection::ConnectionFailureKind::ConnectionRefused => 23,
+                crate::api::connection::ConnectionFailureKind::RemoteStreamFailed => 24,
+                crate::api::connection::ConnectionFailureKind::ForbiddenTarget => 25,
+                crate::api::connection::ConnectionFailureKind::LocalIo => 26,
+                crate::api::connection::ConnectionFailureKind::OtherTorFailure => 27,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for f32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1871,6 +2323,16 @@ impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for Vec<crate::api::connection::ConnectionEvent> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::connection::ConnectionEvent>::sse_encode(item, serializer);
+        }
     }
 }
 
@@ -1910,6 +2372,16 @@ impl SseEncode for Option<crate::api::status::Blockage> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::api::status::Blockage>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::connection::ConnectionFailureKind> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::connection::ConnectionFailureKind>::sse_encode(value, serializer);
         }
     }
 }
@@ -2214,6 +2686,13 @@ mod io {
             CstDecode::<crate::api::status::Blockage>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<crate::api::connection::ConnectionFailureKind> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::connection::ConnectionFailureKind {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::connection::ConnectionFailureKind>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::api::status::TorStatus> for *mut wire_cst_tor_status {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::status::TorStatus {
@@ -2225,6 +2704,40 @@ mod io {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> u64 {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
+    impl CstDecode<crate::api::connection::ConnectionEvent> for wire_cst_connection_event {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::connection::ConnectionEvent {
+            crate::api::connection::ConnectionEvent {
+                sequence: self.sequence.cst_decode(),
+                attempt_id: self.attempt_id.cst_decode(),
+                elapsed_ms: self.elapsed_ms.cst_decode(),
+                kind: self.kind.cst_decode(),
+                failure: self.failure.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::api::connection::ConnectionEventBatch> for wire_cst_connection_event_batch {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::connection::ConnectionEventBatch {
+            crate::api::connection::ConnectionEventBatch {
+                events: self.events.cst_decode(),
+                latest_sequence: self.latest_sequence.cst_decode(),
+                dropped: self.dropped.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<Vec<crate::api::connection::ConnectionEvent>>
+        for *mut wire_cst_list_connection_event
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::api::connection::ConnectionEvent> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
     impl CstDecode<Vec<u8>> for *mut wire_cst_list_prim_u_8_strict {
@@ -2296,6 +2809,36 @@ mod io {
         }
     }
     impl Default for wire_cst_blockage {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_connection_event {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                sequence: Default::default(),
+                attempt_id: Default::default(),
+                elapsed_ms: Default::default(),
+                kind: Default::default(),
+                failure: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_connection_event {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_connection_event_batch {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                events: core::ptr::null_mut(),
+                latest_sequence: Default::default(),
+                dropped: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_connection_event_batch {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -2386,6 +2929,15 @@ mod io {
         that: usize,
     ) {
         wire__crate__api__client__TorService_bootstrap_impl(port_, that)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_wire__crate__api__client__TorService_connection_events(
+        port_: i64,
+        that: usize,
+        after_sequence: u64,
+    ) {
+        wire__crate__api__client__TorService_connection_events_impl(port_, that, after_sequence)
     }
 
     #[unsafe(no_mangle)]
@@ -2549,6 +3101,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_wire__crate__api__session__TorSession_connection_events(
+        port_: i64,
+        that: usize,
+        after_sequence: u64,
+    ) {
+        wire__crate__api__session__TorSession_connection_events_impl(port_, that, after_sequence)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_onion_wire__crate__api__session__TorSession_proxy_is_alive(
         port_: i64,
         that: usize,
@@ -2665,6 +3226,13 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_cst_new_box_autoadd_connection_failure_kind(
+        value: i32,
+    ) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_onion_cst_new_box_autoadd_tor_status() -> *mut wire_cst_tor_status {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_tor_status::new_with_null_ptr(),
@@ -2674,6 +3242,20 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_onion_cst_new_box_autoadd_u_64(value: u64) -> *mut u64 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_cst_new_list_connection_event(
+        len: i32,
+    ) -> *mut wire_cst_list_connection_event {
+        let wrap = wire_cst_list_connection_event {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_connection_event>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
     }
 
     #[unsafe(no_mangle)]
@@ -2706,6 +3288,28 @@ mod io {
     pub struct wire_cst_blockage {
         kind: i32,
         message: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_connection_event {
+        sequence: u64,
+        attempt_id: u64,
+        elapsed_ms: u64,
+        kind: i32,
+        failure: *mut i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_connection_event_batch {
+        events: *mut wire_cst_list_connection_event,
+        latest_sequence: u64,
+        dropped: u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_connection_event {
+        ptr: *mut wire_cst_connection_event,
+        len: i32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]

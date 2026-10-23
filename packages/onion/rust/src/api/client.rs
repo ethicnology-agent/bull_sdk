@@ -179,6 +179,16 @@ impl TorService {
         self.default_session.socks_port()
     }
 
+    /// Read connection diagnostics for the default SOCKS session.
+    ///
+    /// Other sessions expose their own independent TorSession::connection_events history.
+    pub fn connection_events(
+        &self,
+        after_sequence: u64,
+    ) -> Result<super::connection::ConnectionEventBatch, TorFailure> {
+        self.default_session.connection_events(after_sequence)
+    }
+
     /// Open another loopback SOCKS listener with separate Tor circuits.
     ///
     /// Sessions share the root client's configuration, directory state,
