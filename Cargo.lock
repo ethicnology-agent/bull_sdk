@@ -4169,12 +4169,14 @@ version = "0.1.0"
 dependencies = [
  "bbqr",
  "bitbox",
+ "bitcoin",
  "boltz",
  "dart_bbqr",
  "dart_bwk",
  "flutter_rust_bridge",
  "log",
  "lwk",
+ "miniscript",
 ]
 
 [[package]]

@@ -9,6 +9,10 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 flutter_rust_bridge = "=2.12.0"
 log = "0.4"
+# Transaction signature verification (GHSA-6jp4-8v48-cc5v guard); versions
+# already unified in the graph via boltz/lwk.
+bitcoin = "0.32"
+miniscript = "12"
 # Cross-repository dependencies use immutable revisions so clean builds remain
 # reproducible.
 bitbox = { git = "https://github.com/SatoshiPortal/bitbox-dart", rev = "b832be8ab497377ac4f9ceb9b0f5f1e830a84e5a", features = ["bull_sdk"] }

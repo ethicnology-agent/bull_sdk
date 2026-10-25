@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api/simple.dart';
+import 'api/verify_tx.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
@@ -96,7 +97,7 @@ class BullSdk extends BaseEntrypoint<BullSdkApi, BullSdkApiImpl, BullSdkWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 32154284;
+  int get rustContentHash => 933445813;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -1092,6 +1093,11 @@ abstract class BullSdkApi extends BaseApi {
     required String keypath,
     required bool testnet,
     String? scriptType,
+  });
+
+  Future<TxSignatureVerification> crateApiVerifyTxVerifyTxInputSignatures({
+    required List<int> txBytes,
+    required List<TxInputToVerify> inputs,
   });
 
   Future<String> bitboxApiVerifyWalletAddress({
@@ -8506,6 +8512,39 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   );
 
   @override
+  Future<TxSignatureVerification> crateApiVerifyTxVerifyTxInputSignatures({
+    required List<int> txBytes,
+    required List<TxInputToVerify> inputs,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_list_prim_u_8_loose(txBytes);
+          var arg1 = cst_encode_list_tx_input_to_verify(inputs);
+          return wire.wire__crate__api__verify_tx__verify_tx_input_signatures(
+            port_,
+            arg0,
+            arg1,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_tx_signature_verification,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiVerifyTxVerifyTxInputSignaturesConstMeta,
+        argValues: [txBytes, inputs],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiVerifyTxVerifyTxInputSignaturesConstMeta =>
+      const TaskConstMeta(
+        debugName: "verify_tx_input_signatures",
+        argNames: ["txBytes", "inputs"],
+      );
+
+  @override
   Future<String> bitboxApiVerifyWalletAddress({
     required String serialNumber,
     required String descriptor,
@@ -9406,6 +9445,12 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
+  Uint32List dco_decode_list_prim_u_32_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Uint32List;
+  }
+
+  @protected
   List<int> dco_decode_list_prim_u_8_loose(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as List<int>;
@@ -9471,6 +9516,12 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   List<TxInput> dco_decode_list_tx_input(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_tx_input).toList();
+  }
+
+  @protected
+  List<TxInputToVerify> dco_decode_list_tx_input_to_verify(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_tx_input_to_verify).toList();
   }
 
   @protected
@@ -10268,6 +10319,19 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
+  TxInputToVerify dco_decode_tx_input_to_verify(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return TxInputToVerify(
+      inputIndex: dco_decode_u_32(arr[0]),
+      prevoutScriptPubkey: dco_decode_list_prim_u_8_strict(arr[1]),
+      prevoutValueSat: dco_decode_u_64(arr[2]),
+    );
+  }
+
+  @protected
   TxOut dco_decode_tx_out(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -10322,6 +10386,25 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       satoshi: dco_decode_u_64(arr[1]),
       assetId: dco_decode_opt_String(arr[2]),
     );
+  }
+
+  @protected
+  TxSignatureVerification dco_decode_tx_signature_verification(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return TxSignatureVerification_Valid();
+      case 1:
+        return TxSignatureVerification_InvalidSignatures(
+          invalidInputIndexes: dco_decode_list_prim_u_32_strict(raw[1]),
+        );
+      case 2:
+        return TxSignatureVerification_Malformed(
+          message: dco_decode_String(raw[1]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
   }
 
   @protected
@@ -11351,6 +11434,13 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
+  Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint32List(len_);
+  }
+
+  @protected
   List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
@@ -11476,6 +11566,20 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
     var ans_ = <TxInput>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_tx_input(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<TxInputToVerify> sse_decode_list_tx_input_to_verify(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <TxInputToVerify>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_tx_input_to_verify(deserializer));
     }
     return ans_;
   }
@@ -12462,6 +12566,19 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
+  TxInputToVerify sse_decode_tx_input_to_verify(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_inputIndex = sse_decode_u_32(deserializer);
+    var var_prevoutScriptPubkey = sse_decode_list_prim_u_8_strict(deserializer);
+    var var_prevoutValueSat = sse_decode_u_64(deserializer);
+    return TxInputToVerify(
+      inputIndex: var_inputIndex,
+      prevoutScriptPubkey: var_prevoutScriptPubkey,
+      prevoutValueSat: var_prevoutValueSat,
+    );
+  }
+
+  @protected
   TxOut sse_decode_tx_out(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_scriptPubkey = sse_decode_String(deserializer);
@@ -12521,6 +12638,31 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       satoshi: var_satoshi,
       assetId: var_assetId,
     );
+  }
+
+  @protected
+  TxSignatureVerification sse_decode_tx_signature_verification(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        return TxSignatureVerification_Valid();
+      case 1:
+        var var_invalidInputIndexes = sse_decode_list_prim_u_32_strict(
+          deserializer,
+        );
+        return TxSignatureVerification_InvalidSignatures(
+          invalidInputIndexes: var_invalidInputIndexes,
+        );
+      case 2:
+        var var_message = sse_decode_String(deserializer);
+        return TxSignatureVerification_Malformed(message: var_message);
+      default:
+        throw UnimplementedError('');
+    }
   }
 
   @protected
@@ -13840,6 +13982,16 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
+  void sse_encode_list_prim_u_32_strict(
+    Uint32List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putUint32List(self);
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_loose(
     List<int> self,
     SseSerializer serializer,
@@ -13960,6 +14112,18 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_tx_input(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_tx_input_to_verify(
+    List<TxInputToVerify> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_tx_input_to_verify(item, serializer);
     }
   }
 
@@ -14798,6 +14962,17 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
+  void sse_encode_tx_input_to_verify(
+    TxInputToVerify self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self.inputIndex, serializer);
+    sse_encode_list_prim_u_8_strict(self.prevoutScriptPubkey, serializer);
+    sse_encode_u_64(self.prevoutValueSat, serializer);
+  }
+
+  @protected
   void sse_encode_tx_out(TxOut self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.scriptPubkey, serializer);
@@ -14832,6 +15007,26 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
     sse_encode_String(self.address, serializer);
     sse_encode_u_64(self.satoshi, serializer);
     sse_encode_opt_String(self.assetId, serializer);
+  }
+
+  @protected
+  void sse_encode_tx_signature_verification(
+    TxSignatureVerification self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case TxSignatureVerification_Valid():
+        sse_encode_i_32(0, serializer);
+      case TxSignatureVerification_InvalidSignatures(
+        invalidInputIndexes: final invalidInputIndexes,
+      ):
+        sse_encode_i_32(1, serializer);
+        sse_encode_list_prim_u_32_strict(invalidInputIndexes, serializer);
+      case TxSignatureVerification_Malformed(message: final message):
+        sse_encode_i_32(2, serializer);
+        sse_encode_String(message, serializer);
+    }
   }
 
   @protected

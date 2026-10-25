@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api/simple.dart';
+import 'api/verify_tx.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
@@ -402,6 +403,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   List<OutPoint> dco_decode_list_out_point(dynamic raw);
 
   @protected
+  Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
+
+  @protected
   List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
 
   @protected
@@ -433,6 +437,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   List<TxInput> dco_decode_list_tx_input(dynamic raw);
+
+  @protected
+  List<TxInputToVerify> dco_decode_list_tx_input_to_verify(dynamic raw);
 
   @protected
   List<TxOut> dco_decode_list_tx_out(dynamic raw);
@@ -649,6 +656,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   TxInput dco_decode_tx_input(dynamic raw);
 
   @protected
+  TxInputToVerify dco_decode_tx_input_to_verify(dynamic raw);
+
+  @protected
   TxOut dco_decode_tx_out(dynamic raw);
 
   @protected
@@ -659,6 +669,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   TxOutputSpec dco_decode_tx_output_spec(dynamic raw);
+
+  @protected
+  TxSignatureVerification dco_decode_tx_signature_verification(dynamic raw);
 
   @protected
   TxSimulation dco_decode_tx_simulation(dynamic raw);
@@ -1042,6 +1055,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   List<OutPoint> sse_decode_list_out_point(SseDeserializer deserializer);
 
   @protected
+  Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
+
+  @protected
   List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
 
   @protected
@@ -1081,6 +1097,11 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   List<TxInput> sse_decode_list_tx_input(SseDeserializer deserializer);
+
+  @protected
+  List<TxInputToVerify> sse_decode_list_tx_input_to_verify(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<TxOut> sse_decode_list_tx_out(SseDeserializer deserializer);
@@ -1337,6 +1358,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   TxInput sse_decode_tx_input(SseDeserializer deserializer);
 
   @protected
+  TxInputToVerify sse_decode_tx_input_to_verify(SseDeserializer deserializer);
+
+  @protected
   TxOut sse_decode_tx_out(SseDeserializer deserializer);
 
   @protected
@@ -1347,6 +1371,11 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   TxOutputSpec sse_decode_tx_output_spec(SseDeserializer deserializer);
+
+  @protected
+  TxSignatureVerification sse_decode_tx_signature_verification(
+    SseDeserializer deserializer,
+  );
 
   @protected
   TxSimulation sse_decode_tx_simulation(SseDeserializer deserializer);
@@ -1770,6 +1799,16 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_prim_u_32_strict> cst_encode_list_prim_u_32_strict(
+    Uint32List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_32_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_encode_list_prim_u_8_loose(
     List<int> raw,
   ) {
@@ -1889,6 +1928,17 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
     final ans = wire.cst_new_list_tx_input(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_tx_input(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_tx_input_to_verify>
+  cst_encode_list_tx_input_to_verify(List<TxInputToVerify> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_tx_input_to_verify(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_tx_input_to_verify(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -3126,6 +3176,18 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   }
 
   @protected
+  void cst_api_fill_to_wire_tx_input_to_verify(
+    TxInputToVerify apiObj,
+    wire_cst_tx_input_to_verify wireObj,
+  ) {
+    wireObj.input_index = cst_encode_u_32(apiObj.inputIndex);
+    wireObj.prevout_script_pubkey = cst_encode_list_prim_u_8_strict(
+      apiObj.prevoutScriptPubkey,
+    );
+    wireObj.prevout_value_sat = cst_encode_u_64(apiObj.prevoutValueSat);
+  }
+
+  @protected
   void cst_api_fill_to_wire_tx_out(TxOut apiObj, wire_cst_tx_out wireObj) {
     wireObj.script_pubkey = cst_encode_String(apiObj.scriptPubkey);
     cst_api_fill_to_wire_out_point(apiObj.outpoint, wireObj.outpoint);
@@ -3165,6 +3227,32 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
     wireObj.address = cst_encode_String(apiObj.address);
     wireObj.satoshi = cst_encode_u_64(apiObj.satoshi);
     wireObj.asset_id = cst_encode_opt_String(apiObj.assetId);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_tx_signature_verification(
+    TxSignatureVerification apiObj,
+    wire_cst_tx_signature_verification wireObj,
+  ) {
+    if (apiObj is TxSignatureVerification_Valid) {
+      wireObj.tag = 0;
+      return;
+    }
+    if (apiObj is TxSignatureVerification_InvalidSignatures) {
+      var pre_invalid_input_indexes = cst_encode_list_prim_u_32_strict(
+        apiObj.invalidInputIndexes,
+      );
+      wireObj.tag = 1;
+      wireObj.kind.InvalidSignatures.invalid_input_indexes =
+          pre_invalid_input_indexes;
+      return;
+    }
+    if (apiObj is TxSignatureVerification_Malformed) {
+      var pre_message = cst_encode_String(apiObj.message);
+      wireObj.tag = 2;
+      wireObj.kind.Malformed.message = pre_message;
+      return;
+    }
   }
 
   @protected
@@ -3834,6 +3922,12 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   void sse_encode_list_out_point(List<OutPoint> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_prim_u_32_strict(
+    Uint32List self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
 
   @protected
@@ -3889,6 +3983,12 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   void sse_encode_list_tx_input(List<TxInput> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_tx_input_to_verify(
+    List<TxInputToVerify> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_tx_out(List<TxOut> self, SseSerializer serializer);
@@ -4197,6 +4297,12 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   void sse_encode_tx_input(TxInput self, SseSerializer serializer);
 
   @protected
+  void sse_encode_tx_input_to_verify(
+    TxInputToVerify self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_tx_out(TxOut self, SseSerializer serializer);
 
   @protected
@@ -4207,6 +4313,12 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   void sse_encode_tx_output_spec(TxOutputSpec self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tx_signature_verification(
+    TxSignatureVerification self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_tx_simulation(TxSimulation self, SseSerializer serializer);
@@ -9753,6 +9865,40 @@ class BullSdkWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__verify_tx__verify_tx_input_signatures(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_loose> tx_bytes,
+    ffi.Pointer<wire_cst_list_tx_input_to_verify> inputs,
+  ) {
+    return _wire__crate__api__verify_tx__verify_tx_input_signatures(
+      port_,
+      tx_bytes,
+      inputs,
+    );
+  }
+
+  late final _wire__crate__api__verify_tx__verify_tx_input_signaturesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+            ffi.Pointer<wire_cst_list_tx_input_to_verify>,
+          )
+        >
+      >(
+        'frbgen_bull_sdk_wire__crate__api__verify_tx__verify_tx_input_signatures',
+      );
+  late final _wire__crate__api__verify_tx__verify_tx_input_signatures =
+      _wire__crate__api__verify_tx__verify_tx_input_signaturesPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+              ffi.Pointer<wire_cst_list_tx_input_to_verify>,
+            )
+          >();
+
   void wire__bitbox__api__verify_wallet_address(
     int port_,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> serial_number,
@@ -10474,6 +10620,21 @@ class BullSdkWire implements BaseWire {
   late final _cst_new_list_out_point = _cst_new_list_out_pointPtr
       .asFunction<ffi.Pointer<wire_cst_list_out_point> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_prim_u_32_strict> cst_new_list_prim_u_32_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_32_strict(len);
+  }
+
+  late final _cst_new_list_prim_u_32_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_32_strict> Function(ffi.Int32)
+        >
+      >('frbgen_bull_sdk_cst_new_list_prim_u_32_strict');
+  late final _cst_new_list_prim_u_32_strict = _cst_new_list_prim_u_32_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_32_strict> Function(int)>();
+
   ffi.Pointer<wire_cst_list_prim_u_8_loose> cst_new_list_prim_u_8_loose(
     int len,
   ) {
@@ -10630,6 +10791,24 @@ class BullSdkWire implements BaseWire {
       >('frbgen_bull_sdk_cst_new_list_tx_input');
   late final _cst_new_list_tx_input = _cst_new_list_tx_inputPtr
       .asFunction<ffi.Pointer<wire_cst_list_tx_input> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_tx_input_to_verify> cst_new_list_tx_input_to_verify(
+    int len,
+  ) {
+    return _cst_new_list_tx_input_to_verify(len);
+  }
+
+  late final _cst_new_list_tx_input_to_verifyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_tx_input_to_verify> Function(ffi.Int32)
+        >
+      >('frbgen_bull_sdk_cst_new_list_tx_input_to_verify');
+  late final _cst_new_list_tx_input_to_verify =
+      _cst_new_list_tx_input_to_verifyPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_tx_input_to_verify> Function(int)
+          >();
 
   ffi.Pointer<wire_cst_list_tx_out> cst_new_list_tx_out(int len) {
     return _cst_new_list_tx_out(len);
@@ -11185,6 +11364,23 @@ final class wire_cst_swap_stream_status extends ffi.Struct {
   external ffi.Pointer<wire_cst_transaction> transaction;
 }
 
+final class wire_cst_tx_input_to_verify extends ffi.Struct {
+  @ffi.Uint32()
+  external int input_index;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> prevout_script_pubkey;
+
+  @ffi.Uint64()
+  external int prevout_value_sat;
+}
+
+final class wire_cst_list_tx_input_to_verify extends ffi.Struct {
+  external ffi.Pointer<wire_cst_tx_input_to_verify> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_pset_input extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> witness_utxo_script;
 
@@ -11260,6 +11456,13 @@ final class wire_cst_list_chain_swap extends ffi.Struct {
 
 final class wire_cst_list_lbtc_ln_swap extends ffi.Struct {
   external ffi.Pointer<wire_cst_lbtc_ln_swap> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_u_32_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint32> ptr;
 
   @ffi.Int32()
   external int len;
@@ -11863,4 +12066,26 @@ final class wire_cst_submarine_fees_and_limits extends ffi.Struct {
   external wire_cst_sub_swap_fees btc_fees;
 
   external wire_cst_sub_swap_fees lbtc_fees;
+}
+
+final class wire_cst_TxSignatureVerification_InvalidSignatures
+    extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_32_strict> invalid_input_indexes;
+}
+
+final class wire_cst_TxSignatureVerification_Malformed extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> message;
+}
+
+final class TxSignatureVerificationKind extends ffi.Union {
+  external wire_cst_TxSignatureVerification_InvalidSignatures InvalidSignatures;
+
+  external wire_cst_TxSignatureVerification_Malformed Malformed;
+}
+
+final class wire_cst_tx_signature_verification extends ffi.Struct {
+  @ffi.Int32()
+  external int tag;
+
+  external TxSignatureVerificationKind kind;
 }
