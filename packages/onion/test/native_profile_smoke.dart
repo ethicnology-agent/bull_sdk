@@ -63,7 +63,7 @@ void main() {
                   cacheDir: '${directory.path}/profile-cache',
                   socksPort: 0,
                   policy: SocksPolicy.onionOnly,
-                  settings: const TorStartupSettings(
+                  settings: TorStartupSettings(
                     disablePreemptiveExitCircuits: true,
                   ),
                   snowflakePort: 12345,
@@ -116,15 +116,15 @@ void main() {
           }
 
           final invalidWireSettings = [
-            TorStartupSettings(
+            () => TorStartupSettings(
               streamOpenTimeoutMs: (BigInt.one << 64) + BigInt.from(20000),
               disablePreemptiveExitCircuits: false,
             ),
-            TorStartupSettings(
+            () => TorStartupSettings(
               memoryQuotaBytes: (BigInt.one << 64) + BigInt.from(134217728),
               disablePreemptiveExitCircuits: false,
             ),
-            TorStartupSettings(
+            () => TorStartupSettings(
               memoryQuotaBytes: BigInt.from(-2),
               disablePreemptiveExitCircuits: false,
             ),
@@ -140,7 +140,7 @@ void main() {
                 cacheDir: '${invalid.path}/cache',
                 socksPort: 0,
                 policy: SocksPolicy.onionOnly,
-                settings: settings,
+                settings: settings(),
               );
             } catch (error) {
               failure = error;

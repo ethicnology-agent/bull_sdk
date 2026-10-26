@@ -3,28 +3,27 @@ import 'rust/api/error.dart';
 
 /// Immutable startup settings with checked unsigned integers at the Dart edge.
 ///
-/// Values retain their BigInt representation until the generated encoder reads
-/// them. Invalid integers throw a configuration failure before reaching FFI;
-/// native validation still checks each setting's domain and platform limits.
+/// Invalid integers fail during construction, before any FFI encoder can
+/// allocate native arguments. Rust then checks setting-specific constraints.
 final class TorStartupSettings extends native.TorStartupSettings {
-  const TorStartupSettings({
+  factory TorStartupSettings({
+    BigInt? connectTimeoutMs,
+    required bool disablePreemptiveExitCircuits,
+    BigInt? streamOpenTimeoutMs,
+    BigInt? memoryQuotaBytes,
+  }) => TorStartupSettings._(
+    connectTimeoutMs: _checked(connectTimeoutMs),
+    disablePreemptiveExitCircuits: disablePreemptiveExitCircuits,
+    streamOpenTimeoutMs: _checked(streamOpenTimeoutMs),
+    memoryQuotaBytes: _checked(memoryQuotaBytes),
+  );
+
+  const TorStartupSettings._({
     super.connectTimeoutMs,
     required super.disablePreemptiveExitCircuits,
     super.streamOpenTimeoutMs,
     super.memoryQuotaBytes,
   });
-
-  /// Total budget of the default SOCKS listener; other sessions keep theirs.
-  @override
-  BigInt? get connectTimeoutMs => _checked(super.connectTimeoutMs);
-
-  /// Client-wide stream-opening budget after circuit acquisition, in milliseconds.
-  @override
-  BigInt? get streamOpenTimeoutMs => _checked(super.streamOpenTimeoutMs);
-
-  /// Approximate tracked queue limit in bytes, not a process RSS ceiling.
-  @override
-  BigInt? get memoryQuotaBytes => _checked(super.memoryQuotaBytes);
 
   static Future<TorStartupSettings> default_() async {
     final settings = await native.TorStartupSettings.default_();
