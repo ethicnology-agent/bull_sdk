@@ -35,6 +35,7 @@
 library;
 
 export 'src/onion_logs.dart';
+export 'src/rust/api/build_info.dart';
 export 'src/rust/api/client.dart';
 export 'src/rust/api/connection.dart';
 export 'src/rust/api/error.dart';

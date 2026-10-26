@@ -10,6 +10,7 @@
 
 #![deny(unsafe_code)]
 
+pub mod build_info;
 pub mod client;
 pub mod connection;
 pub mod error;

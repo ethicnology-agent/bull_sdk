@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1372133383;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 790312633;
 
 // Section: executor
 
@@ -1214,6 +1214,22 @@ fn wire__crate__api__session__socks_policy_default_impl(
         },
     )
 }
+fn wire__crate__api__build_info__tor_build_info_impl(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "tor_build_info",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            transform_result_dco::<_, _, ()>((move || {
+                let output_ok = Result::<_, ()>::Ok(crate::api::build_info::tor_build_info())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__status__tor_status_suggests_censorship_impl(
     that: impl CstDecode<crate::api::status::TorStatus>,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -1751,6 +1767,24 @@ impl SseDecode for crate::api::session::SocksPolicy {
     }
 }
 
+impl SseDecode for crate::api::build_info::TorBuildInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_wrapperVersion = <String>::sse_decode(deserializer);
+        let mut var_artiClientVersion = <String>::sse_decode(deserializer);
+        let mut var_target = <String>::sse_decode(deserializer);
+        let mut var_rustcVersion = <String>::sse_decode(deserializer);
+        let mut var_artiRequestedFeatures = <Vec<String>>::sse_decode(deserializer);
+        return crate::api::build_info::TorBuildInfo {
+            wrapper_version: var_wrapperVersion,
+            arti_client_version: var_artiClientVersion,
+            target: var_target,
+            rustc_version: var_rustcVersion,
+            arti_requested_features: var_artiRequestedFeatures,
+        };
+    }
+}
+
 impl SseDecode for crate::api::error::TorFailure {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2164,6 +2198,30 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::session::SocksPolicy>
     for crate::api::session::SocksPolicy
 {
     fn into_into_dart(self) -> crate::api::session::SocksPolicy {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::build_info::TorBuildInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.wrapper_version.into_into_dart().into_dart(),
+            self.arti_client_version.into_into_dart().into_dart(),
+            self.target.into_into_dart().into_dart(),
+            self.rustc_version.into_into_dart().into_dart(),
+            self.arti_requested_features.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::build_info::TorBuildInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::build_info::TorBuildInfo>
+    for crate::api::build_info::TorBuildInfo
+{
+    fn into_into_dart(self) -> crate::api::build_info::TorBuildInfo {
         self
     }
 }
@@ -2645,6 +2703,17 @@ impl SseEncode for crate::api::session::SocksPolicy {
     }
 }
 
+impl SseEncode for crate::api::build_info::TorBuildInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.wrapper_version, serializer);
+        <String>::sse_encode(self.arti_client_version, serializer);
+        <String>::sse_encode(self.target, serializer);
+        <String>::sse_encode(self.rustc_version, serializer);
+        <Vec<String>>::sse_encode(self.arti_requested_features, serializer);
+    }
+}
+
 impl SseEncode for crate::api::error::TorFailure {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3031,6 +3100,18 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<crate::api::build_info::TorBuildInfo> for wire_cst_tor_build_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::build_info::TorBuildInfo {
+            crate::api::build_info::TorBuildInfo {
+                wrapper_version: self.wrapper_version.cst_decode(),
+                arti_client_version: self.arti_client_version.cst_decode(),
+                target: self.target.cst_decode(),
+                rustc_version: self.rustc_version.cst_decode(),
+                arti_requested_features: self.arti_requested_features.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::api::error::TorFailure> for wire_cst_tor_failure {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::error::TorFailure {
@@ -3111,6 +3192,22 @@ mod io {
         }
     }
     impl Default for wire_cst_connection_event_batch {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_tor_build_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                wrapper_version: core::ptr::null_mut(),
+                arti_client_version: core::ptr::null_mut(),
+                target: core::ptr::null_mut(),
+                rustc_version: core::ptr::null_mut(),
+                arti_requested_features: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_tor_build_info {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -3475,6 +3572,12 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_wire__crate__api__build_info__tor_build_info(
+    ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__api__build_info__tor_build_info_impl()
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_onion_wire__crate__api__status__tor_status_suggests_censorship(
         that: *mut wire_cst_tor_status,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -3673,6 +3776,15 @@ mod io {
     pub struct wire_cst_list_tor_log_record {
         ptr: *mut wire_cst_tor_log_record,
         len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_tor_build_info {
+        wrapper_version: *mut wire_cst_list_prim_u_8_strict,
+        arti_client_version: *mut wire_cst_list_prim_u_8_strict,
+        target: *mut wire_cst_list_prim_u_8_strict,
+        rustc_version: *mut wire_cst_list_prim_u_8_strict,
+        arti_requested_features: *mut wire_cst_list_String,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]

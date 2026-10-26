@@ -183,6 +183,10 @@ try {
 
 The supported contract is 1–16 distinct Snowflake bridge lines with matching RSA identity/fingerprint, an HTTPS broker, domain fronts and STUN ICE endpoints. Unknown parameters, malformed endpoints and oversized PT arguments fail before startup. Validation establishes syntax and supported configuration, not endpoint reachability or trust. Failures never echo bridge values. `bridgeCount()` reports only the number of validated bridges. Existing `startWithSnowflake` callers retain their bundled defaults. This does not add generic transports, AMP/SQS rendezvous, onion-service authentication or live reconfiguration.
 
+### Native build identity
+
+After `OnionCore.init()`, `torBuildInfo()` returns the loaded wrapper version, resolved `arti-client` version, Cargo target, Rust compiler and explicitly requested Arti features. These values are generated from the matching manifest, committed lockfile and build environment; they do not start Tor or contact the network. `artiRequestedFeatures` is not Cargo's complete unified/transitive feature graph and does not establish runtime reachability. Keep the returned identity with the artifact being diagnosed. The mobile PT's actual Snowflake engine version remains available separately through `SnowflakeTransport.version()`; it is not the Arti version. This API does not persist or upload diagnostics.
+
 ### Native Tor diagnostics
 
 After `OnionCore.init()`, call `OnionLogs.start()` **before** creating a `TorService`. Registration is synchronous: startup events can already enter the native queue when `start` returns. Capture is opt-in and available in every build mode. This package never prints records, writes support logs, or sends diagnostics to Sentry; the host decides where each level belongs.

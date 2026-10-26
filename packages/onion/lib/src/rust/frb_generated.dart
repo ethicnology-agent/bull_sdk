@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/build_info.dart';
 import 'api/client.dart';
 import 'api/connection.dart';
 import 'api/error.dart';
@@ -71,7 +72,7 @@ class OnionCore
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1372133383;
+  int get rustContentHash => 790312633;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -209,6 +210,8 @@ abstract class OnionCoreApi extends BaseApi {
   TorLogStream crateApiLogOpenLogStream({String? filter});
 
   Future<SocksPolicy> crateApiSessionSocksPolicyDefault();
+
+  TorBuildInfo crateApiBuildInfoTorBuildInfo();
 
   bool crateApiStatusTorStatusSuggestsCensorship({required TorStatus that});
 
@@ -1314,6 +1317,27 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       const TaskConstMeta(debugName: "socks_policy_default", argNames: []);
 
   @override
+  TorBuildInfo crateApiBuildInfoTorBuildInfo() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire.wire__crate__api__build_info__tor_build_info();
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_tor_build_info,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiBuildInfoTorBuildInfoConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiBuildInfoTorBuildInfoConstMeta =>
+      const TaskConstMeta(debugName: "tor_build_info", argNames: []);
+
+  @override
   bool crateApiStatusTorStatusSuggestsCensorship({required TorStatus that}) {
     return handler.executeSync(
       SyncTask(
@@ -1662,6 +1686,21 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   SocksPolicy dco_decode_socks_policy(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return SocksPolicy.values[raw as int];
+  }
+
+  @protected
+  TorBuildInfo dco_decode_tor_build_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return TorBuildInfo(
+      wrapperVersion: dco_decode_String(arr[0]),
+      artiClientVersion: dco_decode_String(arr[1]),
+      target: dco_decode_String(arr[2]),
+      rustcVersion: dco_decode_String(arr[3]),
+      artiRequestedFeatures: dco_decode_list_String(arr[4]),
+    );
   }
 
   @protected
@@ -2146,6 +2185,23 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return SocksPolicy.values[inner];
+  }
+
+  @protected
+  TorBuildInfo sse_decode_tor_build_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_wrapperVersion = sse_decode_String(deserializer);
+    var var_artiClientVersion = sse_decode_String(deserializer);
+    var var_target = sse_decode_String(deserializer);
+    var var_rustcVersion = sse_decode_String(deserializer);
+    var var_artiRequestedFeatures = sse_decode_list_String(deserializer);
+    return TorBuildInfo(
+      wrapperVersion: var_wrapperVersion,
+      artiClientVersion: var_artiClientVersion,
+      target: var_target,
+      rustcVersion: var_rustcVersion,
+      artiRequestedFeatures: var_artiRequestedFeatures,
+    );
   }
 
   @protected
@@ -2851,6 +2907,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   void sse_encode_socks_policy(SocksPolicy self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_tor_build_info(TorBuildInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.wrapperVersion, serializer);
+    sse_encode_String(self.artiClientVersion, serializer);
+    sse_encode_String(self.target, serializer);
+    sse_encode_String(self.rustcVersion, serializer);
+    sse_encode_list_String(self.artiRequestedFeatures, serializer);
   }
 
   @protected

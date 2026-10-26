@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/build_info.dart';
 import 'api/client.dart';
 import 'api/connection.dart';
 import 'api/error.dart';
@@ -190,6 +191,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   SocksPolicy dco_decode_socks_policy(dynamic raw);
+
+  @protected
+  TorBuildInfo dco_decode_tor_build_info(dynamic raw);
 
   @protected
   TorFailure dco_decode_tor_failure(dynamic raw);
@@ -392,6 +396,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   SocksPolicy sse_decode_socks_policy(SseDeserializer deserializer);
+
+  @protected
+  TorBuildInfo sse_decode_tor_build_info(SseDeserializer deserializer);
 
   @protected
   TorFailure sse_decode_tor_failure(SseDeserializer deserializer);
@@ -629,6 +636,20 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     wireObj.events = cst_encode_list_connection_event(apiObj.events);
     wireObj.latest_sequence = cst_encode_u_64(apiObj.latestSequence);
     wireObj.dropped = cst_encode_u_64(apiObj.dropped);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_tor_build_info(
+    TorBuildInfo apiObj,
+    wire_cst_tor_build_info wireObj,
+  ) {
+    wireObj.wrapper_version = cst_encode_String(apiObj.wrapperVersion);
+    wireObj.arti_client_version = cst_encode_String(apiObj.artiClientVersion);
+    wireObj.target = cst_encode_String(apiObj.target);
+    wireObj.rustc_version = cst_encode_String(apiObj.rustcVersion);
+    wireObj.arti_requested_features = cst_encode_list_String(
+      apiObj.artiRequestedFeatures,
+    );
   }
 
   @protected
@@ -983,6 +1004,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void sse_encode_socks_policy(SocksPolicy self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tor_build_info(TorBuildInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_tor_failure(TorFailure self, SseSerializer serializer);
@@ -1743,6 +1767,18 @@ class OnionCoreWire implements BaseWire {
       _wire__crate__api__session__socks_policy_defaultPtr
           .asFunction<void Function(int)>();
 
+  WireSyncRust2DartDco wire__crate__api__build_info__tor_build_info() {
+    return _wire__crate__api__build_info__tor_build_info();
+  }
+
+  late final _wire__crate__api__build_info__tor_build_infoPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
+        'frbgen_onion_wire__crate__api__build_info__tor_build_info',
+      );
+  late final _wire__crate__api__build_info__tor_build_info =
+      _wire__crate__api__build_info__tor_build_infoPtr
+          .asFunction<WireSyncRust2DartDco Function()>();
+
   WireSyncRust2DartDco wire__crate__api__status__tor_status_suggests_censorship(
     ffi.Pointer<wire_cst_tor_status> that,
   ) {
@@ -2109,6 +2145,18 @@ final class wire_cst_connection_event_batch extends ffi.Struct {
 
   @ffi.Uint64()
   external int dropped;
+}
+
+final class wire_cst_tor_build_info extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> wrapper_version;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> arti_client_version;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> target;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> rustc_version;
+
+  external ffi.Pointer<wire_cst_list_String> arti_requested_features;
 }
 
 final class wire_cst_tor_failure extends ffi.Struct {

@@ -16,6 +16,15 @@ void main() {
         ),
       );
       try {
+        final identity = torBuildInfo();
+        expect(identity.wrapperVersion, '0.2.0');
+        expect(identity.artiClientVersion, '0.47.0');
+        expect(identity.target, isNotEmpty);
+        expect(identity.rustcVersion, startsWith('rustc '));
+        expect(
+          identity.artiRequestedFeatures,
+          contains('onion-service-client'),
+        );
         final profile = SnowflakeBridgeProfile.bundled();
         try {
           expect(profile.bridgeCount(), 2);
