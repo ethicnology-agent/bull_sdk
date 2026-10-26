@@ -436,6 +436,12 @@ isolate.
 Maintenance consequence: adding a method to `TorService` means writing the Rust
 method and re-running the generator. Nothing else.
 
+## Probe cancellation and scope
+
+Stopping `TorService` cancels a pending `probe` wait with `notRunning`, drops the connection future and releases the probe's client reference. A caller deadline remains `timeout`; native connection failures remain `connect`. Cancelling that wait does not guarantee that all shared Arti background work has stopped. An individual probe still uses its supplied deadline; operation-scoped cancellation without stopping the service is not exposed.
+
+A service probe uses the root client. SOCKS sessions use isolated clients whose streams cannot share circuits with the root. A repeated probe can measure reuse in its own context, but does not establish that a new wallet session has a ready circuit or that its HTTP operation will succeed. Prefer measuring the actual operation over adding an automatic preflight probe.
+
 ## Opt-in live circuit experiment
 
 The example's `integration_test/live_tor_probe_test.dart` performs cold direct and Snowflake bootstraps, then opens and closes two circuits to the public RecoverBull service. It sends no wallet, password, recovery key or application request. A successful circuit is not an HTTP health check or a completed recovery. The second probe measures reuse inside the same client, not a new isolated session. Network-dependent failures are expected to remain failures in the test report.

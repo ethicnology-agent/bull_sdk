@@ -362,6 +362,9 @@ impl TorService {
     /// `ready_for_traffic` is not a substitute: it means "a request can be
     /// started", not "a request succeeded".
     ///
+    /// Stopping the service cancels this pending wait and drops its connection
+    /// future. This does not guarantee that every shared Arti background task stops.
+    ///
     /// Times are milliseconds: FRB has no outbound mapping for
     /// `std::time::Duration`, and an integer keeps `chrono` out of our types.
     ///
@@ -381,17 +384,20 @@ impl TorService {
             .map_err(|e| TorFailure::connect(format!("bad probe target: {}", e.kind())))?;
 
         let started = Instant::now();
-        let attempt = tokio::time::timeout(timeout, client.connect(target)).await;
-
-        match attempt {
-            Err(_elapsed) => Err(TorFailure::timeout(format!("probe exceeded {timeout:?}"))),
-            // arti's `Display` embeds the destination; its kind does not.
-            Ok(Err(e)) => Err(TorFailure::connect(format!("probe failed: {}", e.kind()))),
-            Ok(Ok(stream)) => {
-                drop(stream);
-                Ok(started.elapsed().as_millis().min(u128::from(u32::MAX)) as u32)
-            }
-        }
+        let stream = await_probe(
+            async move {
+                // Arti's Display embeds the destination; its kind does not.
+                client
+                    .connect(target)
+                    .await
+                    .map_err(|e| TorFailure::connect(format!("probe failed: {}", e.kind())))
+            },
+            timeout,
+            self.shutdown.subscribe(),
+        )
+        .await?;
+        drop(stream);
+        Ok(started.elapsed().as_millis().min(u128::from(u32::MAX)) as u32)
     }
 
     /// Whether the SOCKS accept loop is still running.
@@ -522,9 +528,110 @@ impl Drop for TorService {
     }
 }
 
+async fn await_probe<T>(
+    attempt: impl std::future::Future<Output = TorResult<T>>,
+    timeout: Duration,
+    mut shutdown: watch::Receiver<bool>,
+) -> TorResult<T> {
+    if *shutdown.borrow() {
+        return Err(TorFailure::not_running("service stopped before probe"));
+    }
+    tokio::select! {
+        biased;
+        changed = shutdown.changed() => {
+            let _ = changed;
+            Err(TorFailure::not_running("service stopped during probe"))
+        }
+        result = tokio::time::timeout(timeout, attempt) => {
+            result.map_err(|_| TorFailure::timeout(format!("probe exceeded {timeout:?}")))?
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test(start_paused = true)]
+    async fn stopping_cancels_a_pending_probe_before_its_deadline() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+
+        struct PendingProbe(Arc<AtomicBool>);
+        impl Drop for PendingProbe {
+            fn drop(&mut self) {
+                self.0.store(true, Ordering::SeqCst);
+            }
+        }
+
+        let (stop, shutdown) = watch::channel(false);
+        let dropped = Arc::new(AtomicBool::new(false));
+        let guard = PendingProbe(Arc::clone(&dropped));
+        let probe = tokio::spawn(await_probe(
+            async move {
+                let _guard = guard;
+                futures::future::pending::<TorResult<()>>().await
+            },
+            Duration::from_secs(120),
+            shutdown,
+        ));
+        tokio::task::yield_now().await;
+        stop.send_replace(true);
+        let result = tokio::time::timeout(Duration::from_secs(1), probe)
+            .await
+            .expect("stop must settle the probe before its connection deadline")
+            .expect("probe task must not panic");
+        assert_eq!(
+            result.expect_err("stopped probe").kind,
+            super::super::error::TorFailureKind::NotRunning
+        );
+        assert!(
+            dropped.load(Ordering::SeqCst),
+            "pending connection future must be dropped"
+        );
+    }
+
+    #[tokio::test]
+    async fn an_already_stopped_service_never_polls_the_probe() {
+        let (_stop, shutdown) = watch::channel(true);
+        let result: TorResult<()> = await_probe(
+            async { panic!("a stopped service must not begin a connection") },
+            Duration::from_secs(120),
+            shutdown,
+        )
+        .await;
+        assert_eq!(
+            result.expect_err("stopped probe").kind,
+            super::super::error::TorFailureKind::NotRunning
+        );
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn probe_success_failure_and_deadline_remain_distinct() {
+        use super::super::error::TorFailureKind;
+        let (_stop, shutdown) = watch::channel(false);
+        assert_eq!(
+            await_probe(async { Ok(7) }, Duration::from_secs(1), shutdown.clone())
+                .await
+                .expect("completed probe"),
+            7
+        );
+        let failed = await_probe(
+            async { Err::<(), _>(TorFailure::connect("safe category")) },
+            Duration::from_secs(1),
+            shutdown.clone(),
+        )
+        .await
+        .expect_err("connection failure");
+        assert_eq!(failed.kind, TorFailureKind::Connect);
+        let timed_out = await_probe(
+            futures::future::pending::<TorResult<()>>(),
+            Duration::from_secs(1),
+            shutdown,
+        )
+        .await
+        .expect_err("deadline");
+        assert_eq!(timed_out.kind, TorFailureKind::Timeout);
+    }
 
     /// Everything up to (not including) bootstrap must work with no network:
     /// the port is known and the status is a well-formed "not ready".
