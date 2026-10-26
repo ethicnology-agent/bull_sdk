@@ -31,14 +31,47 @@ pub struct TorStartupSettings {
     pub connect_timeout_ms: Option<u64>,
     /// Keep Arti's exit prebuilding unless the host explicitly opts out.
     pub disable_preemptive_exit_circuits: bool,
+    /// Stream-open budget after a circuit is available. `None` keeps Arti's
+    /// default (10 seconds in 0.47). This is separate from the total SOCKS
+    /// budget and applies to all sessions of this client.
+    pub stream_open_timeout_ms: Option<u64>,
+    /// Approximate tracked queue-memory quota, in bytes; `None` keeps Arti's
+    /// automatic policy. Reclamation may close circuits. This is not an RSS
+    /// limit. Arti chooses the low-water mark and validates minimum capacity.
+    pub memory_quota_bytes: Option<u64>,
 }
 
-fn apply_startup_settings(cfg: &mut TorClientConfigBuilder, settings: &TorStartupSettings) {
+fn apply_startup_settings(
+    cfg: &mut TorClientConfigBuilder,
+    settings: &TorStartupSettings,
+) -> Result<(), TorFailure> {
+    if let Some(timeout) = settings.stream_open_timeout_ms {
+        if timeout == 0 {
+            return Err(TorFailure::configuration(
+                "Stream-open timeout must be positive",
+            ));
+        }
+        cfg.stream_timeouts()
+            .connect_timeout(Duration::from_millis(timeout));
+    }
+    if let Some(bytes) = settings.memory_quota_bytes {
+        let bytes = usize::try_from(bytes).map_err(|_| {
+            TorFailure::configuration("Memory quota exceeds this platform's supported range")
+        })?;
+        // usize::MAX is upstream's sentinel for disabled tracking, not a cap.
+        if bytes == 0 || bytes == usize::MAX {
+            return Err(TorFailure::configuration(
+                "Memory quota must be a finite positive limit",
+            ));
+        }
+        cfg.system().memory().max(bytes);
+    }
     if settings.disable_preemptive_exit_circuits {
         // Clearing predicted ports alone still prebuilds DNS circuits. Zero
         // skips the exit predictor even when no tunnel exists.
         cfg.preemptive_circuits().disable_at_threshold(0);
     }
+    Ok(())
 }
 
 /// A running Tor client with circuit-isolated loopback SOCKS5 sessions.
@@ -261,7 +294,7 @@ impl TorService {
         let mut cfg = TorClientConfigBuilder::from_directories(state_dir, cache_dir);
         // Required for .onion targets to be routable through the proxy.
         cfg.address_filter().allow_onion_addrs(true);
-        apply_startup_settings(&mut cfg, &settings);
+        apply_startup_settings(&mut cfg, &settings)?;
         if let Some((port, profile)) = snowflake_port {
             match profile {
                 Some(profile) => configure_snowflake_profile(&mut cfg, port, profile)?,
@@ -684,20 +717,96 @@ mod tests {
         let base = TorClientConfigBuilder::from_directories("/tmp/state", "/tmp/cache");
         let baseline = base.build().expect("baseline");
         let mut defaults = base.clone();
-        apply_startup_settings(&mut defaults, &TorStartupSettings::default());
+        apply_startup_settings(&mut defaults, &TorStartupSettings::default())
+            .expect("default settings");
         assert_eq!(defaults.build().expect("defaults"), baseline);
 
         let settings = TorStartupSettings {
             connect_timeout_ms: Some(60_000),
             disable_preemptive_exit_circuits: true,
+            ..Default::default()
         };
         let mut actual = base.clone();
-        apply_startup_settings(&mut actual, &settings);
+        apply_startup_settings(&mut actual, &settings).expect("startup settings");
         let mut expected = base;
         expected.preemptive_circuits().disable_at_threshold(0);
         let actual = actual.build().expect("onion workload");
         assert_ne!(actual, baseline);
         assert_eq!(actual, expected.build().expect("expected"));
+    }
+
+    #[test]
+    fn phase_timeout_and_queue_limit_change_only_the_requested_config() {
+        let base = TorClientConfigBuilder::from_directories("/tmp/state", "/tmp/cache");
+        for (timeout, memory) in [
+            (Some(20_000), None),
+            (None, Some(64 * 1024 * 1024)),
+            (Some(20_000), Some(128 * 1024 * 1024)),
+        ] {
+            let settings = TorStartupSettings {
+                stream_open_timeout_ms: timeout,
+                memory_quota_bytes: memory,
+                ..Default::default()
+            };
+            let mut actual = base.clone();
+            apply_startup_settings(&mut actual, &settings).expect("valid settings");
+            let mut expected = base.clone();
+            if let Some(ms) = timeout {
+                expected
+                    .stream_timeouts()
+                    .connect_timeout(Duration::from_millis(ms));
+            }
+            if let Some(bytes) = memory {
+                expected.system().memory().max(bytes as usize);
+            }
+            assert_eq!(
+                actual.build().expect("actual"),
+                expected.build().expect("expected")
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn invalid_resource_settings_fail_before_opening_storage() {
+        for settings in [
+            TorStartupSettings {
+                stream_open_timeout_ms: Some(0),
+                ..Default::default()
+            },
+            TorStartupSettings {
+                memory_quota_bytes: Some(0),
+                ..Default::default()
+            },
+            TorStartupSettings {
+                memory_quota_bytes: Some(1),
+                ..Default::default()
+            },
+            TorStartupSettings {
+                memory_quota_bytes: Some(u64::MAX),
+                ..Default::default()
+            },
+        ] {
+            let dir = tempdir();
+            let state = format!("{dir}/unused-state");
+            let cache = format!("{dir}/unused-cache");
+            let failure = TorService::start_configured(
+                &state,
+                &cache,
+                0,
+                SocksPolicy::OnionOnly,
+                settings,
+                None,
+            )
+            .await
+            .err()
+            .expect("invalid settings");
+            assert_eq!(
+                failure.kind,
+                super::super::error::TorFailureKind::Configuration
+            );
+            assert!(!std::path::Path::new(&state).exists());
+            assert!(!std::path::Path::new(&cache).exists());
+        }
     }
 
     #[tokio::test]
@@ -712,6 +821,8 @@ mod tests {
                 TorStartupSettings {
                     connect_timeout_ms: Some(60_000),
                     disable_preemptive_exit_circuits: true,
+                    stream_open_timeout_ms: Some(20_000),
+                    memory_quota_bytes: Some(128 * 1024 * 1024),
                 },
                 port,
             )

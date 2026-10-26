@@ -749,6 +749,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
     wireObj.disable_preemptive_exit_circuits = cst_encode_bool(
       apiObj.disablePreemptiveExitCircuits,
     );
+    wireObj.stream_open_timeout_ms = cst_encode_opt_box_autoadd_u_64(
+      apiObj.streamOpenTimeoutMs,
+    );
+    wireObj.memory_quota_bytes = cst_encode_opt_box_autoadd_u_64(
+      apiObj.memoryQuotaBytes,
+    );
   }
 
   @protected
@@ -2310,6 +2316,10 @@ final class wire_cst_tor_startup_settings extends ffi.Struct {
 
   @ffi.Bool()
   external bool disable_preemptive_exit_circuits;
+
+  external ffi.Pointer<ffi.Uint64> stream_open_timeout_ms;
+
+  external ffi.Pointer<ffi.Uint64> memory_quota_bytes;
 }
 
 final class wire_cst_blockage extends ffi.Struct {

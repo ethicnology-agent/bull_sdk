@@ -1955,11 +1955,13 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   TorStartupSettings dco_decode_tor_startup_settings(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return TorStartupSettings(
       connectTimeoutMs: dco_decode_opt_box_autoadd_u_64(arr[0]),
       disablePreemptiveExitCircuits: dco_decode_bool(arr[1]),
+      streamOpenTimeoutMs: dco_decode_opt_box_autoadd_u_64(arr[2]),
+      memoryQuotaBytes: dco_decode_opt_box_autoadd_u_64(arr[3]),
     );
   }
 
@@ -2494,9 +2496,13 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_connectTimeoutMs = sse_decode_opt_box_autoadd_u_64(deserializer);
     var var_disablePreemptiveExitCircuits = sse_decode_bool(deserializer);
+    var var_streamOpenTimeoutMs = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_memoryQuotaBytes = sse_decode_opt_box_autoadd_u_64(deserializer);
     return TorStartupSettings(
       connectTimeoutMs: var_connectTimeoutMs,
       disablePreemptiveExitCircuits: var_disablePreemptiveExitCircuits,
+      streamOpenTimeoutMs: var_streamOpenTimeoutMs,
+      memoryQuotaBytes: var_memoryQuotaBytes,
     );
   }
 
@@ -3238,6 +3244,8 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_opt_box_autoadd_u_64(self.connectTimeoutMs, serializer);
     sse_encode_bool(self.disablePreemptiveExitCircuits, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.streamOpenTimeoutMs, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.memoryQuotaBytes, serializer);
   }
 
   @protected

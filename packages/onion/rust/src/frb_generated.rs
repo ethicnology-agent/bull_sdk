@@ -1963,9 +1963,13 @@ impl SseDecode for crate::api::client::TorStartupSettings {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_connectTimeoutMs = <Option<u64>>::sse_decode(deserializer);
         let mut var_disablePreemptiveExitCircuits = <bool>::sse_decode(deserializer);
+        let mut var_streamOpenTimeoutMs = <Option<u64>>::sse_decode(deserializer);
+        let mut var_memoryQuotaBytes = <Option<u64>>::sse_decode(deserializer);
         return crate::api::client::TorStartupSettings {
             connect_timeout_ms: var_connectTimeoutMs,
             disable_preemptive_exit_circuits: var_disablePreemptiveExitCircuits,
+            stream_open_timeout_ms: var_streamOpenTimeoutMs,
+            memory_quota_bytes: var_memoryQuotaBytes,
         };
     }
 }
@@ -2449,6 +2453,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::client::TorStartupSettings {
             self.disable_preemptive_exit_circuits
                 .into_into_dart()
                 .into_dart(),
+            self.stream_open_timeout_ms.into_into_dart().into_dart(),
+            self.memory_quota_bytes.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2931,6 +2937,8 @@ impl SseEncode for crate::api::client::TorStartupSettings {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <Option<u64>>::sse_encode(self.connect_timeout_ms, serializer);
         <bool>::sse_encode(self.disable_preemptive_exit_circuits, serializer);
+        <Option<u64>>::sse_encode(self.stream_open_timeout_ms, serializer);
+        <Option<u64>>::sse_encode(self.memory_quota_bytes, serializer);
     }
 }
 
@@ -3317,6 +3325,8 @@ mod io {
                 disable_preemptive_exit_circuits: self
                     .disable_preemptive_exit_circuits
                     .cst_decode(),
+                stream_open_timeout_ms: self.stream_open_timeout_ms.cst_decode(),
+                memory_quota_bytes: self.memory_quota_bytes.cst_decode(),
             }
         }
     }
@@ -3437,6 +3447,8 @@ mod io {
             Self {
                 connect_timeout_ms: core::ptr::null_mut(),
                 disable_preemptive_exit_circuits: Default::default(),
+                stream_open_timeout_ms: core::ptr::null_mut(),
+                memory_quota_bytes: core::ptr::null_mut(),
             }
         }
     }
@@ -4067,6 +4079,8 @@ mod io {
     pub struct wire_cst_tor_startup_settings {
         connect_timeout_ms: *mut u64,
         disable_preemptive_exit_circuits: bool,
+        stream_open_timeout_ms: *mut u64,
+        memory_quota_bytes: *mut u64,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]

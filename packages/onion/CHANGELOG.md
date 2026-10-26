@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Expose optional client-wide stream-opening deadlines and tracked queue-memory quotas, with validation before storage opens and unchanged defaults.
+
 - Honor the crate's pinned Rust compiler in Cargokit while preserving explicit build-tool overrides.
 
 - Optimize the Tor release build for throughput instead of size, retaining LTO, stripping and one codegen unit. Debug builds are unchanged.

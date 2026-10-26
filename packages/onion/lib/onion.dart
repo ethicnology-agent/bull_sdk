@@ -36,7 +36,8 @@ library;
 
 export 'src/onion_logs.dart';
 export 'src/rust/api/build_info.dart';
-export 'src/rust/api/client.dart';
+export 'src/rust/api/client.dart' hide TorStartupSettings;
+export 'src/tor_startup_settings.dart';
 export 'src/rust/api/connection.dart';
 export 'src/rust/api/error.dart';
 export 'src/rust/api/log.dart';

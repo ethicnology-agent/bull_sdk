@@ -249,9 +249,21 @@ class TorStartupSettings {
   /// Keep Arti's exit prebuilding unless the host explicitly opts out.
   final bool disablePreemptiveExitCircuits;
 
+  /// Stream-open budget after a circuit is available. `None` keeps Arti's
+  /// default (10 seconds in 0.47). This is separate from the total SOCKS
+  /// budget and applies to all sessions of this client.
+  final BigInt? streamOpenTimeoutMs;
+
+  /// Approximate tracked queue-memory quota, in bytes; `None` keeps Arti's
+  /// automatic policy. Reclamation may close circuits. This is not an RSS
+  /// limit. Arti chooses the low-water mark and validates minimum capacity.
+  final BigInt? memoryQuotaBytes;
+
   const TorStartupSettings({
     this.connectTimeoutMs,
     required this.disablePreemptiveExitCircuits,
+    this.streamOpenTimeoutMs,
+    this.memoryQuotaBytes,
   });
 
   static Future<TorStartupSettings> default_() =>
@@ -259,7 +271,10 @@ class TorStartupSettings {
 
   @override
   int get hashCode =>
-      connectTimeoutMs.hashCode ^ disablePreemptiveExitCircuits.hashCode;
+      connectTimeoutMs.hashCode ^
+      disablePreemptiveExitCircuits.hashCode ^
+      streamOpenTimeoutMs.hashCode ^
+      memoryQuotaBytes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -267,5 +282,8 @@ class TorStartupSettings {
       other is TorStartupSettings &&
           runtimeType == other.runtimeType &&
           connectTimeoutMs == other.connectTimeoutMs &&
-          disablePreemptiveExitCircuits == other.disablePreemptiveExitCircuits;
+          disablePreemptiveExitCircuits ==
+              other.disablePreemptiveExitCircuits &&
+          streamOpenTimeoutMs == other.streamOpenTimeoutMs &&
+          memoryQuotaBytes == other.memoryQuotaBytes;
 }
