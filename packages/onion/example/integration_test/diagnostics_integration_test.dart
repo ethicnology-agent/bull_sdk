@@ -27,11 +27,15 @@ void main() {
     TorService? service;
     TorSession? session;
     try {
-      service = await TorService.start(
+      service = await TorService.startConfigured(
         stateDir: '${root.path}/state',
         cacheDir: '${root.path}/cache',
         socksPort: 0,
         policy: SocksPolicy.onionOnly,
+        settings: TorStartupSettings(
+          connectTimeoutMs: BigInt.from(60000),
+          disablePreemptiveExitCircuits: true,
+        ),
       );
       session = await service.openSession(
         socksPort: 0,

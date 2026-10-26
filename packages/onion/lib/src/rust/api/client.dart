@@ -11,9 +11,9 @@ import 'profile.dart';
 import 'session.dart';
 import 'status.dart';
 
-// These functions are ignored because they are not marked as `pub`: `await_probe`, `begin_stop`, `client`, `configure_snowflake_profile`, `configure_snowflake`, `start_with_transport`
+// These functions are ignored because they are not marked as `pub`: `apply_startup_settings`, `await_probe`, `begin_stop`, `client`, `configure_snowflake_profile`, `configure_snowflake`, `start_with_transport`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `SessionRegistry`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `drop`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `drop`, `fmt`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `status_stream`
 
 // Rust type: RustOpaqueNom<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<TorService>>
@@ -103,6 +103,46 @@ abstract class TorService implements RustOpaqueInterface {
     socksPort: socksPort,
     policy: policy,
   );
+
+  /// Start with explicit workload settings and an optional Snowflake port.
+  ///
+  /// No Snowflake port selects direct Tor. Existing constructors retain
+  /// Arti's defaults. Snowflake's native proxy must already be running.
+  static Future<TorService> startConfigured({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    required TorStartupSettings settings,
+    int? snowflakePort,
+  }) => OnionCore.instance.api.crateApiClientTorServiceStartConfigured(
+    stateDir: stateDir,
+    cacheDir: cacheDir,
+    socksPort: socksPort,
+    policy: policy,
+    settings: settings,
+    snowflakePort: snowflakePort,
+  );
+
+  /// Start with explicit workload settings and a validated Snowflake profile.
+  static Future<TorService> startConfiguredWithSnowflakeProfile({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    required TorStartupSettings settings,
+    required int snowflakePort,
+    required SnowflakeBridgeProfile profile,
+  }) => OnionCore.instance.api
+      .crateApiClientTorServiceStartConfiguredWithSnowflakeProfile(
+        stateDir: stateDir,
+        cacheDir: cacheDir,
+        socksPort: socksPort,
+        policy: policy,
+        settings: settings,
+        snowflakePort: snowflakePort,
+        profile: profile,
+      );
 
   /// Create the client and bind the SOCKS listener with a custom Tor
   /// connection budget in milliseconds. `None` uses the 30-second default.
@@ -194,4 +234,38 @@ abstract class TorService implements RustOpaqueInterface {
   /// `flutter_rust_bridge` generates for. The task ends when Dart drops the
   /// subscription, arti closes the channel, or [`TorService::stop`] runs.
   Stream<TorStatus> watchStatus();
+}
+
+/// Startup settings for one client and its default SOCKS listener.
+///
+/// Opting out saves speculative exit/DNS circuits for hosts whose traffic
+/// exclusively uses onion services. This does not restrict destinations or
+/// disable Arti's separate onion-service circuit pool.
+class TorStartupSettings {
+  /// Default SOCKS listener connection budget; `None` keeps 30 seconds.
+  /// Additional sessions and probes retain their own explicit budgets.
+  final BigInt? connectTimeoutMs;
+
+  /// Keep Arti's exit prebuilding unless the host explicitly opts out.
+  final bool disablePreemptiveExitCircuits;
+
+  const TorStartupSettings({
+    this.connectTimeoutMs,
+    required this.disablePreemptiveExitCircuits,
+  });
+
+  static Future<TorStartupSettings> default_() =>
+      OnionCore.instance.api.crateApiClientTorStartupSettingsDefault();
+
+  @override
+  int get hashCode =>
+      connectTimeoutMs.hashCode ^ disablePreemptiveExitCircuits.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TorStartupSettings &&
+          runtimeType == other.runtimeType &&
+          connectTimeoutMs == other.connectTimeoutMs &&
+          disablePreemptiveExitCircuits == other.disablePreemptiveExitCircuits;
 }

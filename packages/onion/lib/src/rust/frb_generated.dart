@@ -72,7 +72,7 @@ class OnionCore
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 790312633;
+  int get rustContentHash => 1739149069;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -145,6 +145,26 @@ abstract class OnionCoreApi extends BaseApi {
     required SocksPolicy policy,
   });
 
+  Future<TorService> crateApiClientTorServiceStartConfigured({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    required TorStartupSettings settings,
+    int? snowflakePort,
+  });
+
+  Future<TorService>
+  crateApiClientTorServiceStartConfiguredWithSnowflakeProfile({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    required TorStartupSettings settings,
+    required int snowflakePort,
+    required SnowflakeBridgeProfile profile,
+  });
+
   Future<TorService> crateApiClientTorServiceStartWithConnectTimeout({
     required String stateDir,
     required String cacheDir,
@@ -212,6 +232,8 @@ abstract class OnionCoreApi extends BaseApi {
   Future<SocksPolicy> crateApiSessionSocksPolicyDefault();
 
   TorBuildInfo crateApiBuildInfoTorBuildInfo();
+
+  Future<TorStartupSettings> crateApiClientTorStartupSettingsDefault();
 
   bool crateApiStatusTorStatusSuggestsCensorship({required TorStatus that});
 
@@ -767,6 +789,138 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       const TaskConstMeta(
         debugName: "TorService_start",
         argNames: ["stateDir", "cacheDir", "socksPort", "policy"],
+      );
+
+  @override
+  Future<TorService> crateApiClientTorServiceStartConfigured({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    required TorStartupSettings settings,
+    int? snowflakePort,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(stateDir);
+          var arg1 = cst_encode_String(cacheDir);
+          var arg2 = cst_encode_u_16(socksPort);
+          var arg3 = cst_encode_socks_policy(policy);
+          var arg4 = cst_encode_box_autoadd_tor_startup_settings(settings);
+          var arg5 = cst_encode_opt_box_autoadd_u_16(snowflakePort);
+          return wire.wire__crate__api__client__TorService_start_configured(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+            arg4,
+            arg5,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiClientTorServiceStartConfiguredConstMeta,
+        argValues: [
+          stateDir,
+          cacheDir,
+          socksPort,
+          policy,
+          settings,
+          snowflakePort,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClientTorServiceStartConfiguredConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_start_configured",
+        argNames: [
+          "stateDir",
+          "cacheDir",
+          "socksPort",
+          "policy",
+          "settings",
+          "snowflakePort",
+        ],
+      );
+
+  @override
+  Future<TorService>
+  crateApiClientTorServiceStartConfiguredWithSnowflakeProfile({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required SocksPolicy policy,
+    required TorStartupSettings settings,
+    required int snowflakePort,
+    required SnowflakeBridgeProfile profile,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(stateDir);
+          var arg1 = cst_encode_String(cacheDir);
+          var arg2 = cst_encode_u_16(socksPort);
+          var arg3 = cst_encode_socks_policy(policy);
+          var arg4 = cst_encode_box_autoadd_tor_startup_settings(settings);
+          var arg5 = cst_encode_u_16(snowflakePort);
+          var arg6 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+                profile,
+              );
+          return wire
+              .wire__crate__api__client__TorService_start_configured_with_snowflake_profile(
+                port_,
+                arg0,
+                arg1,
+                arg2,
+                arg3,
+                arg4,
+                arg5,
+                arg6,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta:
+            kCrateApiClientTorServiceStartConfiguredWithSnowflakeProfileConstMeta,
+        argValues: [
+          stateDir,
+          cacheDir,
+          socksPort,
+          policy,
+          settings,
+          snowflakePort,
+          profile,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiClientTorServiceStartConfiguredWithSnowflakeProfileConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_start_configured_with_snowflake_profile",
+        argNames: [
+          "stateDir",
+          "cacheDir",
+          "socksPort",
+          "policy",
+          "settings",
+          "snowflakePort",
+          "profile",
+        ],
       );
 
   @override
@@ -1338,6 +1492,32 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       const TaskConstMeta(debugName: "tor_build_info", argNames: []);
 
   @override
+  Future<TorStartupSettings> crateApiClientTorStartupSettingsDefault() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          return wire.wire__crate__api__client__tor_startup_settings_default(
+            port_,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_tor_startup_settings,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiClientTorStartupSettingsDefaultConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiClientTorStartupSettingsDefaultConstMeta =>
+      const TaskConstMeta(
+        debugName: "tor_startup_settings_default",
+        argNames: [],
+      );
+
+  @override
   bool crateApiStatusTorStatusSuggestsCensorship({required TorStatus that}) {
     return handler.executeSync(
       SyncTask(
@@ -1567,9 +1747,21 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  TorStartupSettings dco_decode_box_autoadd_tor_startup_settings(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_tor_startup_settings(raw);
+  }
+
+  @protected
   TorStatus dco_decode_box_autoadd_tor_status(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_tor_status(raw);
+  }
+
+  @protected
+  int dco_decode_box_autoadd_u_16(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
   }
 
   @protected
@@ -1677,6 +1869,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  int? dco_decode_opt_box_autoadd_u_16(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_16(raw);
+  }
+
+  @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_64(raw);
@@ -1750,6 +1948,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       accepted: dco_decode_u_64(arr[0]),
       dropped: dco_decode_u_64(arr[1]),
       routingDropped: dco_decode_u_64(arr[2]),
+    );
+  }
+
+  @protected
+  TorStartupSettings dco_decode_tor_startup_settings(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return TorStartupSettings(
+      connectTimeoutMs: dco_decode_opt_box_autoadd_u_64(arr[0]),
+      disablePreemptiveExitCircuits: dco_decode_bool(arr[1]),
     );
   }
 
@@ -2012,9 +2222,23 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  TorStartupSettings sse_decode_box_autoadd_tor_startup_settings(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_tor_startup_settings(deserializer));
+  }
+
+  @protected
   TorStatus sse_decode_box_autoadd_tor_status(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_tor_status(deserializer));
+  }
+
+  @protected
+  int sse_decode_box_autoadd_u_16(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_16(deserializer));
   }
 
   @protected
@@ -2170,6 +2394,17 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_16(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_16(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -2249,6 +2484,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       accepted: var_accepted,
       dropped: var_dropped,
       routingDropped: var_routingDropped,
+    );
+  }
+
+  @protected
+  TorStartupSettings sse_decode_tor_startup_settings(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_connectTimeoutMs = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_disablePreemptiveExitCircuits = sse_decode_bool(deserializer);
+    return TorStartupSettings(
+      connectTimeoutMs: var_connectTimeoutMs,
+      disablePreemptiveExitCircuits: var_disablePreemptiveExitCircuits,
     );
   }
 
@@ -2743,12 +2991,27 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_tor_startup_settings(
+    TorStartupSettings self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_tor_startup_settings(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_tor_status(
     TorStatus self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_tor_status(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_u_16(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_16(self, serializer);
   }
 
   @protected
@@ -2894,6 +3157,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_u_16(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_16(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -2955,6 +3228,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     sse_encode_u_64(self.accepted, serializer);
     sse_encode_u_64(self.dropped, serializer);
     sse_encode_u_64(self.routingDropped, serializer);
+  }
+
+  @protected
+  void sse_encode_tor_startup_settings(
+    TorStartupSettings self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_u_64(self.connectTimeoutMs, serializer);
+    sse_encode_bool(self.disablePreemptiveExitCircuits, serializer);
   }
 
   @protected

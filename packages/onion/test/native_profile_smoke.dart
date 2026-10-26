@@ -28,6 +28,51 @@ void main() {
         final profile = SnowflakeBridgeProfile.bundled();
         try {
           expect(profile.bridgeCount(), 2);
+          final directory = Directory.systemTemp.createTempSync(
+            'onion-startup-',
+          );
+          try {
+            for (final port in <int?>[null, 12345]) {
+              final service = await TorService.startConfigured(
+                stateDir: '${directory.path}/state-${port ?? 0}',
+                cacheDir: '${directory.path}/cache-${port ?? 0}',
+                socksPort: 0,
+                policy: SocksPolicy.onionOnly,
+                settings: TorStartupSettings(
+                  connectTimeoutMs: BigInt.from(60000),
+                  disablePreemptiveExitCircuits: true,
+                ),
+                snowflakePort: port,
+              );
+              try {
+                expect(await service.proxyIsAlive(), isTrue);
+              } finally {
+                await service.stop();
+                service.dispose();
+              }
+            }
+            final service =
+                await TorService.startConfiguredWithSnowflakeProfile(
+                  stateDir: '${directory.path}/profile-state',
+                  cacheDir: '${directory.path}/profile-cache',
+                  socksPort: 0,
+                  policy: SocksPolicy.onionOnly,
+                  settings: const TorStartupSettings(
+                    disablePreemptiveExitCircuits: true,
+                  ),
+                  snowflakePort: 12345,
+                  profile: profile,
+                );
+            try {
+              expect(await service.proxyIsAlive(), isTrue);
+            } finally {
+              await service.stop();
+              service.dispose();
+            }
+          } finally {
+            directory.deleteSync(recursive: true);
+          }
+
           expect(
             () => SnowflakeBridgeProfile.fromBridgeLines(
               bridgeLines: ['private-invalid-bridge'],

@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 790312633;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1739149069;
 
 // Section: executor
 
@@ -644,6 +644,77 @@ fn wire__crate__api__client__TorService_start_impl(
         },
     )
 }
+fn wire__crate__api__client__TorService_start_configured_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    state_dir: impl CstDecode<String>,
+    cache_dir: impl CstDecode<String>,
+    socks_port: impl CstDecode<u16>,
+    policy: impl CstDecode<crate::api::session::SocksPolicy>,
+    settings: impl CstDecode<crate::api::client::TorStartupSettings>,
+    snowflake_port: impl CstDecode<Option<u16>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "TorService_start_configured",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_state_dir = state_dir.cst_decode();
+            let api_cache_dir = cache_dir.cst_decode();
+            let api_socks_port = socks_port.cst_decode();
+            let api_policy = policy.cst_decode();
+            let api_settings = settings.cst_decode();
+            let api_snowflake_port = snowflake_port.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::api::error::TorFailure>(
+                    (move || async move {
+                        let output_ok = crate::api::client::TorService::start_configured(
+                            &api_state_dir,
+                            &api_cache_dir,
+                            api_socks_port,
+                            api_policy,
+                            api_settings,
+                            api_snowflake_port,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__client__TorService_start_configured_with_snowflake_profile_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    state_dir: impl CstDecode<String>,
+    cache_dir: impl CstDecode<String>,
+    socks_port: impl CstDecode<u16>,
+    policy: impl CstDecode<crate::api::session::SocksPolicy>,
+    settings: impl CstDecode<crate::api::client::TorStartupSettings>,
+    snowflake_port: impl CstDecode<u16>,
+    profile: impl CstDecode<
+        RustOpaqueNom<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SnowflakeBridgeProfile>,
+        >,
+    >,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec,_,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "TorService_start_configured_with_snowflake_profile", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { let api_state_dir = state_dir.cst_decode();let api_cache_dir = cache_dir.cst_decode();let api_socks_port = socks_port.cst_decode();let api_policy = policy.cst_decode();let api_settings = settings.cst_decode();let api_snowflake_port = snowflake_port.cst_decode();let api_profile = profile.cst_decode(); move |context| async move {
+                    transform_result_dco::<_, _, crate::api::error::TorFailure>((move || async move {
+                        let mut api_profile_guard = None;
+let decode_indices_ = flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(&api_profile, 0, false)]);
+        for i in decode_indices_ {
+            match i {
+                0 => api_profile_guard = Some(api_profile.lockable_decode_async_ref().await),
+                _ => unreachable!(),
+            }
+        }
+        let api_profile_guard = api_profile_guard.unwrap();
+ let output_ok = crate::api::client::TorService::start_configured_with_snowflake_profile(&api_state_dir, &api_cache_dir, api_socks_port, api_policy, api_settings, api_snowflake_port, &*api_profile_guard).await?;   Ok(output_ok)
+                    })().await)
+                } })
+}
 fn wire__crate__api__client__TorService_start_with_connect_timeout_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     state_dir: impl CstDecode<String>,
@@ -1230,6 +1301,26 @@ fn wire__crate__api__build_info__tor_build_info_impl(
         },
     )
 }
+fn wire__crate__api__client__tor_startup_settings_default_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::DcoCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "tor_startup_settings_default",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            move |context| {
+                transform_result_dco::<_, _, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::client::TorStartupSettings::default())?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__status__tor_status_suggests_censorship_impl(
     that: impl CstDecode<crate::api::status::TorStatus>,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -1744,6 +1835,17 @@ impl SseDecode for Option<crate::api::connection::ConnectionFailureKind> {
     }
 }
 
+impl SseDecode for Option<u16> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u16>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<u64> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1852,6 +1954,18 @@ impl SseDecode for crate::api::log::TorLogStats {
             accepted: var_accepted,
             dropped: var_dropped,
             routing_dropped: var_routingDropped,
+        };
+    }
+}
+
+impl SseDecode for crate::api::client::TorStartupSettings {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_connectTimeoutMs = <Option<u64>>::sse_decode(deserializer);
+        let mut var_disablePreemptiveExitCircuits = <bool>::sse_decode(deserializer);
+        return crate::api::client::TorStartupSettings {
+            connect_timeout_ms: var_connectTimeoutMs,
+            disable_preemptive_exit_circuits: var_disablePreemptiveExitCircuits,
         };
     }
 }
@@ -2328,6 +2442,29 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::log::TorLogStats>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::client::TorStartupSettings {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.connect_timeout_ms.into_into_dart().into_dart(),
+            self.disable_preemptive_exit_circuits
+                .into_into_dart()
+                .into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::client::TorStartupSettings
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::client::TorStartupSettings>
+    for crate::api::client::TorStartupSettings
+{
+    fn into_into_dart(self) -> crate::api::client::TorStartupSettings {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::status::TorStatus {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -2677,6 +2814,16 @@ impl SseEncode for Option<crate::api::connection::ConnectionFailureKind> {
     }
 }
 
+impl SseEncode for Option<u16> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u16>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<u64> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2776,6 +2923,14 @@ impl SseEncode for crate::api::log::TorLogStats {
         <u64>::sse_encode(self.accepted, serializer);
         <u64>::sse_encode(self.dropped, serializer);
         <u64>::sse_encode(self.routing_dropped, serializer);
+    }
+}
+
+impl SseEncode for crate::api::client::TorStartupSettings {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<u64>>::sse_encode(self.connect_timeout_ms, serializer);
+        <bool>::sse_encode(self.disable_preemptive_exit_circuits, serializer);
     }
 }
 
@@ -3024,11 +3179,24 @@ mod io {
             CstDecode::<crate::api::connection::ConnectionFailureKind>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<crate::api::client::TorStartupSettings> for *mut wire_cst_tor_startup_settings {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::client::TorStartupSettings {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::api::client::TorStartupSettings>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::api::status::TorStatus> for *mut wire_cst_tor_status {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::status::TorStatus {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::api::status::TorStatus>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<u16> for *mut u16 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u16 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
     impl CstDecode<u64> for *mut u64 {
@@ -3141,6 +3309,17 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::api::client::TorStartupSettings> for wire_cst_tor_startup_settings {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::api::client::TorStartupSettings {
+            crate::api::client::TorStartupSettings {
+                connect_timeout_ms: self.connect_timeout_ms.cst_decode(),
+                disable_preemptive_exit_circuits: self
+                    .disable_preemptive_exit_circuits
+                    .cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::api::status::TorStatus> for wire_cst_tor_status {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::api::status::TorStatus {
@@ -3249,6 +3428,19 @@ mod io {
         }
     }
     impl Default for wire_cst_tor_log_stats {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_tor_startup_settings {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                connect_timeout_ms: core::ptr::null_mut(),
+                disable_preemptive_exit_circuits: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_tor_startup_settings {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -3402,6 +3594,50 @@ mod io {
     ) {
         wire__crate__api__client__TorService_start_impl(
             port_, state_dir, cache_dir, socks_port, policy,
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_wire__crate__api__client__TorService_start_configured(
+        port_: i64,
+        state_dir: *mut wire_cst_list_prim_u_8_strict,
+        cache_dir: *mut wire_cst_list_prim_u_8_strict,
+        socks_port: u16,
+        policy: i32,
+        settings: *mut wire_cst_tor_startup_settings,
+        snowflake_port: *mut u16,
+    ) {
+        wire__crate__api__client__TorService_start_configured_impl(
+            port_,
+            state_dir,
+            cache_dir,
+            socks_port,
+            policy,
+            settings,
+            snowflake_port,
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_wire__crate__api__client__TorService_start_configured_with_snowflake_profile(
+        port_: i64,
+        state_dir: *mut wire_cst_list_prim_u_8_strict,
+        cache_dir: *mut wire_cst_list_prim_u_8_strict,
+        socks_port: u16,
+        policy: i32,
+        settings: *mut wire_cst_tor_startup_settings,
+        snowflake_port: u16,
+        profile: usize,
+    ) {
+        wire__crate__api__client__TorService_start_configured_with_snowflake_profile_impl(
+            port_,
+            state_dir,
+            cache_dir,
+            socks_port,
+            policy,
+            settings,
+            snowflake_port,
+            profile,
         )
     }
 
@@ -3578,6 +3814,13 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_wire__crate__api__client__tor_startup_settings_default(
+        port_: i64,
+    ) {
+        wire__crate__api__client__tor_startup_settings_default_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_onion_wire__crate__api__status__tor_status_suggests_censorship(
         that: *mut wire_cst_tor_status,
     ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
@@ -3669,10 +3912,23 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_cst_new_box_autoadd_tor_startup_settings(
+    ) -> *mut wire_cst_tor_startup_settings {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_tor_startup_settings::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_onion_cst_new_box_autoadd_tor_status() -> *mut wire_cst_tor_status {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(
             wire_cst_tor_status::new_with_null_ptr(),
         )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_onion_cst_new_box_autoadd_u_16(value: u16) -> *mut u16 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
     #[unsafe(no_mangle)]
@@ -3805,6 +4061,12 @@ mod io {
         accepted: u64,
         dropped: u64,
         routing_dropped: u64,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_tor_startup_settings {
+        connect_timeout_ms: *mut u64,
+        disable_preemptive_exit_circuits: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]

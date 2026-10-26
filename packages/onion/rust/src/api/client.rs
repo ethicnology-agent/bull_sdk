@@ -19,6 +19,28 @@ use super::status::{TorStatus, TorTransport};
 use crate::frb_generated::StreamSink;
 use flutter_rust_bridge::frb;
 
+/// Startup settings for one client and its default SOCKS listener.
+///
+/// Opting out saves speculative exit/DNS circuits for hosts whose traffic
+/// exclusively uses onion services. This does not restrict destinations or
+/// disable Arti's separate onion-service circuit pool.
+#[derive(Clone, Debug, Default)]
+pub struct TorStartupSettings {
+    /// Default SOCKS listener connection budget; `None` keeps 30 seconds.
+    /// Additional sessions and probes retain their own explicit budgets.
+    pub connect_timeout_ms: Option<u64>,
+    /// Keep Arti's exit prebuilding unless the host explicitly opts out.
+    pub disable_preemptive_exit_circuits: bool,
+}
+
+fn apply_startup_settings(cfg: &mut TorClientConfigBuilder, settings: &TorStartupSettings) {
+    if settings.disable_preemptive_exit_circuits {
+        // Clearing predicted ports alone still prebuilds DNS circuits. Zero
+        // skips the exit predictor even when no tunnel exists.
+        cfg.preemptive_circuits().disable_at_threshold(0);
+    }
+}
+
 /// A running Tor client with circuit-isolated loopback SOCKS5 sessions.
 ///
 /// Construction is deliberately split from bootstrap: [`TorService::start`]
@@ -70,7 +92,10 @@ impl TorService {
             TorTransport::Direct,
             None,
             policy,
-            connect_timeout_ms,
+            TorStartupSettings {
+                connect_timeout_ms,
+                ..Default::default()
+            },
         )
         .await
     }
@@ -119,7 +144,10 @@ impl TorService {
             TorTransport::Snowflake,
             Some((snowflake_port, None)),
             policy,
-            connect_timeout_ms,
+            TorStartupSettings {
+                connect_timeout_ms,
+                ..Default::default()
+            },
         )
         .await
     }
@@ -146,7 +174,71 @@ impl TorService {
             TorTransport::Snowflake,
             Some((snowflake_port, Some(profile))),
             policy,
-            connect_timeout_ms,
+            TorStartupSettings {
+                connect_timeout_ms,
+                ..Default::default()
+            },
+        )
+        .await
+    }
+
+    /// Start with explicit workload settings and an optional Snowflake port.
+    ///
+    /// No Snowflake port selects direct Tor. Existing constructors retain
+    /// Arti's defaults. Snowflake's native proxy must already be running.
+    pub async fn start_configured(
+        state_dir: &str,
+        cache_dir: &str,
+        socks_port: u16,
+        policy: SocksPolicy,
+        settings: TorStartupSettings,
+        snowflake_port: Option<u16>,
+    ) -> Result<Self, TorFailure> {
+        if snowflake_port == Some(0) {
+            return Err(TorFailure::configuration(
+                "Snowflake proxy port must not be zero",
+            ));
+        }
+        let transport = if snowflake_port.is_some() {
+            TorTransport::Snowflake
+        } else {
+            TorTransport::Direct
+        };
+        Self::start_with_transport(
+            state_dir,
+            cache_dir,
+            socks_port,
+            transport,
+            snowflake_port.map(|port| (port, None)),
+            policy,
+            settings,
+        )
+        .await
+    }
+
+    /// Start with explicit workload settings and a validated Snowflake profile.
+    pub async fn start_configured_with_snowflake_profile(
+        state_dir: &str,
+        cache_dir: &str,
+        socks_port: u16,
+        policy: SocksPolicy,
+        settings: TorStartupSettings,
+        snowflake_port: u16,
+        profile: &SnowflakeBridgeProfile,
+    ) -> Result<Self, TorFailure> {
+        if snowflake_port == 0 {
+            return Err(TorFailure::configuration(
+                "Snowflake proxy port must not be zero",
+            ));
+        }
+        Self::start_with_transport(
+            state_dir,
+            cache_dir,
+            socks_port,
+            TorTransport::Snowflake,
+            Some((snowflake_port, Some(profile))),
+            policy,
+            settings,
         )
         .await
     }
@@ -158,7 +250,7 @@ impl TorService {
         transport: TorTransport,
         snowflake_port: Option<(u16, Option<&SnowflakeBridgeProfile>)>,
         policy: SocksPolicy,
-        connect_timeout_ms: Option<u64>,
+        settings: TorStartupSettings,
     ) -> Result<Self, TorFailure> {
         let runtime = TokioNativeTlsRuntime::current()
             .map_err(|e| TorFailure::configuration(format!("no tokio runtime: {e}")))?;
@@ -169,6 +261,7 @@ impl TorService {
         let mut cfg = TorClientConfigBuilder::from_directories(state_dir, cache_dir);
         // Required for .onion targets to be routable through the proxy.
         cfg.address_filter().allow_onion_addrs(true);
+        apply_startup_settings(&mut cfg, &settings);
         if let Some((port, profile)) = snowflake_port {
             match profile {
                 Some(profile) => configure_snowflake_profile(&mut cfg, port, profile)?,
@@ -189,7 +282,7 @@ impl TorService {
             .map_err(|e| TorFailure::configuration(format!("create client: {e}")))?;
 
         let default_session =
-            TorSession::start(&client, socks_port, policy, connect_timeout_ms).await?;
+            TorSession::start(&client, socks_port, policy, settings.connect_timeout_ms).await?;
         let sessions = vec![default_session.downgrade()];
         let (shutdown, _) = watch::channel(false);
 
@@ -586,6 +679,85 @@ async fn await_probe<T>(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn startup_workload_preserves_defaults_and_changes_only_exit_prebuilding() {
+        let base = TorClientConfigBuilder::from_directories("/tmp/state", "/tmp/cache");
+        let baseline = base.build().expect("baseline");
+        let mut defaults = base.clone();
+        apply_startup_settings(&mut defaults, &TorStartupSettings::default());
+        assert_eq!(defaults.build().expect("defaults"), baseline);
+
+        let settings = TorStartupSettings {
+            connect_timeout_ms: Some(60_000),
+            disable_preemptive_exit_circuits: true,
+        };
+        let mut actual = base.clone();
+        apply_startup_settings(&mut actual, &settings);
+        let mut expected = base;
+        expected.preemptive_circuits().disable_at_threshold(0);
+        let actual = actual.build().expect("onion workload");
+        assert_ne!(actual, baseline);
+        assert_eq!(actual, expected.build().expect("expected"));
+    }
+
+    #[tokio::test]
+    async fn configured_start_supports_direct_and_snowflake_without_network() {
+        for port in [None, Some(12345)] {
+            let dir = tempdir();
+            let svc = TorService::start_configured(
+                &format!("{dir}/state"),
+                &format!("{dir}/cache"),
+                0,
+                SocksPolicy::OnionOnly,
+                TorStartupSettings {
+                    connect_timeout_ms: Some(60_000),
+                    disable_preemptive_exit_circuits: true,
+                },
+                port,
+            )
+            .await
+            .expect("configured start");
+            assert!(svc.proxy_is_alive());
+            svc.stop().await;
+        }
+    }
+
+    #[tokio::test]
+    async fn configured_start_rejects_a_zero_snowflake_port() {
+        let failure = TorService::start_configured(
+            "/unused/state",
+            "/unused/cache",
+            0,
+            SocksPolicy::OnionOnly,
+            TorStartupSettings::default(),
+            Some(0),
+        )
+        .await
+        .err()
+        .expect("invalid transport must fail");
+        assert_eq!(
+            failure.kind,
+            super::super::error::TorFailureKind::Configuration
+        );
+        let profile = SnowflakeBridgeProfile::bundled().expect("profile");
+        let failure = TorService::start_configured_with_snowflake_profile(
+            "/unused/state",
+            "/unused/cache",
+            0,
+            SocksPolicy::OnionOnly,
+            TorStartupSettings::default(),
+            0,
+            &profile,
+        )
+        .await
+        .err()
+        .expect("invalid profile transport must fail");
+        assert_eq!(
+            failure.kind,
+            super::super::error::TorFailureKind::Configuration
+        );
+    }
+
     use super::*;
     use arti_client::config::BridgeConfigBuilder;
 

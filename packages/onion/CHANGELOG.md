@@ -1,3 +1,7 @@
+## Unreleased
+
+- Expose startup workload settings to skip speculative exit/DNS circuits for onion-only hosts while preserving Arti defaults for existing callers.
+
 ## 0.2.0
 
 - Add physical-device diagnostic checks and a prebuilt-APK driver for native log redaction, isolated connection history and the Snowflake method channel.
