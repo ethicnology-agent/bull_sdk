@@ -185,7 +185,7 @@ The supported contract is 1–16 distinct Snowflake bridge lines with matching R
 
 ### Native build identity
 
-After `OnionCore.init()`, `torBuildInfo()` returns the loaded wrapper version, resolved `arti-client` version, Cargo target, Rust compiler and explicitly requested Arti features. These values are generated from the matching manifest, committed lockfile and build environment; they do not start Tor or contact the network. `artiRequestedFeatures` is not Cargo's complete unified/transitive feature graph and does not establish runtime reachability. Keep the returned identity with the artifact being diagnosed. The mobile PT's actual Snowflake engine version remains available separately through `SnowflakeTransport.version()`; it is not the Arti version. This API does not persist or upload diagnostics.
+After `OnionCore.init()`, `torBuildInfo()` returns the loaded wrapper version, resolved `arti-client` version, Cargo target, Rust compiler and explicitly requested Arti features. The Arti dependency is exactly pinned and checked against the committed lockfile, including when a consumer workspace resolves dependencies. These values are generated from the matching manifest, committed lockfile and build environment; they do not start Tor or contact the network. `artiRequestedFeatures` is not Cargo's complete unified/transitive feature graph and does not establish runtime reachability. Keep the returned identity with the artifact being diagnosed. The mobile PT's actual Snowflake engine version remains available separately through `SnowflakeTransport.version()`; it is not the Arti version. This API does not persist or upload diagnostics.
 
 ### Native Tor diagnostics
 

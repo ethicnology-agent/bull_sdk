@@ -33,6 +33,13 @@ fn main() {
         .expect("parse manifest");
     let dependency = &manifest["dependencies"]["arti-client"];
     assert_eq!(dependency["default-features"].as_bool(), Some(false));
+    // A consumer workspace ignores this crate's lockfile. The exact manifest
+    // pin keeps the reported engine version true in that graph too.
+    assert_eq!(
+        dependency["version"].as_str(),
+        Some(format!("={}", versions[0]).as_str()),
+        "Arti identity requires an exact manifest pin matching Cargo.lock"
+    );
     let mut features: Vec<_> = dependency["features"]
         .as_array()
         .expect("explicit Arti features")
