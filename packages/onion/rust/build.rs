@@ -1,6 +1,12 @@
 use std::{env, fs, process::Command};
 
 fn main() {
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
+        // Android's 16 KiB loader requires both LOAD alignment and RELRO end
+        // alignment. Scope flags to our cdylib; do not alter other libraries.
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-z,max-page-size=16384");
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-z,common-page-size=16384");
+    }
     println!("cargo:rerun-if-changed=Cargo.lock");
     println!("cargo:rerun-if-changed=Cargo.toml");
     println!("cargo:rerun-if-env-changed=RUSTC");

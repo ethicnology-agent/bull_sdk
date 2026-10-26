@@ -464,3 +464,15 @@ fvm flutter drive --debug --driver test_driver/integration_test.dart --target in
 ```
 
 To investigate Snowflake separately, add `--dart-define=SNOWFLAKE_ONLY=true` to the build. The experiment prints elapsed times, failure kinds, typed Arti readiness/blockage and bounded native event metadata. It does not print foreign exception messages or destinations. The SDK's native bootstrap deadline still applies; the test's outer deadline does not extend it. Compare generations when interpreting callbacks after shutdown, and retain unsuccessful runs alongside successful ones.
+
+### Android native alignment guard
+
+Android links this package's shared library with both maximum and common page sizes set to 16 KiB, so `PT_LOAD` alignment and the `PT_GNU_RELRO` end agree. Inspect the resulting artifact rather than relying on NDK version alone:
+
+```sh
+python3 tool/check_android_alignment.py path/to/libonion.so
+python3 tool/check_android_alignment.py path/to/app.apk
+python3 -m unittest discover -s tool -p 'test_*.py'
+```
+
+The guard reports every `arm64-v8a`/`x86_64` library in an APK, checks ELF64 LOAD congruence/alignment and RELRO end alignment, and checks the ZIP data offset of uncompressed libraries. Compressed entries require extraction and have `zipAligned: null`. Other ABIs are outside its scope. Exit 0 means these static checks passed, 1 means an alignment check failed, and 2 means the input was invalid. It does not execute libraries, modify an artifact, check signing/manifest/SDK policy, or prove runtime compatibility. Third-party libraries remain their owners' responsibility; passing `libonion.so` alone does not establish that a whole wallet APK supports a 16 KiB device. Run a complete app on an actual 16 KiB Android environment before making that claim. See [Android's page-size guide](https://developer.android.com/guide/practices/page-sizes).
