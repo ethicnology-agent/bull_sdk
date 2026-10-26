@@ -84,7 +84,11 @@ impl SnowflakeBridgeProfile {
             // Do not let WHATWG URL recovery turn an opaque Go URL into a
             // different endpoint: IPtProxy receives the original raw string.
             let authority = raw_broker.strip_prefix("https://").ok_or_else(invalid)?;
-            if authority.is_empty() || authority.starts_with('/') {
+            let authority = authority
+                .split(['/', '?', '#'])
+                .next()
+                .ok_or_else(invalid)?;
+            if authority.is_empty() || authority.contains('%') {
                 return Err(invalid());
             }
             let broker = Url::parse(raw_broker).map_err(|_| invalid())?;
@@ -193,6 +197,15 @@ mod tests {
                 .bridge_count(),
             2
         );
+    }
+
+    #[test]
+    fn broker_authority_must_not_depend_on_percent_decoding() {
+        let line =
+            SNOWFLAKE_BRIDGES[0].replace("1098762253.rsc.cdn77.org", "1098762253%2ersc.cdn77.org");
+        assert!(SnowflakeBridgeProfile::from_bridge_lines(vec![line]).is_err());
+        let escaped_path = SNOWFLAKE_BRIDGES[0].replace("cdn77.org/", "cdn77.org/a%2fb");
+        assert!(SnowflakeBridgeProfile::from_bridge_lines(vec![escaped_path]).is_ok());
     }
 
     #[test]
