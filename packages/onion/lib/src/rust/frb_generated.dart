@@ -7,6 +7,7 @@ import 'api/client.dart';
 import 'api/connection.dart';
 import 'api/error.dart';
 import 'api/log.dart';
+import 'api/profile.dart';
 import 'api/session.dart';
 import 'api/status.dart';
 import 'dart:async';
@@ -70,7 +71,7 @@ class OnionCore
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 1909672741;
+  int get rustContentHash => -1372133383;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -82,6 +83,16 @@ class OnionCore
 }
 
 abstract class OnionCoreApi extends BaseApi {
+  int crateApiProfileSnowflakeBridgeProfileBridgeCount({
+    required SnowflakeBridgeProfile that,
+  });
+
+  SnowflakeBridgeProfile crateApiProfileSnowflakeBridgeProfileBundled();
+
+  SnowflakeBridgeProfile crateApiProfileSnowflakeBridgeProfileFromBridgeLines({
+    required List<String> bridgeLines,
+  });
+
   void crateApiLogTorLogStreamClose({required TorLogStream that});
 
   Future<List<TorLogRecord>> crateApiLogTorLogStreamNextBatch({
@@ -158,6 +169,16 @@ abstract class OnionCoreApi extends BaseApi {
     BigInt? connectTimeoutMs,
   });
 
+  Future<TorService> crateApiClientTorServiceStartWithSnowflakeProfile({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required int snowflakePort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+    required SnowflakeBridgeProfile profile,
+  });
+
   Future<TorStatus> crateApiClientTorServiceStatus({required TorService that});
 
   Future<void> crateApiClientTorServiceStop({required TorService that});
@@ -192,6 +213,15 @@ abstract class OnionCoreApi extends BaseApi {
   bool crateApiStatusTorStatusSuggestsCensorship({required TorStatus that});
 
   RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_SnowflakeBridgeProfile;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_SnowflakeBridgeProfile;
+
+  CrossPlatformFinalizerArg
+  get rust_arc_decrement_strong_count_SnowflakeBridgeProfilePtr;
+
+  RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_TorLogStream;
 
   RustArcDecrementStrongCountFnType
@@ -224,6 +254,99 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     required super.generalizedFrbRustBinding,
     required super.portManager,
   });
+
+  @override
+  int crateApiProfileSnowflakeBridgeProfileBridgeCount({
+    required SnowflakeBridgeProfile that,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+                that,
+              );
+          return wire
+              .wire__crate__api__profile__SnowflakeBridgeProfile_bridge_count(
+                arg0,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_u_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiProfileSnowflakeBridgeProfileBridgeCountConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiProfileSnowflakeBridgeProfileBridgeCountConstMeta =>
+      const TaskConstMeta(
+        debugName: "SnowflakeBridgeProfile_bridge_count",
+        argNames: ["that"],
+      );
+
+  @override
+  SnowflakeBridgeProfile crateApiProfileSnowflakeBridgeProfileBundled() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          return wire
+              .wire__crate__api__profile__SnowflakeBridgeProfile_bundled();
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiProfileSnowflakeBridgeProfileBundledConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiProfileSnowflakeBridgeProfileBundledConstMeta =>
+      const TaskConstMeta(
+        debugName: "SnowflakeBridgeProfile_bundled",
+        argNames: [],
+      );
+
+  @override
+  SnowflakeBridgeProfile crateApiProfileSnowflakeBridgeProfileFromBridgeLines({
+    required List<String> bridgeLines,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          var arg0 = cst_encode_list_String(bridgeLines);
+          return wire
+              .wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_lines(
+                arg0,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta:
+            kCrateApiProfileSnowflakeBridgeProfileFromBridgeLinesConstMeta,
+        argValues: [bridgeLines],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiProfileSnowflakeBridgeProfileFromBridgeLinesConstMeta =>
+      const TaskConstMeta(
+        debugName: "SnowflakeBridgeProfile_from_bridge_lines",
+        argNames: ["bridgeLines"],
+      );
 
   @override
   void crateApiLogTorLogStreamClose({required TorLogStream that}) {
@@ -806,6 +929,76 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       );
 
   @override
+  Future<TorService> crateApiClientTorServiceStartWithSnowflakeProfile({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required int snowflakePort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+    required SnowflakeBridgeProfile profile,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_String(stateDir);
+          var arg1 = cst_encode_String(cacheDir);
+          var arg2 = cst_encode_u_16(socksPort);
+          var arg3 = cst_encode_u_16(snowflakePort);
+          var arg4 = cst_encode_socks_policy(policy);
+          var arg5 = cst_encode_opt_box_autoadd_u_64(connectTimeoutMs);
+          var arg6 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+                profile,
+              );
+          return wire
+              .wire__crate__api__client__TorService_start_with_snowflake_profile(
+                port_,
+                arg0,
+                arg1,
+                arg2,
+                arg3,
+                arg4,
+                arg5,
+                arg6,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData:
+              dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorService,
+          decodeErrorData: dco_decode_tor_failure,
+        ),
+        constMeta: kCrateApiClientTorServiceStartWithSnowflakeProfileConstMeta,
+        argValues: [
+          stateDir,
+          cacheDir,
+          socksPort,
+          snowflakePort,
+          policy,
+          connectTimeoutMs,
+          profile,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiClientTorServiceStartWithSnowflakeProfileConstMeta =>
+      const TaskConstMeta(
+        debugName: "TorService_start_with_snowflake_profile",
+        argNames: [
+          "stateDir",
+          "cacheDir",
+          "socksPort",
+          "snowflakePort",
+          "policy",
+          "connectTimeoutMs",
+          "profile",
+        ],
+      );
+
+  @override
   Future<TorStatus> crateApiClientTorServiceStatus({required TorService that}) {
     return handler.executeNormal(
       NormalTask(
@@ -1148,6 +1341,14 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
       );
 
   RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_SnowflakeBridgeProfile => wire
+      .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_SnowflakeBridgeProfile => wire
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile;
+
+  RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_TorLogStream => wire
       .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream;
 
@@ -1178,6 +1379,17 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  SnowflakeBridgeProfile
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SnowflakeBridgeProfileImpl.frbInternalDcoDecode(
+      raw as List<dynamic>,
+    );
+  }
+
+  @protected
   TorLogStream
   dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     dynamic raw,
@@ -1205,6 +1417,17 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  SnowflakeBridgeProfile
+  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SnowflakeBridgeProfileImpl.frbInternalDcoDecode(
+      raw as List<dynamic>,
+    );
+  }
+
+  @protected
   TorLogStream
   dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     dynamic raw,
@@ -1229,6 +1452,17 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return TorSessionImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  SnowflakeBridgeProfile
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SnowflakeBridgeProfileImpl.frbInternalDcoDecode(
+      raw as List<dynamic>,
+    );
   }
 
   @protected
@@ -1370,6 +1604,12 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_String).toList();
   }
 
   @protected
@@ -1539,6 +1779,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  SnowflakeBridgeProfile
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return SnowflakeBridgeProfileImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
   TorLogStream
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     SseDeserializer deserializer,
@@ -1575,6 +1827,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   }
 
   @protected
+  SnowflakeBridgeProfile
+  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return SnowflakeBridgeProfileImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
   TorLogStream
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     SseDeserializer deserializer,
@@ -1605,6 +1869,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return TorSessionImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
+  SnowflakeBridgeProfile
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return SnowflakeBridgeProfileImpl.frbInternalSseDecode(
       sse_decode_usize(deserializer),
       sse_decode_i_32(deserializer),
     );
@@ -1770,6 +2046,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <String>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_String(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -1969,6 +2257,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as SnowflakeBridgeProfileImpl).frbInternalCstEncode(move: true);
+  }
+
+  @protected
+  int
   cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream raw,
   ) {
@@ -1999,6 +2297,18 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   int
+  cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as SnowflakeBridgeProfileImpl).frbInternalCstEncode(
+      move: false,
+    );
+  }
+
+  @protected
+  int
   cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream raw,
   ) {
@@ -2025,6 +2335,16 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Cst (C-struct based), see doc to use other codecs
     // ignore: invalid_use_of_internal_member
     return (raw as TorSessionImpl).frbInternalCstEncode(move: false);
+  }
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    // ignore: invalid_use_of_internal_member
+    return (raw as SnowflakeBridgeProfileImpl).frbInternalCstEncode();
   }
 
   @protected
@@ -2152,6 +2472,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as SnowflakeBridgeProfileImpl).frbInternalSseEncode(move: true),
+      serializer,
+    );
+  }
+
+  @protected
+  void
   sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream self,
     SseSerializer serializer,
@@ -2191,6 +2524,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 
   @protected
   void
+  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as SnowflakeBridgeProfileImpl).frbInternalSseEncode(move: false),
+      serializer,
+    );
+  }
+
+  @protected
+  void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream self,
     SseSerializer serializer,
@@ -2224,6 +2570,19 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
       (self as TorSessionImpl).frbInternalSseEncode(move: false),
+      serializer,
+    );
+  }
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as SnowflakeBridgeProfileImpl).frbInternalSseEncode(move: null),
       serializer,
     );
   }
@@ -2397,6 +2756,15 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_String(item, serializer);
+    }
   }
 
   @protected
@@ -2576,6 +2944,39 @@ class OnionCoreApiImpl extends OnionCoreApiImplPlatform
 }
 
 @sealed
+class SnowflakeBridgeProfileImpl extends RustOpaque
+    implements SnowflakeBridgeProfile {
+  // Not to be used by end users
+  SnowflakeBridgeProfileImpl.frbInternalDcoDecode(List<dynamic> wire)
+    : super.frbInternalDcoDecode(wire, _kStaticData);
+
+  // Not to be used by end users
+  SnowflakeBridgeProfileImpl.frbInternalSseDecode(
+    BigInt ptr,
+    int externalSizeOnNative,
+  ) : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
+
+  static final _kStaticData = RustArcStaticData(
+    rustArcIncrementStrongCount: OnionCore
+        .instance
+        .api
+        .rust_arc_increment_strong_count_SnowflakeBridgeProfile,
+    rustArcDecrementStrongCount: OnionCore
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_SnowflakeBridgeProfile,
+    rustArcDecrementStrongCountPtr: OnionCore
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_SnowflakeBridgeProfilePtr,
+  );
+
+  /// Number of validated bridges, without disclosing their identities.
+  int bridgeCount() => OnionCore.instance.api
+      .crateApiProfileSnowflakeBridgeProfileBridgeCount(that: this);
+}
+
+@sealed
 class TorLogStreamImpl extends RustOpaque implements TorLogStream {
   // Not to be used by end users
   TorLogStreamImpl.frbInternalDcoDecode(List<dynamic> wire)
@@ -2679,6 +3080,9 @@ class TorServiceImpl extends RustOpaque implements TorService {
   ///
   /// `ready_for_traffic` is not a substitute: it means "a request can be
   /// started", not "a request succeeded".
+  ///
+  /// Stopping the service cancels this pending wait and drops its connection
+  /// future. This does not guarantee that every shared Arti background task stops.
   ///
   /// Times are milliseconds: FRB has no outbound mapping for
   /// `std::time::Duration`, and an integer keeps `chrono` out of our types.

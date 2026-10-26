@@ -35,6 +35,7 @@ arti-client = { version = "0.47.0", default-features = false, features = [
     "pt-client",
 ] }
 tor-error = "0.47.0"
+url = "2.5"
 # The SOCKS5 wire protocol only. We deliberately do NOT depend on the `arti`
 # crate: since arti 2.0.0 every API it exposes is marked experimental and
 # "likely to get moved into other crates or removed", which is what pinned the

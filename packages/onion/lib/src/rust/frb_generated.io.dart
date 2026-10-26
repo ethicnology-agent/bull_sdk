@@ -7,6 +7,7 @@ import 'api/client.dart';
 import 'api/connection.dart';
 import 'api/error.dart';
 import 'api/log.dart';
+import 'api/profile.dart';
 import 'api/session.dart';
 import 'api/status.dart';
 import 'dart:async';
@@ -24,6 +25,10 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   });
 
   CrossPlatformFinalizerArg
+  get rust_arc_decrement_strong_count_SnowflakeBridgeProfilePtr => wire
+      ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfilePtr;
+
+  CrossPlatformFinalizerArg
   get rust_arc_decrement_strong_count_TorLogStreamPtr => wire
       ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStreamPtr;
 
@@ -37,6 +42,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  SnowflakeBridgeProfile
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    dynamic raw,
+  );
 
   @protected
   TorLogStream
@@ -57,6 +68,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   );
 
   @protected
+  SnowflakeBridgeProfile
+  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    dynamic raw,
+  );
+
+  @protected
   TorLogStream
   dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     dynamic raw,
@@ -71,6 +88,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   @protected
   TorSession
   dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
+    dynamic raw,
+  );
+
+  @protected
+  SnowflakeBridgeProfile
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
     dynamic raw,
   );
 
@@ -138,6 +161,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int dco_decode_i_32(dynamic raw);
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
   @protected
   List<ConnectionEvent> dco_decode_list_connection_event(dynamic raw);
@@ -208,6 +234,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  SnowflakeBridgeProfile
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   TorLogStream
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     SseDeserializer deserializer,
@@ -226,6 +258,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   );
 
   @protected
+  SnowflakeBridgeProfile
+  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   TorLogStream
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     SseDeserializer deserializer,
@@ -240,6 +278,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   @protected
   TorSession
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  SnowflakeBridgeProfile
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
     SseDeserializer deserializer,
   );
 
@@ -315,6 +359,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
   List<ConnectionEvent> sse_decode_list_connection_event(
@@ -445,6 +492,16 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   ffi.Pointer<ffi.Uint64> cst_encode_box_autoadd_u_64(BigInt raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return wire.cst_new_box_autoadd_u_64(cst_encode_u_64(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_String(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
   }
 
   @protected
@@ -617,6 +674,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int
+  cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile raw,
+  );
+
+  @protected
+  int
   cst_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream raw,
   );
@@ -635,6 +698,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   int
+  cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile raw,
+  );
+
+  @protected
+  int
   cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream raw,
   );
@@ -649,6 +718,12 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   int
   cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
     TorSession raw,
+  );
+
+  @protected
+  int
+  cst_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile raw,
   );
 
   @protected
@@ -719,6 +794,13 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
   sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream self,
     SseSerializer serializer,
@@ -740,6 +822,13 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void
+  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     TorLogStream self,
     SseSerializer serializer,
@@ -756,6 +845,13 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
   void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorSession(
     TorSession self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    SnowflakeBridgeProfile self,
     SseSerializer serializer,
   );
 
@@ -845,6 +941,9 @@ abstract class OnionCoreApiImplPlatform extends BaseApiImpl<OnionCoreWire> {
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_connection_event(
@@ -964,6 +1063,57 @@ class OnionCoreWire implements BaseWire {
       );
   late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
       .asFunction<void Function(DartPostCObjectFnType)>();
+
+  WireSyncRust2DartDco
+  wire__crate__api__profile__SnowflakeBridgeProfile_bridge_count(int that) {
+    return _wire__crate__api__profile__SnowflakeBridgeProfile_bridge_count(
+      that,
+    );
+  }
+
+  late final _wire__crate__api__profile__SnowflakeBridgeProfile_bridge_countPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function(ffi.UintPtr)>>(
+        'frbgen_onion_wire__crate__api__profile__SnowflakeBridgeProfile_bridge_count',
+      );
+  late final _wire__crate__api__profile__SnowflakeBridgeProfile_bridge_count =
+      _wire__crate__api__profile__SnowflakeBridgeProfile_bridge_countPtr
+          .asFunction<WireSyncRust2DartDco Function(int)>();
+
+  WireSyncRust2DartDco
+  wire__crate__api__profile__SnowflakeBridgeProfile_bundled() {
+    return _wire__crate__api__profile__SnowflakeBridgeProfile_bundled();
+  }
+
+  late final _wire__crate__api__profile__SnowflakeBridgeProfile_bundledPtr =
+      _lookup<ffi.NativeFunction<WireSyncRust2DartDco Function()>>(
+        'frbgen_onion_wire__crate__api__profile__SnowflakeBridgeProfile_bundled',
+      );
+  late final _wire__crate__api__profile__SnowflakeBridgeProfile_bundled =
+      _wire__crate__api__profile__SnowflakeBridgeProfile_bundledPtr
+          .asFunction<WireSyncRust2DartDco Function()>();
+
+  WireSyncRust2DartDco
+  wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_lines(
+    ffi.Pointer<wire_cst_list_String> bridge_lines,
+  ) {
+    return _wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_lines(
+      bridge_lines,
+    );
+  }
+
+  late final _wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_linesPtr =
+      _lookup<
+        ffi.NativeFunction<
+          WireSyncRust2DartDco Function(ffi.Pointer<wire_cst_list_String>)
+        >
+      >(
+        'frbgen_onion_wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_lines',
+      );
+  late final _wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_lines =
+      _wire__crate__api__profile__SnowflakeBridgeProfile_from_bridge_linesPtr
+          .asFunction<
+            WireSyncRust2DartDco Function(ffi.Pointer<wire_cst_list_String>)
+          >();
 
   WireSyncRust2DartDco wire__crate__api__log__TorLogStream_close(int that) {
     return _wire__crate__api__log__TorLogStream_close(that);
@@ -1365,6 +1515,60 @@ class OnionCoreWire implements BaseWire {
             )
           >();
 
+  void wire__crate__api__client__TorService_start_with_snowflake_profile(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> state_dir,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> cache_dir,
+    int socks_port,
+    int snowflake_port,
+    int policy,
+    ffi.Pointer<ffi.Uint64> connect_timeout_ms,
+    int profile,
+  ) {
+    return _wire__crate__api__client__TorService_start_with_snowflake_profile(
+      port_,
+      state_dir,
+      cache_dir,
+      socks_port,
+      snowflake_port,
+      policy,
+      connect_timeout_ms,
+      profile,
+    );
+  }
+
+  late final _wire__crate__api__client__TorService_start_with_snowflake_profilePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Uint16,
+            ffi.Uint16,
+            ffi.Int32,
+            ffi.Pointer<ffi.Uint64>,
+            ffi.UintPtr,
+          )
+        >
+      >(
+        'frbgen_onion_wire__crate__api__client__TorService_start_with_snowflake_profile',
+      );
+  late final _wire__crate__api__client__TorService_start_with_snowflake_profile =
+      _wire__crate__api__client__TorService_start_with_snowflake_profilePtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              int,
+              int,
+              int,
+              ffi.Pointer<ffi.Uint64>,
+              int,
+            )
+          >();
+
   void wire__crate__api__client__TorService_status(int port_, int that) {
     return _wire__crate__api__client__TorService_status(port_, that);
   }
@@ -1560,6 +1764,40 @@ class OnionCoreWire implements BaseWire {
           >();
 
   void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfilePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+        'frbgen_onion_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile',
+      );
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfilePtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile(
+      ptr,
+    );
+  }
+
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfilePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+        'frbgen_onion_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile',
+      );
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfile =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSnowflakeBridgeProfilePtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  void
   rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTorLogStream(
     ffi.Pointer<ffi.Void> ptr,
   ) {
@@ -1709,6 +1947,19 @@ class OnionCoreWire implements BaseWire {
   late final _cst_new_box_autoadd_u_64 = _cst_new_box_autoadd_u_64Ptr
       .asFunction<ffi.Pointer<ffi.Uint64> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
+    return _cst_new_list_String(len);
+  }
+
+  late final _cst_new_list_StringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_String> Function(ffi.Int32)
+        >
+      >('frbgen_onion_cst_new_list_String');
+  late final _cst_new_list_String = _cst_new_list_StringPtr
+      .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
+
   ffi.Pointer<wire_cst_list_connection_event> cst_new_list_connection_event(
     int len,
   ) {
@@ -1777,6 +2028,13 @@ typedef DartPostCObjectFnType =
 
 final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_String extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
 
   @ffi.Int32()
   external int len;

@@ -177,6 +177,12 @@ try {
 }
 ```
 
+### Startup Snowflake profiles
+
+`SnowflakeBridgeProfile.bundled()` preserves the two existing bridge defaults. A host can instead construct `SnowflakeBridgeProfile.fromBridgeLines(bridgeLines: lines)` and pass it to `TorService.startWithSnowflakeProfile`. Profiles are immutable and apply only when creating a service. Discovery, user consent, storage, retry and fallback policy belong to the host; construction performs no network request.
+
+The supported contract is 1–16 distinct Snowflake bridge lines with matching RSA identity/fingerprint, an HTTPS broker, domain fronts and STUN ICE endpoints. Unknown parameters, malformed endpoints and oversized PT arguments fail before startup. Validation establishes syntax and supported configuration, not endpoint reachability or trust. Failures never echo bridge values. `bridgeCount()` reports only the number of validated bridges. Existing `startWithSnowflake` callers retain their bundled defaults. This does not add generic transports, AMP/SQS rendezvous, onion-service authentication or live reconfiguration.
+
 ### Native Tor diagnostics
 
 After `OnionCore.init()`, call `OnionLogs.start()` **before** creating a `TorService`. Registration is synchronous: startup events can already enter the native queue when `start` returns. Capture is opt-in and available in every build mode. This package never prints records, writes support logs, or sends diagnostics to Sentry; the host decides where each level belongs.

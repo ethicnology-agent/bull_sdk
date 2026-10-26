@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex, Weak};
 use std::time::{Duration, Instant};
 
 use arti_client::config::pt::TransportConfigBuilder;
-use arti_client::config::{BridgeConfigBuilder, TorClientConfigBuilder};
+use arti_client::config::TorClientConfigBuilder;
 use arti_client::{BootstrapBehavior, HasKind as _, IntoTorAddr as _, TorClient};
 use futures::Stream;
 use futures::StreamExt as _;
@@ -13,6 +13,7 @@ use tokio::sync::watch;
 use tor_rtcompat::tokio::TokioNativeTlsRuntime;
 
 use super::error::{TorFailure, TorResult};
+use super::profile::SnowflakeBridgeProfile;
 use super::session::{SocksPolicy, TorSession, TorSessionInner};
 use super::status::{TorStatus, TorTransport};
 use crate::frb_generated::StreamSink;
@@ -116,7 +117,34 @@ impl TorService {
             cache_dir,
             socks_port,
             TorTransport::Snowflake,
-            Some(snowflake_port),
+            Some((snowflake_port, None)),
+            policy,
+            connect_timeout_ms,
+        )
+        .await
+    }
+
+    /// Start with validated host-selected bridges; never reconfigures another client.
+    pub async fn start_with_snowflake_profile(
+        state_dir: &str,
+        cache_dir: &str,
+        socks_port: u16,
+        snowflake_port: u16,
+        policy: SocksPolicy,
+        connect_timeout_ms: Option<u64>,
+        profile: &SnowflakeBridgeProfile,
+    ) -> Result<Self, TorFailure> {
+        if snowflake_port == 0 {
+            return Err(TorFailure::configuration(
+                "Snowflake proxy port must not be zero",
+            ));
+        }
+        Self::start_with_transport(
+            state_dir,
+            cache_dir,
+            socks_port,
+            TorTransport::Snowflake,
+            Some((snowflake_port, Some(profile))),
             policy,
             connect_timeout_ms,
         )
@@ -128,7 +156,7 @@ impl TorService {
         cache_dir: &str,
         socks_port: u16,
         transport: TorTransport,
-        snowflake_port: Option<u16>,
+        snowflake_port: Option<(u16, Option<&SnowflakeBridgeProfile>)>,
         policy: SocksPolicy,
         connect_timeout_ms: Option<u64>,
     ) -> Result<Self, TorFailure> {
@@ -141,8 +169,11 @@ impl TorService {
         let mut cfg = TorClientConfigBuilder::from_directories(state_dir, cache_dir);
         // Required for .onion targets to be routable through the proxy.
         cfg.address_filter().allow_onion_addrs(true);
-        if let Some(port) = snowflake_port {
-            configure_snowflake(&mut cfg, port)?;
+        if let Some((port, profile)) = snowflake_port {
+            match profile {
+                Some(profile) => configure_snowflake_profile(&mut cfg, port, profile)?,
+                None => configure_snowflake(&mut cfg, port)?,
+            }
         }
         let cfg = cfg
             .build()
@@ -480,18 +511,23 @@ impl TorService {
 /// Both entries are the *same* broker reached through two rendezvous
 /// identities; the `192.0.2.x` addresses are RFC 5737 placeholders, since a
 /// Snowflake client never dials the bridge directly.
-const SNOWFLAKE_BRIDGES: [&str; 2] = [
+pub(crate) const SNOWFLAKE_BRIDGES: [&str; 2] = [
     "Bridge snowflake 192.0.2.3:80 2B280B23E1107BB62ABFC40DDCC8824814F80A72 fingerprint=2B280B23E1107BB62ABFC40DDCC8824814F80A72 url=https://1098762253.rsc.cdn77.org/ fronts=app.datapacket.com,www.datapacket.com ice=stun:stun.epygi.com:3478,stun:stun.uls.co.za:3478,stun:stun.voipgate.com:3478,stun:stun.mixvoip.com:3478,stun:stun.telnyx.com:3478,stun:stun.hot-chilli.net:3478,stun:stun.fitauto.ru:3478,stun:stun.m-online.net:3478 utls-imitate=hellorandomizedalpn",
     "Bridge snowflake 192.0.2.4:80 8838024498816A039FCBBAB14E6F40A0843051FA fingerprint=8838024498816A039FCBBAB14E6F40A0843051FA url=https://1098762253.rsc.cdn77.org/ fronts=app.datapacket.com,www.datapacket.com ice=stun:stun.epygi.com:3478,stun:stun.uls.co.za:3478,stun:stun.voipgate.com:3478,stun:stun.mixvoip.com:3478,stun:stun.telnyx.com:3478,stun:stun.hot-chilli.net:3478,stun:stun.fitauto.ru:3478,stun:stun.m-online.net:3478 utls-imitate=hellorandomizedalpn",
 ];
 
 /// Configure the unmanaged IPtProxy listener and the Snowflake bridges.
 fn configure_snowflake(cfg: &mut TorClientConfigBuilder, port: u16) -> TorResult<()> {
-    for line in SNOWFLAKE_BRIDGES {
-        let bridge = line
-            .parse::<BridgeConfigBuilder>()
-            .map_err(|e| TorFailure::configuration(format!("invalid Snowflake bridge: {e}")))?;
-        cfg.bridges().bridges().push(bridge);
+    configure_snowflake_profile(cfg, port, &SnowflakeBridgeProfile::bundled()?)
+}
+
+fn configure_snowflake_profile(
+    cfg: &mut TorClientConfigBuilder,
+    port: u16,
+    profile: &SnowflakeBridgeProfile,
+) -> TorResult<()> {
+    for bridge in &profile.bridges {
+        cfg.bridges().bridges().push(bridge.clone());
     }
 
     let mut unmanaged = TransportConfigBuilder::default();
@@ -551,6 +587,7 @@ async fn await_probe<T>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use arti_client::config::BridgeConfigBuilder;
 
     #[tokio::test(start_paused = true)]
     async fn stopping_cancels_a_pending_probe_before_its_deadline() {

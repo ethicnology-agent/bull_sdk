@@ -7,10 +7,11 @@ import '../frb_generated.dart';
 import 'connection.dart';
 import 'error.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'profile.dart';
 import 'session.dart';
 import 'status.dart';
 
-// These functions are ignored because they are not marked as `pub`: `begin_stop`, `client`, `configure_snowflake`, `start_with_transport`
+// These functions are ignored because they are not marked as `pub`: `await_probe`, `begin_stop`, `client`, `configure_snowflake_profile`, `configure_snowflake`, `start_with_transport`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `SessionRegistry`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `drop`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `status_stream`
@@ -56,6 +57,9 @@ abstract class TorService implements RustOpaqueInterface {
   ///
   /// `ready_for_traffic` is not a substitute: it means "a request can be
   /// started", not "a request succeeded".
+  ///
+  /// Stopping the service cancels this pending wait and drops its connection
+  /// future. This does not guarantee that every shared Arti background task stops.
   ///
   /// Times are milliseconds: FRB has no outbound mapping for
   /// `std::time::Duration`, and an integer keeps `chrono` out of our types.
@@ -151,6 +155,26 @@ abstract class TorService implements RustOpaqueInterface {
         snowflakePort: snowflakePort,
         policy: policy,
         connectTimeoutMs: connectTimeoutMs,
+      );
+
+  /// Start with validated host-selected bridges; never reconfigures another client.
+  static Future<TorService> startWithSnowflakeProfile({
+    required String stateDir,
+    required String cacheDir,
+    required int socksPort,
+    required int snowflakePort,
+    required SocksPolicy policy,
+    BigInt? connectTimeoutMs,
+    required SnowflakeBridgeProfile profile,
+  }) =>
+      OnionCore.instance.api.crateApiClientTorServiceStartWithSnowflakeProfile(
+        stateDir: stateDir,
+        cacheDir: cacheDir,
+        socksPort: socksPort,
+        snowflakePort: snowflakePort,
+        policy: policy,
+        connectTimeoutMs: connectTimeoutMs,
+        profile: profile,
       );
 
   /// Current readiness snapshot.

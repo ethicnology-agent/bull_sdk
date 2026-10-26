@@ -39,6 +39,7 @@ export 'src/rust/api/client.dart';
 export 'src/rust/api/connection.dart';
 export 'src/rust/api/error.dart';
 export 'src/rust/api/log.dart';
+export 'src/rust/api/profile.dart';
 // `TorSession` and the `SocksPolicy` every `start`/`openSession` call must
 // name.
 export 'src/rust/api/session.dart';

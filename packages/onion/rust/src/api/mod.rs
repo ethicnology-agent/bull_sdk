@@ -14,6 +14,7 @@ pub mod client;
 pub mod connection;
 pub mod error;
 pub mod log;
+pub mod profile;
 pub mod session;
 pub mod status;
 
