@@ -69,11 +69,12 @@ tokio = { version = "1", features = ["full", "test-util"] }
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
 
 # Excluded from the bull_sdk cargo workspace (see the root Cargo.toml for why),
-# so this profile applies. Mirrors the aggregate's settings so a reader is not
-# surprised by a different code shape between the two halves of the app.
+# so this profile applies. Tor validates and parses a large directory at cold
+# start: prefer throughput over the aggregate's size-first optimization. Keep
+# LTO and stripping to limit the size cost; debug builds are unaffected.
 [profile.release]
 strip = true
-opt-level = "z"
+opt-level = 3
 lto = true
 codegen-units = 1
 panic = "abort"
