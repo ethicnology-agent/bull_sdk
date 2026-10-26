@@ -435,3 +435,16 @@ isolate.
 
 Maintenance consequence: adding a method to `TorService` means writing the Rust
 method and re-running the generator. Nothing else.
+
+## Opt-in live circuit experiment
+
+The example's `integration_test/live_tor_probe_test.dart` performs cold direct and Snowflake bootstraps, then opens and closes two circuits to the public RecoverBull service. It sends no wallet, password, recovery key or application request. A successful circuit is not an HTTP health check or a completed recovery. The second probe measures reuse inside the same client, not a new isolated session. Network-dependent failures are expected to remain failures in the test report.
+
+From `packages/onion/example`, build a debug APK for the attached arm64 device and run the integration driver:
+
+```sh
+fvm flutter build apk --debug --target-platform android-arm64 --split-per-abi --target integration_test/live_tor_probe_test.dart
+fvm flutter drive --debug --driver test_driver/integration_test.dart --target integration_test/live_tor_probe_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk -d DEVICE_SERIAL --timeout=600
+```
+
+To investigate Snowflake separately, add `--dart-define=SNOWFLAKE_ONLY=true` to the build. The experiment prints elapsed times, failure kinds, typed Arti readiness/blockage and bounded native event metadata. It does not print foreign exception messages or destinations. The SDK's native bootstrap deadline still applies; the test's outer deadline does not extend it. Compare generations when interpreting callbacks after shutdown, and retain unsuccessful runs alongside successful ones.
