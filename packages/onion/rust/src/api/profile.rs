@@ -74,7 +74,20 @@ impl SnowflakeBridgeProfile {
             if fingerprint.len() != 40 || !fingerprint.bytes().all(|b| b.is_ascii_hexdigit()) {
                 return Err(invalid());
             }
-            let broker = Url::parse(args.get("url").ok_or_else(invalid)?).map_err(|_| invalid())?;
+            if args
+                .get("utls-imitate")
+                .is_some_and(|value| *value != "hellorandomizedalpn")
+            {
+                return Err(invalid());
+            }
+            let raw_broker = args.get("url").ok_or_else(invalid)?;
+            // Do not let WHATWG URL recovery turn an opaque Go URL into a
+            // different endpoint: IPtProxy receives the original raw string.
+            let authority = raw_broker.strip_prefix("https://").ok_or_else(invalid)?;
+            if authority.is_empty() || authority.starts_with('/') {
+                return Err(invalid());
+            }
+            let broker = Url::parse(raw_broker).map_err(|_| invalid())?;
             if broker.scheme() != "https"
                 || broker.host_str().is_none()
                 || !broker.username().is_empty()
@@ -91,12 +104,18 @@ impl SnowflakeBridgeProfile {
                 .or_else(|| args.get("front"))
                 .ok_or_else(invalid)?;
             for front in fronts.split(',') {
-                if front.is_empty()
-                    || front.contains(['/', '@', ':', '?', '#'])
-                    || Url::parse(&format!("https://{front}"))
-                        .ok()
-                        .and_then(|u| u.host_str().map(str::to_owned))
-                        .is_none()
+                let domain = front.strip_suffix('.').unwrap_or(front);
+                if domain.is_empty()
+                    || domain.len() > 253
+                    || !domain.split('.').all(|label| {
+                        !label.is_empty()
+                            && label.len() <= 63
+                            && !label.starts_with('-')
+                            && !label.ends_with('-')
+                            && label
+                                .bytes()
+                                .all(|b| b.is_ascii_alphanumeric() || b == b'-')
+                    })
                 {
                     return Err(invalid());
                 }
@@ -174,6 +193,27 @@ mod tests {
                 .bridge_count(),
             2
         );
+    }
+
+    #[test]
+    fn domain_front_is_validated_without_url_normalization() {
+        let line = SNOWFLAKE_BRIDGES[0].replace("app.datapacket.com", "app%2edatapacket.com");
+        assert!(SnowflakeBridgeProfile::from_bridge_lines(vec![line]).is_err());
+    }
+
+    #[test]
+    fn broker_url_requires_an_explicit_https_authority() {
+        for prefix in ["https:", "https:/", "https:///"] {
+            let line = SNOWFLAKE_BRIDGES[0].replace("url=https://", &format!("url={prefix}"));
+            assert!(SnowflakeBridgeProfile::from_bridge_lines(vec![line]).is_err());
+        }
+    }
+
+    #[test]
+    fn unsupported_utls_imitation_is_rejected_before_startup() {
+        let line = SNOWFLAKE_BRIDGES[0]
+            .replace("utls-imitate=hellorandomizedalpn", "utls-imitate=unknown");
+        assert!(SnowflakeBridgeProfile::from_bridge_lines(vec![line]).is_err());
     }
 
     #[test]
