@@ -193,6 +193,10 @@ The standalone Tor crate uses `opt-level=3`, LTO and one codegen unit, with stri
 
 Existing constructors preserve Arti's default prebuilding. Supply `snowflakePort` to the configured constructor for Snowflake or use `startConfiguredWithSnowflakeProfile` for a validated profile; neither option starts the native Snowflake proxy. A zero Snowflake proxy port is rejected before opening storage. Startup settings are immutable; there is no live reconfiguration. The predictor flag applies client-wide. `connectTimeoutMs` configures only the default SOCKS listener; additional sessions and probes retain their separately supplied budgets.
 
+### Pinned native compiler
+
+Cargokit resolves the active Rust toolchain from the crate's manifest directory, honoring `rust-toolchain.toml` and normal rustup overrides. The standalone Tor crate pins Rust 1.95.0. An explicitly configured Cargokit toolchain still takes precedence; a flags-only configuration does not silently select `stable`. Toolchain selection itself disables automatic installation and fails when no active compiler can be resolved. Record `torBuildInfo().rustcVersion` from the actual artifact rather than inferring the compiler from a shell command.
+
 ### Native build identity
 
 After `OnionCore.init()`, `torBuildInfo()` returns the loaded wrapper version, resolved `arti-client` version, Cargo target, Rust compiler and explicitly requested Arti features. The Arti dependency is exactly pinned and checked against the committed lockfile, including when a consumer workspace resolves dependencies. These values are generated from the matching manifest, committed lockfile and build environment; they do not start Tor or contact the network. `artiRequestedFeatures` is not Cargo's complete unified/transitive feature graph and does not establish runtime reachability. Keep the returned identity with the artifact being diagnosed. The mobile PT's actual Snowflake engine version remains available separately through `SnowflakeTransport.version()`; it is not the Arti version. This API does not persist or upload diagnostics.

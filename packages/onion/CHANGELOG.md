@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Honor the crate's pinned Rust compiler in Cargokit while preserving explicit build-tool overrides.
+
 - Optimize the Tor release build for throughput instead of size, retaining LTO, stripping and one codegen unit. Debug builds are unchanged.
 
 - Expose startup workload settings to skip speculative exit/DNS circuits for onion-only hosts while preserving Arti defaults for existing callers.

@@ -19,6 +19,22 @@ class _Toolchain {
 }
 
 class Rustup {
+  /// Let rustup apply the crate's toolchain file and normal override rules.
+  /// Selection itself must never install a missing toolchain implicitly.
+  static String activeToolchain(String manifestDir) {
+    final result = runCommand(
+      'rustup',
+      ['show', 'active-toolchain'],
+      workingDirectory: manifestDir,
+      environment: {'RUSTUP_AUTO_INSTALL': '0'},
+    );
+    final output = result.stdout.toString().trim();
+    if (output.isEmpty) {
+      throw StateError('rustup did not report an active toolchain');
+    }
+    return output.split(RegExp(r'\s+')).first;
+  }
+
   List<String>? installedTargets(String toolchain) {
     final targets = _installedTargets(toolchain);
     return targets != null ? List.unmodifiable(targets) : null;
@@ -77,9 +93,10 @@ class Rustup {
 
     final res = runCommand("rustup", ['toolchain', 'list']);
 
-    // To list all non-custom toolchains, we need to filter out lines that
-    // don't start with "stable", "beta", or "nightly".
-    Pattern nonCustom = RegExp(r"^(stable|beta|nightly)");
+    // Official toolchains include both release channels and numeric pins.
+    // Keep excluding custom builds: rustup cannot manage their targets.
+    Pattern nonCustom =
+        RegExp(r"^(stable|beta|nightly)(-|$)|^\d+\.\d+(\.\d+)?(-|$)");
     final lines = res.stdout
         .toString()
         .split('\n')

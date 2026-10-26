@@ -139,7 +139,9 @@ class RustBuilder {
   CargoBuildOptions? get _buildOptions =>
       environment.crateOptions.cargo[environment.configuration];
 
-  String get _toolchain => _buildOptions?.toolchain.name ?? 'stable';
+  // Resolve once so preparation and compilation cannot select different pins.
+  late final String _toolchain = _buildOptions?.toolchain?.name ??
+      Rustup.activeToolchain(environment.manifestDir);
 
   /// Returns the path of directory containing build artifacts.
   Future<String> build() async {
