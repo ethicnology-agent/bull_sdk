@@ -365,6 +365,18 @@ for name, signature in encoders:
         sys.exit(f"{name} in {path} does not match the expected generated body")
     source = source.replace(target, f"{signature}\n{patched}", 1)
 
+# Validate byte-list arguments before allocating native memory. Otherwise a seed
+# element such as 256 is silently truncated to 0 before Rust can validate it.
+byte_import = "import '../checked_u8_list.dart';"
+if byte_import not in source:
+    source = source.replace(import_anchor, f"{import_anchor}\n{byte_import}", 1)
+byte_body = 'final ans = wire.cst_new_list_prim_u_8_loose(raw.length);\n    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);'
+checked_byte_body = 'final bytes = checkedU8List(raw);\n    final ans = wire.cst_new_list_prim_u_8_loose(bytes.length);\n    ans.ref.ptr.asTypedList(bytes.length).setAll(0, bytes);'
+if checked_byte_body not in source:
+    if source.count(byte_body) != 1:
+        sys.exit(f"expected exactly one byte-list encoder in {path}")
+    source = source.replace(byte_body, checked_byte_body, 1)
+
 with open(path, "w") as f:
     f.write(source)
 PY
