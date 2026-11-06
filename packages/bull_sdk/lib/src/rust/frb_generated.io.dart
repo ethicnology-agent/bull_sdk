@@ -9,6 +9,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'frb_generated.dart';
+import '../checked_u8_list.dart';
 import '../checked_u64.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 import 'third_party/bbqr/continuous_join.dart';
@@ -445,9 +446,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   List<TxOut> dco_decode_list_tx_out(dynamic raw);
 
   @protected
-  List<TxOutSecrets> dco_decode_list_tx_out_secrets(dynamic raw);
-
-  @protected
   List<TxOutput> dco_decode_list_tx_output(dynamic raw);
 
   @protected
@@ -531,9 +529,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   OutspendStatus dco_decode_outspend_status(dynamic raw);
-
-  @protected
-  PayjoinTx dco_decode_payjoin_tx(dynamic raw);
 
   @protected
   PreImage dco_decode_pre_image(dynamic raw);
@@ -1107,11 +1102,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   List<TxOut> sse_decode_list_tx_out(SseDeserializer deserializer);
 
   @protected
-  List<TxOutSecrets> sse_decode_list_tx_out_secrets(
-    SseDeserializer deserializer,
-  );
-
-  @protected
   List<TxOutput> sse_decode_list_tx_output(SseDeserializer deserializer);
 
   @protected
@@ -1211,9 +1201,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
 
   @protected
   OutspendStatus sse_decode_outspend_status(SseDeserializer deserializer);
-
-  @protected
-  PayjoinTx sse_decode_payjoin_tx(SseDeserializer deserializer);
 
   @protected
   PreImage sse_decode_pre_image(SseDeserializer deserializer);
@@ -1813,8 +1800,9 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
     List<int> raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_prim_u_8_loose(raw.length);
-    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    final bytes = checkedU8List(raw);
+    final ans = wire.cst_new_list_prim_u_8_loose(bytes.length);
+    ans.ref.ptr.asTypedList(bytes.length).setAll(0, bytes);
     return ans;
   }
 
@@ -1949,18 +1937,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
     final ans = wire.cst_new_list_tx_out(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_tx_out(raw[i], ans.ref.ptr[i]);
-    }
-    return ans;
-  }
-
-  @protected
-  ffi.Pointer<wire_cst_list_tx_out_secrets> cst_encode_list_tx_out_secrets(
-    List<TxOutSecrets> raw,
-  ) {
-    // Codec=Cst (C-struct based), see doc to use other codecs
-    final ans = wire.cst_new_list_tx_out_secrets(raw.length);
-    for (var i = 0; i < raw.length; ++i) {
-      cst_api_fill_to_wire_tx_out_secrets(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -2631,19 +2607,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
     wireObj.kind = cst_encode_swap_tx_kind(apiObj.kind);
     wireObj.txid = cst_encode_opt_String(apiObj.txid);
     wireObj.timestamp = cst_encode_opt_box_autoadd_u_64(apiObj.timestamp);
-  }
-
-  @protected
-  void cst_api_fill_to_wire_payjoin_tx(
-    PayjoinTx apiObj,
-    wire_cst_payjoin_tx wireObj,
-  ) {
-    wireObj.pset = cst_encode_String(apiObj.pset);
-    wireObj.network_fee = cst_encode_u_64(apiObj.networkFee);
-    wireObj.asset_fee = cst_encode_u_64(apiObj.assetFee);
-    wireObj.unblinded_outputs = cst_encode_list_tx_out_secrets(
-      apiObj.unblindedOutputs,
-    );
   }
 
   @protected
@@ -3994,12 +3957,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
   void sse_encode_list_tx_out(List<TxOut> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_tx_out_secrets(
-    List<TxOutSecrets> self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_list_tx_output(List<TxOutput> self, SseSerializer serializer);
 
   @protected
@@ -4127,9 +4084,6 @@ abstract class BullSdkApiImplPlatform extends BaseApiImpl<BullSdkWire> {
     OutspendStatus self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_payjoin_tx(PayjoinTx self, SseSerializer serializer);
 
   @protected
   void sse_encode_pre_image(PreImage self, SseSerializer serializer);
@@ -6048,58 +6002,6 @@ class BullSdkWire implements BaseWire {
             )
           >();
 
-  void wire__lwk__api__wallet__Wallet_build_payjoin_tx(
-    int port_,
-    int that,
-    int sats,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> out_address,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> asset,
-    int network,
-    ffi.Pointer<wire_cst_list_prim_u_8_strict> base_url,
-    bool is_send_all,
-  ) {
-    return _wire__lwk__api__wallet__Wallet_build_payjoin_tx(
-      port_,
-      that,
-      sats,
-      out_address,
-      asset,
-      network,
-      base_url,
-      is_send_all,
-    );
-  }
-
-  late final _wire__lwk__api__wallet__Wallet_build_payjoin_txPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Void Function(
-            ffi.Int64,
-            ffi.UintPtr,
-            ffi.Uint64,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Int32,
-            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-            ffi.Bool,
-          )
-        >
-      >('frbgen_bull_sdk_wire__lwk__api__wallet__Wallet_build_payjoin_tx');
-  late final _wire__lwk__api__wallet__Wallet_build_payjoin_tx =
-      _wire__lwk__api__wallet__Wallet_build_payjoin_txPtr
-          .asFunction<
-            void Function(
-              int,
-              int,
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              int,
-              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
-              bool,
-            )
-          >();
-
   void wire__lwk__api__wallet__Wallet_consolidate(
     int port_,
     int that,
@@ -6181,12 +6083,14 @@ class BullSdkWire implements BaseWire {
     int network,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> dbpath,
     ffi.Pointer<wire_cst_descriptor> descriptor,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> policy_asset,
   ) {
     return _wire__lwk__api__wallet__Wallet_init(
       port_,
       network,
       dbpath,
       descriptor,
+      policy_asset,
     );
   }
 
@@ -6198,6 +6102,7 @@ class BullSdkWire implements BaseWire {
             ffi.Int32,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_descriptor>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
         >
       >('frbgen_bull_sdk_wire__lwk__api__wallet__Wallet_init');
@@ -6209,8 +6114,21 @@ class BullSdkWire implements BaseWire {
               int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_descriptor>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
           >();
+
+  void wire__lwk__api__wallet__Wallet_policy_asset(int port_, int that) {
+    return _wire__lwk__api__wallet__Wallet_policy_asset(port_, that);
+  }
+
+  late final _wire__lwk__api__wallet__Wallet_policy_assetPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.UintPtr)>>(
+        'frbgen_bull_sdk_wire__lwk__api__wallet__Wallet_policy_asset',
+      );
+  late final _wire__lwk__api__wallet__Wallet_policy_asset =
+      _wire__lwk__api__wallet__Wallet_policy_assetPtr
+          .asFunction<void Function(int, int)>();
 
   void wire__lwk__api__wallet__Wallet_sign_tx(
     int port_,
@@ -6249,6 +6167,46 @@ class BullSdkWire implements BaseWire {
               int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__lwk__api__wallet__Wallet_sign_tx_with_seed(
+    int port_,
+    int that,
+    int network,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> pset,
+    ffi.Pointer<wire_cst_list_prim_u_8_loose> seed,
+  ) {
+    return _wire__lwk__api__wallet__Wallet_sign_tx_with_seed(
+      port_,
+      that,
+      network,
+      pset,
+      seed,
+    );
+  }
+
+  late final _wire__lwk__api__wallet__Wallet_sign_tx_with_seedPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.UintPtr,
+            ffi.Int32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+          )
+        >
+      >('frbgen_bull_sdk_wire__lwk__api__wallet__Wallet_sign_tx_with_seed');
+  late final _wire__lwk__api__wallet__Wallet_sign_tx_with_seed =
+      _wire__lwk__api__wallet__Wallet_sign_tx_with_seedPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_loose>,
             )
           >();
 
@@ -6291,6 +6249,48 @@ class BullSdkWire implements BaseWire {
               int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seed(
+    int port_,
+    int that,
+    int network,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> pset,
+    ffi.Pointer<wire_cst_list_prim_u_8_loose> seed,
+  ) {
+    return _wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seed(
+      port_,
+      that,
+      network,
+      pset,
+      seed,
+    );
+  }
+
+  late final _wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seedPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.UintPtr,
+            ffi.Int32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+          )
+        >
+      >(
+        'frbgen_bull_sdk_wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seed',
+      );
+  late final _wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seed =
+      _wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seedPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_loose>,
             )
           >();
 
@@ -6422,11 +6422,13 @@ class BullSdkWire implements BaseWire {
 
   void wire__lwk__api__blockchain__blockchain_broadcast_signed_pset(
     int port_,
+    int network,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> electrum_url,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> signed_pset,
   ) {
     return _wire__lwk__api__blockchain__blockchain_broadcast_signed_pset(
       port_,
+      network,
       electrum_url,
       signed_pset,
     );
@@ -6437,6 +6439,7 @@ class BullSdkWire implements BaseWire {
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
+            ffi.Int32,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
@@ -6449,6 +6452,7 @@ class BullSdkWire implements BaseWire {
           .asFunction<
             void Function(
               int,
+              int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
@@ -6456,11 +6460,13 @@ class BullSdkWire implements BaseWire {
 
   void wire__lwk__api__blockchain__blockchain_broadcast_tx_bytes(
     int port_,
+    int network,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> electrum_url,
     ffi.Pointer<wire_cst_list_prim_u_8_loose> tx_bytes,
   ) {
     return _wire__lwk__api__blockchain__blockchain_broadcast_tx_bytes(
       port_,
+      network,
       electrum_url,
       tx_bytes,
     );
@@ -6471,6 +6477,7 @@ class BullSdkWire implements BaseWire {
         ffi.NativeFunction<
           ffi.Void Function(
             ffi.Int64,
+            ffi.Int32,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             ffi.Pointer<wire_cst_list_prim_u_8_loose>,
           )
@@ -6483,6 +6490,7 @@ class BullSdkWire implements BaseWire {
           .asFunction<
             void Function(
               int,
+              int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_loose>,
             )
@@ -6491,11 +6499,13 @@ class BullSdkWire implements BaseWire {
   void wire__lwk__api__blockchain__blockchain_test(
     int port_,
     ffi.Pointer<wire_cst_blockchain> that,
+    int network,
     ffi.Pointer<wire_cst_list_prim_u_8_strict> electrum_url,
   ) {
     return _wire__lwk__api__blockchain__blockchain_test(
       port_,
       that,
+      network,
       electrum_url,
     );
   }
@@ -6506,6 +6516,7 @@ class BullSdkWire implements BaseWire {
           ffi.Void Function(
             ffi.Int64,
             ffi.Pointer<wire_cst_blockchain>,
+            ffi.Int32,
             ffi.Pointer<wire_cst_list_prim_u_8_strict>,
           )
         >
@@ -6516,6 +6527,7 @@ class BullSdkWire implements BaseWire {
             void Function(
               int,
               ffi.Pointer<wire_cst_blockchain>,
+              int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
           >();
@@ -7880,6 +7892,36 @@ class BullSdkWire implements BaseWire {
       _wire__lwk__api__descriptor__descriptor_new_confidentialPtr
           .asFunction<
             void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
+  void wire__lwk__api__descriptor__descriptor_new_confidential_from_seed(
+    int port_,
+    int network,
+    ffi.Pointer<wire_cst_list_prim_u_8_loose> seed,
+  ) {
+    return _wire__lwk__api__descriptor__descriptor_new_confidential_from_seed(
+      port_,
+      network,
+      seed,
+    );
+  }
+
+  late final _wire__lwk__api__descriptor__descriptor_new_confidential_from_seedPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Int32,
+            ffi.Pointer<wire_cst_list_prim_u_8_loose>,
+          )
+        >
+      >(
+        'frbgen_bull_sdk_wire__lwk__api__descriptor__descriptor_new_confidential_from_seed',
+      );
+  late final _wire__lwk__api__descriptor__descriptor_new_confidential_from_seed =
+      _wire__lwk__api__descriptor__descriptor_new_confidential_from_seedPtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_loose>)
           >();
 
   void wire__bbqr__encode__encoding_as_byte(int port_, int that) {
@@ -10823,21 +10865,6 @@ class BullSdkWire implements BaseWire {
   late final _cst_new_list_tx_out = _cst_new_list_tx_outPtr
       .asFunction<ffi.Pointer<wire_cst_list_tx_out> Function(int)>();
 
-  ffi.Pointer<wire_cst_list_tx_out_secrets> cst_new_list_tx_out_secrets(
-    int len,
-  ) {
-    return _cst_new_list_tx_out_secrets(len);
-  }
-
-  late final _cst_new_list_tx_out_secretsPtr =
-      _lookup<
-        ffi.NativeFunction<
-          ffi.Pointer<wire_cst_list_tx_out_secrets> Function(ffi.Int32)
-        >
-      >('frbgen_bull_sdk_cst_new_list_tx_out_secrets');
-  late final _cst_new_list_tx_out_secrets = _cst_new_list_tx_out_secretsPtr
-      .asFunction<ffi.Pointer<wire_cst_list_tx_out_secrets> Function(int)>();
-
   ffi.Pointer<wire_cst_list_tx_output> cst_new_list_tx_output(int len) {
     return _cst_new_list_tx_output(len);
   }
@@ -11654,13 +11681,6 @@ final class wire_cst_list_tx_input extends ffi.Struct {
   external int len;
 }
 
-final class wire_cst_list_tx_out_secrets extends ffi.Struct {
-  external ffi.Pointer<wire_cst_tx_out_secrets> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
 final class wire_cst_list_tx_output extends ffi.Struct {
   external ffi.Pointer<wire_cst_tx_output> ptr;
 
@@ -11788,18 +11808,6 @@ final class wire_cst_outspend_status extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> txid;
 
   external ffi.Pointer<ffi.Uint64> timestamp;
-}
-
-final class wire_cst_payjoin_tx extends ffi.Struct {
-  external ffi.Pointer<wire_cst_list_prim_u_8_strict> pset;
-
-  @ffi.Uint64()
-  external int network_fee;
-
-  @ffi.Uint64()
-  external int asset_fee;
-
-  external ffi.Pointer<wire_cst_list_tx_out_secrets> unblinded_outputs;
 }
 
 final class wire_cst_pset_amounts extends ffi.Struct {

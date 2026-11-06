@@ -25,6 +25,19 @@ class Descriptor {
     mnemonic: mnemonic,
   );
 
+  /// Create a new wpkh confidential descriptor based on Slip77 blinding key derivation,
+  /// from a 64-byte BIP39 seed instead of English mnemonic words.
+  ///
+  /// The seed encodes the mnemonic language and passphrase, which `new_confidential` cannot
+  /// carry. An English mnemonic without passphrase gives the same descriptor through both.
+  static Future<Descriptor> newConfidentialFromSeed({
+    required LiquidNetwork network,
+    required List<int> seed,
+  }) => BullSdk.instance.api.lwkApiDescriptorDescriptorNewConfidentialFromSeed(
+    network: network,
+    seed: seed,
+  );
+
   @override
   int get hashCode => ctDescriptor.hashCode;
 
