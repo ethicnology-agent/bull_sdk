@@ -33,3 +33,13 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+# lwk_wollet and lwk_signer require their sibling crates by crates.io version;
+# LWK's own workspace redirects them with a [patch] that does not apply to
+# dependents. Redirect them here too, so the graph holds a single copy of each
+# (two lwk_common copies would make their `Signer` traits incompatible).
+[patch.crates-io]
+lwk_common = { git = "https://github.com/SatoshiPortal/lwk", rev = "652007d887858190b07c0430a105cc1053bce0c5" }
+lwk_jade = { git = "https://github.com/SatoshiPortal/lwk", rev = "652007d887858190b07c0430a105cc1053bce0c5" }
+lwk_prices = { git = "https://github.com/SatoshiPortal/lwk", rev = "652007d887858190b07c0430a105cc1053bce0c5" }
+lwk_registry = { git = "https://github.com/SatoshiPortal/lwk", rev = "652007d887858190b07c0430a105cc1053bce0c5" }
