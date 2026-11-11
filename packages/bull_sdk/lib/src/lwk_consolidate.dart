@@ -19,14 +19,17 @@ import 'package:bull_sdk/lwk.dart';
 /// Number of confirmed L-BTC UTXOs in the wallet.
 ///
 /// Takes [network] rather than a raw asset-id string so callers can't typo or
-/// mismatch mainnet/testnet asset IDs — the correct one is looked up
-/// internally via [getLbtcAssetId]/[getLtestAssetId].
+/// mismatch asset IDs. Regtest uses the wallet's own policy asset; mainnet and
+/// testnet retain their published asset IDs.
 Future<int> confirmedLbtcUtxoCount(
   Wallet wallet, {
   required LiquidNetwork network,
 }) async {
-  final lbtcAssetId =
-      network == LiquidNetwork.mainnet ? getLbtcAssetId() : getLtestAssetId();
+  final lbtcAssetId = switch (network) {
+    LiquidNetwork.mainnet => getLbtcAssetId(),
+    LiquidNetwork.testnet => getLtestAssetId(),
+    LiquidNetwork.regtest => await wallet.policyAsset(),
+  };
   final utxos = await wallet.utxos();
   return utxos
       .where((u) => u.unblinded.asset == lbtcAssetId && u.height != null)
@@ -67,11 +70,13 @@ class LiquidBatchBroadcastResult {
 Future<List<LiquidBatchBroadcastResult>> batchBroadcast({
   required List<String> signedPsets,
   required String electrumUrl,
+  required LiquidNetwork network,
 }) async {
   final results = <LiquidBatchBroadcastResult>[];
   for (final s in signedPsets) {
     try {
       final txid = await Blockchain.broadcastSignedPset(
+        network: network,
         electrumUrl: electrumUrl,
         signedPset: s,
       );

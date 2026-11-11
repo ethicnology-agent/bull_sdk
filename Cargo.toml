@@ -23,6 +23,14 @@ exclude = [
 ]
 resolver = "2"
 
+# Cargo ignores dependency-level patches. Match lwk-dart's pinned siblings so
+# the aggregate bridge uses one copy of each LWK type.
+[patch.crates-io]
+lwk_common = { git = "https://github.com/SatoshiPortal/lwk", rev = "f80953d0b45af7cb5950128e44ca47e618b114cc" }
+lwk_jade = { git = "https://github.com/SatoshiPortal/lwk", rev = "f80953d0b45af7cb5950128e44ca47e618b114cc" }
+lwk_prices = { git = "https://github.com/SatoshiPortal/lwk", rev = "f80953d0b45af7cb5950128e44ca47e618b114cc" }
+lwk_registry = { git = "https://github.com/SatoshiPortal/lwk", rev = "f80953d0b45af7cb5950128e44ca47e618b114cc" }
+
 [profile.dev]
 debug = false
 

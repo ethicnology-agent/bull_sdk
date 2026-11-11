@@ -90,3 +90,19 @@ import 'package:bull_sdk/ark.dart' as ark;
 
 await BullSdk.init();
 ```
+
+## Liquid regtest
+
+The aggregate bindings include LWK's regtest network, seed-based descriptor/signing APIs and per-wallet regtest policy assets. Read the policy asset from the Elements node rather than treating it as Liquid testnet. Explicit `tcp://` Electrum transport is allowed only on regtest; mainnet and testnet retain TLS validation.
+
+`Blockchain.test`, `Blockchain.broadcastTxBytes`, `Blockchain.broadcastSignedPset` and `batchBroadcast` require the concrete Liquid network. `Wallet.sync_` returns whether LWK applied an update. The obsolete SideSwap `Wallet.buildPayjoinTx` and `PayjoinTx` bindings are removed by the upstream LWK migration. Deploy the regenerated Dart bindings and native library together.
+
+With Nigiri's Liquid RPC, faucet and Electrum listening on loopback ports 18884, 3001 and 50001, build the host library and run the explicit integration test:
+
+```sh
+cargo build --locked -p rust_lib_bull_sdk
+cd packages/bull_sdk
+fvm flutter test tool/liquid_regtest_test.dart
+```
+
+The test checks the node's network, creates two temporary wallets from in-memory random seeds, receives faucet funds, signs and broadcasts a transfer, verifies receipt and checks that a subsequent unchanged scan returns false. It never prints or persists the seeds and removes its wallet caches after execution.
