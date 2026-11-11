@@ -14,7 +14,6 @@ Embedded Tor client and loopback SOCKS5 proxy for Bull Bitcoin, built on Arti.
   s.author           = { 'Satoshi Portal' => 'https://bullbitcoin.com' }
   s.module_name      = 'onion'
 
-  # The dummy C file makes CocoaPods create a framework for the Rust archive.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
@@ -24,8 +23,7 @@ Embedded Tor client and loopback SOCKS5 proxy for Bull Bitcoin, built on Arti.
   s.swift_version = '5.0'
 
   s.script_phase = {
-    :name => 'Build Rust library',
-    # First argument is relative path to the `rust` folder, second is name of rust library
+    :name => 'Verify IPtProxy binary',
     :script => <<-SCRIPT,
 set -eu
 case "$PLATFORM_NAME" in
@@ -43,18 +41,12 @@ if [ "$actual_sha256" != "$expected_sha256" ]; then
   echo "IPtProxy binary checksum mismatch: $actual_sha256" >&2
   exit 1
 fi
-sh "$PODS_TARGET_SRCROOT/../cargokit/build_pod.sh" ../rust onion
     SCRIPT
     :execution_position => :before_compile,
-    :input_files => ['${BUILT_PRODUCTS_DIR}/cargokit_phony'],
-    # Let XCode know that the static library referenced in -force_load below is
-    # created by this build step.
-    :output_files => ["${PODS_CONFIGURATION_BUILD_DIR}/onion/libonion.a"],
   }
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     # Flutter.framework does not contain a i386 slice.
     'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
-    'OTHER_LDFLAGS' => '-force_load ${PODS_CONFIGURATION_BUILD_DIR}/onion/libonion.a',
   }
 end

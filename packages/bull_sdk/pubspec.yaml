@@ -35,18 +35,17 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  rust_lib_bull_sdk:
-    path: rust_builder
   # Same repo, so a relative path: `onion` is a sibling package here, not an
   # external dependency. Re-exported through lib/onion.dart.
   onion:
     path: ../onion
-  flutter_rust_bridge: 2.12.0
+  flutter_rust_bridge: 2.13.0
   freezed_annotation: ^3.1.0
   bdk_dart:
     git:
       url: https://github.com/bitcoindevkit/bdk-dart
       ref: db0ec383250979143f1f3ce6acc3406fe2fdc535 # v1.0.0
+  flutter_rust_bridge_hooks: 2.13.0
 
 dev_dependencies:
   flutter_test:

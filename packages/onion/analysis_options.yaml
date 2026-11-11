@@ -2,8 +2,5 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
-    # Vendored per the official flutter_rust_bridge integration guide; not our
-    # code to lint.
-    - cargokit/
     # Machine-written FFI glue.
     - lib/src/rust/
