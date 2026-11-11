@@ -106,3 +106,9 @@ fvm flutter test tool/liquid_regtest_test.dart
 ```
 
 The test checks the node's network, creates two temporary wallets from in-memory random seeds, receives faucet funds, signs and broadcasts a transfer, verifies receipt and checks that a subsequent unchanged scan returns false. It never prints or persists the seeds and removes its wallet caches after execution.
+
+### Boltz regtest
+
+The aggregate exposes concrete Bitcoin/Liquid regtest chains and `ChainSwap.network`. Chain-swap constructors now take `network` instead of `isTestnet`; legacy persisted mainnet/testnet JSON remains readable by the native implementation. Regtest Electrum calls require explicit `ElectrumSettings(tls: false, ...)`. Outspend checks require an explicit explorer URL on regtest. Existing mainnet HTTPS policy remains enforced.
+
+With the BULL Podman stack running and the aggregate native library built, run `fvm flutter test tool/boltz_regtest_test.dart` from `packages/bull_sdk`. This opt-in host journey executes all six BTC/Liquid/Lightning swap directions, serializes and reloads each native swap, broadcasts claims and verifies confirmed receipts. It uses only a published deterministic regtest fixture, never application custody material.

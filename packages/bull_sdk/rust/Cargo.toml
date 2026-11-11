@@ -18,7 +18,7 @@ miniscript = "12"
 bitbox = { git = "https://github.com/SatoshiPortal/bitbox-dart", rev = "b832be8ab497377ac4f9ceb9b0f5f1e830a84e5a", features = ["bull_sdk"] }
 bbqr = { git = "https://github.com/SatoshiPortal/bbqr-rust.git", rev = "e4807767d6a61cd7fd9a590f33437553595d0305", default-features = false }
 dart_bbqr = { git = "https://github.com/SatoshiPortal/bbqr-dart", rev = "b06901953ab9c0440a9c0373efcc4345f3c35d32", features = ["bull_sdk"] }
-boltz = { git = "https://github.com/SatoshiPortal/boltz-dart", rev = "85bcd9fdee8b431c4bf2980fa35c474234e37663", features = ["bull_sdk"] }
+boltz = { git = "https://github.com/SatoshiPortal/boltz-dart", rev = "a57dc0e54a639db46514863ac018c9994e846308", features = ["bull_sdk"] }
 # Merged LWK master migration, seed signing and Liquid regtest (#99).
 lwk = { git = "https://github.com/SatoshiPortal/lwk-dart", rev = "3ce987b3c5be27dc1afc90ce6d9f8ba6d01f0dd3", features = ["bull_sdk"] }
 dart_bwk = { git = "https://github.com/pythcoiner/bwk-dart", rev = "c3c01df320eeb4c0198d784e353be2f7a037beea", package = "dart_bwk", features = ["bull_sdk"] }
