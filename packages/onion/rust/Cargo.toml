@@ -15,7 +15,7 @@ crate-type = ["lib", "cdylib", "staticlib"]
 doctest = false
 
 [dependencies]
-flutter_rust_bridge = "=2.12.0"
+flutter_rust_bridge = "=2.13.0"
 
 # `static` vendors OpenSSL and SQLite instead of looking for system copies.
 # Non-negotiable on Android, which has neither; it is also what the previous

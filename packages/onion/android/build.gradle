@@ -82,9 +82,3 @@ android {
 tasks.named('preBuild').configure {
     dependsOn verifyIPtProxyBinary
 }
-
-apply from: "../cargokit/gradle/plugin.gradle"
-cargokit {
-    manifestDir = "../rust"
-    libname = "onion"
-}

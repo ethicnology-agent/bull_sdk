@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = "=2.12.0"
+flutter_rust_bridge = "=2.13.0"
 log = "0.4"
 # Transaction signature verification (GHSA-6jp4-8v48-cc5v guard); versions
 # already unified in the graph via boltz/lwk.
