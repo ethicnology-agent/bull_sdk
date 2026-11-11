@@ -97,7 +97,7 @@ class BullSdk extends BaseEntrypoint<BullSdkApi, BullSdkApiImpl, BullSdkWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 933445813;
+  int get rustContentHash => 1458174305;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -457,16 +457,6 @@ abstract class BullSdkApi extends BaseApi {
     required bool drain,
   });
 
-  Future<PayjoinTx> lwkApiWalletWalletBuildPayjoinTx({
-    required Wallet that,
-    required BigInt sats,
-    required String outAddress,
-    required String asset,
-    required LiquidNetwork network,
-    String? baseUrl,
-    required bool isSendAll,
-  });
-
   Future<List<String>> lwkApiWalletWalletConsolidate({
     required Wallet that,
     required double feeRate,
@@ -485,13 +475,23 @@ abstract class BullSdkApi extends BaseApi {
     required LiquidNetwork network,
     required String dbpath,
     required Descriptor descriptor,
+    String? policyAsset,
   });
+
+  Future<String> lwkApiWalletWalletPolicyAsset({required Wallet that});
 
   Future<String> lwkApiWalletWalletSignTx({
     required Wallet that,
     required LiquidNetwork network,
     required String pset,
     required String mnemonic,
+  });
+
+  Future<String> lwkApiWalletWalletSignTxWithSeed({
+    required Wallet that,
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
   });
 
   Future<String> lwkApiWalletWalletSignedPsetWithExtraDetails({
@@ -501,7 +501,14 @@ abstract class BullSdkApi extends BaseApi {
     required String mnemonic,
   });
 
-  Future<void> lwkApiWalletWalletSync({
+  Future<String> lwkApiWalletWalletSignedPsetWithExtraDetailsWithSeed({
+    required Wallet that,
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
+  });
+
+  Future<bool> lwkApiWalletWalletSync({
     required Wallet that,
     required String electrumUrl,
     required bool validateDomain,
@@ -524,17 +531,20 @@ abstract class BullSdkApi extends BaseApi {
   });
 
   Future<String> lwkApiBlockchainBlockchainBroadcastSignedPset({
+    required LiquidNetwork network,
     required String electrumUrl,
     required String signedPset,
   });
 
   Future<String> lwkApiBlockchainBlockchainBroadcastTxBytes({
+    required LiquidNetwork network,
     required String electrumUrl,
     required List<int> txBytes,
   });
 
   Future<void> lwkApiBlockchainBlockchainTest({
     required Blockchain that,
+    required LiquidNetwork network,
     required String electrumUrl,
   });
 
@@ -773,6 +783,11 @@ abstract class BullSdkApi extends BaseApi {
   Future<Descriptor> lwkApiDescriptorDescriptorNewConfidential({
     required LiquidNetwork network,
     required String mnemonic,
+  });
+
+  Future<Descriptor> lwkApiDescriptorDescriptorNewConfidentialFromSeed({
+    required LiquidNetwork network,
+    required List<int> seed,
   });
 
   Future<int> bbqrEncodeEncodingAsByte({required Encoding that});
@@ -3911,65 +3926,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       );
 
   @override
-  Future<PayjoinTx> lwkApiWalletWalletBuildPayjoinTx({
-    required Wallet that,
-    required BigInt sats,
-    required String outAddress,
-    required String asset,
-    required LiquidNetwork network,
-    String? baseUrl,
-    required bool isSendAll,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          var arg0 =
-              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWallet(
-                that,
-              );
-          var arg1 = cst_encode_u_64(sats);
-          var arg2 = cst_encode_String(outAddress);
-          var arg3 = cst_encode_String(asset);
-          var arg4 = cst_encode_liquid_network(network);
-          var arg5 = cst_encode_opt_String(baseUrl);
-          var arg6 = cst_encode_bool(isSendAll);
-          return wire.wire__lwk__api__wallet__Wallet_build_payjoin_tx(
-            port_,
-            arg0,
-            arg1,
-            arg2,
-            arg3,
-            arg4,
-            arg5,
-            arg6,
-          );
-        },
-        codec: DcoCodec(
-          decodeSuccessData: dco_decode_payjoin_tx,
-          decodeErrorData: dco_decode_lwk_error,
-        ),
-        constMeta: kLwkApiWalletWalletBuildPayjoinTxConstMeta,
-        argValues: [that, sats, outAddress, asset, network, baseUrl, isSendAll],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kLwkApiWalletWalletBuildPayjoinTxConstMeta =>
-      const TaskConstMeta(
-        debugName: "Wallet_build_payjoin_tx",
-        argNames: [
-          "that",
-          "sats",
-          "outAddress",
-          "asset",
-          "network",
-          "baseUrl",
-          "isSendAll",
-        ],
-      );
-
-  @override
   Future<List<String>> lwkApiWalletWalletConsolidate({
     required Wallet that,
     required double feeRate,
@@ -4076,6 +4032,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
     required LiquidNetwork network,
     required String dbpath,
     required Descriptor descriptor,
+    String? policyAsset,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -4083,11 +4040,13 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
           var arg0 = cst_encode_liquid_network(network);
           var arg1 = cst_encode_String(dbpath);
           var arg2 = cst_encode_box_autoadd_descriptor(descriptor);
+          var arg3 = cst_encode_opt_String(policyAsset);
           return wire.wire__lwk__api__wallet__Wallet_init(
             port_,
             arg0,
             arg1,
             arg2,
+            arg3,
           );
         },
         codec: DcoCodec(
@@ -4096,7 +4055,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
           decodeErrorData: dco_decode_lwk_error,
         ),
         constMeta: kLwkApiWalletWalletInitConstMeta,
-        argValues: [network, dbpath, descriptor],
+        argValues: [network, dbpath, descriptor, policyAsset],
         apiImpl: this,
       ),
     );
@@ -4104,8 +4063,33 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
 
   TaskConstMeta get kLwkApiWalletWalletInitConstMeta => const TaskConstMeta(
     debugName: "Wallet_init",
-    argNames: ["network", "dbpath", "descriptor"],
+    argNames: ["network", "dbpath", "descriptor", "policyAsset"],
   );
+
+  @override
+  Future<String> lwkApiWalletWalletPolicyAsset({required Wallet that}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWallet(
+                that,
+              );
+          return wire.wire__lwk__api__wallet__Wallet_policy_asset(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_lwk_error,
+        ),
+        constMeta: kLwkApiWalletWalletPolicyAssetConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kLwkApiWalletWalletPolicyAssetConstMeta =>
+      const TaskConstMeta(debugName: "Wallet_policy_asset", argNames: ["that"]);
 
   @override
   Future<String> lwkApiWalletWalletSignTx({
@@ -4147,6 +4131,48 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
     debugName: "Wallet_sign_tx",
     argNames: ["that", "network", "pset", "mnemonic"],
   );
+
+  @override
+  Future<String> lwkApiWalletWalletSignTxWithSeed({
+    required Wallet that,
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWallet(
+                that,
+              );
+          var arg1 = cst_encode_liquid_network(network);
+          var arg2 = cst_encode_String(pset);
+          var arg3 = cst_encode_list_prim_u_8_loose(seed);
+          return wire.wire__lwk__api__wallet__Wallet_sign_tx_with_seed(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_lwk_error,
+        ),
+        constMeta: kLwkApiWalletWalletSignTxWithSeedConstMeta,
+        argValues: [that, network, pset, seed],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kLwkApiWalletWalletSignTxWithSeedConstMeta =>
+      const TaskConstMeta(
+        debugName: "Wallet_sign_tx_with_seed",
+        argNames: ["that", "network", "pset", "seed"],
+      );
 
   @override
   Future<String> lwkApiWalletWalletSignedPsetWithExtraDetails({
@@ -4192,7 +4218,52 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       );
 
   @override
-  Future<void> lwkApiWalletWalletSync({
+  Future<String> lwkApiWalletWalletSignedPsetWithExtraDetailsWithSeed({
+    required Wallet that,
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 =
+              cst_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWallet(
+                that,
+              );
+          var arg1 = cst_encode_liquid_network(network);
+          var arg2 = cst_encode_String(pset);
+          var arg3 = cst_encode_list_prim_u_8_loose(seed);
+          return wire
+              .wire__lwk__api__wallet__Wallet_signed_pset_with_extra_details_with_seed(
+                port_,
+                arg0,
+                arg1,
+                arg2,
+                arg3,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_String,
+          decodeErrorData: dco_decode_lwk_error,
+        ),
+        constMeta:
+            kLwkApiWalletWalletSignedPsetWithExtraDetailsWithSeedConstMeta,
+        argValues: [that, network, pset, seed],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kLwkApiWalletWalletSignedPsetWithExtraDetailsWithSeedConstMeta =>
+      const TaskConstMeta(
+        debugName: "Wallet_signed_pset_with_extra_details_with_seed",
+        argNames: ["that", "network", "pset", "seed"],
+      );
+
+  @override
+  Future<bool> lwkApiWalletWalletSync({
     required Wallet that,
     required String electrumUrl,
     required bool validateDomain,
@@ -4220,7 +4291,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
           );
         },
         codec: DcoCodec(
-          decodeSuccessData: dco_decode_unit,
+          decodeSuccessData: dco_decode_bool,
           decodeErrorData: dco_decode_lwk_error,
         ),
         constMeta: kLwkApiWalletWalletSyncConstMeta,
@@ -4355,19 +4426,22 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
 
   @override
   Future<String> lwkApiBlockchainBlockchainBroadcastSignedPset({
+    required LiquidNetwork network,
     required String electrumUrl,
     required String signedPset,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          var arg0 = cst_encode_String(electrumUrl);
-          var arg1 = cst_encode_String(signedPset);
+          var arg0 = cst_encode_liquid_network(network);
+          var arg1 = cst_encode_String(electrumUrl);
+          var arg2 = cst_encode_String(signedPset);
           return wire
               .wire__lwk__api__blockchain__blockchain_broadcast_signed_pset(
                 port_,
                 arg0,
                 arg1,
+                arg2,
               );
         },
         codec: DcoCodec(
@@ -4375,7 +4449,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
           decodeErrorData: dco_decode_lwk_error,
         ),
         constMeta: kLwkApiBlockchainBlockchainBroadcastSignedPsetConstMeta,
-        argValues: [electrumUrl, signedPset],
+        argValues: [network, electrumUrl, signedPset],
         apiImpl: this,
       ),
     );
@@ -4384,23 +4458,26 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   TaskConstMeta get kLwkApiBlockchainBlockchainBroadcastSignedPsetConstMeta =>
       const TaskConstMeta(
         debugName: "blockchain_broadcast_signed_pset",
-        argNames: ["electrumUrl", "signedPset"],
+        argNames: ["network", "electrumUrl", "signedPset"],
       );
 
   @override
   Future<String> lwkApiBlockchainBlockchainBroadcastTxBytes({
+    required LiquidNetwork network,
     required String electrumUrl,
     required List<int> txBytes,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          var arg0 = cst_encode_String(electrumUrl);
-          var arg1 = cst_encode_list_prim_u_8_loose(txBytes);
+          var arg0 = cst_encode_liquid_network(network);
+          var arg1 = cst_encode_String(electrumUrl);
+          var arg2 = cst_encode_list_prim_u_8_loose(txBytes);
           return wire.wire__lwk__api__blockchain__blockchain_broadcast_tx_bytes(
             port_,
             arg0,
             arg1,
+            arg2,
           );
         },
         codec: DcoCodec(
@@ -4408,7 +4485,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
           decodeErrorData: dco_decode_lwk_error,
         ),
         constMeta: kLwkApiBlockchainBlockchainBroadcastTxBytesConstMeta,
-        argValues: [electrumUrl, txBytes],
+        argValues: [network, electrumUrl, txBytes],
         apiImpl: this,
       ),
     );
@@ -4417,23 +4494,26 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   TaskConstMeta get kLwkApiBlockchainBlockchainBroadcastTxBytesConstMeta =>
       const TaskConstMeta(
         debugName: "blockchain_broadcast_tx_bytes",
-        argNames: ["electrumUrl", "txBytes"],
+        argNames: ["network", "electrumUrl", "txBytes"],
       );
 
   @override
   Future<void> lwkApiBlockchainBlockchainTest({
     required Blockchain that,
+    required LiquidNetwork network,
     required String electrumUrl,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           var arg0 = cst_encode_box_autoadd_blockchain(that);
-          var arg1 = cst_encode_String(electrumUrl);
+          var arg1 = cst_encode_liquid_network(network);
+          var arg2 = cst_encode_String(electrumUrl);
           return wire.wire__lwk__api__blockchain__blockchain_test(
             port_,
             arg0,
             arg1,
+            arg2,
           );
         },
         codec: DcoCodec(
@@ -4441,7 +4521,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
           decodeErrorData: dco_decode_lwk_error,
         ),
         constMeta: kLwkApiBlockchainBlockchainTestConstMeta,
-        argValues: [that, electrumUrl],
+        argValues: [that, network, electrumUrl],
         apiImpl: this,
       ),
     );
@@ -4450,7 +4530,7 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   TaskConstMeta get kLwkApiBlockchainBlockchainTestConstMeta =>
       const TaskConstMeta(
         debugName: "blockchain_test",
-        argNames: ["that", "electrumUrl"],
+        argNames: ["that", "network", "electrumUrl"],
       );
 
   @override
@@ -6099,6 +6179,41 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       const TaskConstMeta(
         debugName: "descriptor_new_confidential",
         argNames: ["network", "mnemonic"],
+      );
+
+  @override
+  Future<Descriptor> lwkApiDescriptorDescriptorNewConfidentialFromSeed({
+    required LiquidNetwork network,
+    required List<int> seed,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_liquid_network(network);
+          var arg1 = cst_encode_list_prim_u_8_loose(seed);
+          return wire
+              .wire__lwk__api__descriptor__descriptor_new_confidential_from_seed(
+                port_,
+                arg0,
+                arg1,
+              );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_descriptor,
+          decodeErrorData: dco_decode_lwk_error,
+        ),
+        constMeta: kLwkApiDescriptorDescriptorNewConfidentialFromSeedConstMeta,
+        argValues: [network, seed],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kLwkApiDescriptorDescriptorNewConfidentialFromSeedConstMeta =>
+      const TaskConstMeta(
+        debugName: "descriptor_new_confidential_from_seed",
+        argNames: ["network", "seed"],
       );
 
   @override
@@ -9531,12 +9646,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
-  List<TxOutSecrets> dco_decode_list_tx_out_secrets(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_tx_out_secrets).toList();
-  }
-
-  @protected
   List<TxOutput> dco_decode_list_tx_output(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_tx_output).toList();
@@ -9728,20 +9837,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       kind: dco_decode_swap_tx_kind(arr[0]),
       txid: dco_decode_opt_String(arr[1]),
       timestamp: dco_decode_opt_box_autoadd_u_64(arr[2]),
-    );
-  }
-
-  @protected
-  PayjoinTx dco_decode_payjoin_tx(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-    return PayjoinTx(
-      pset: dco_decode_String(arr[0]),
-      networkFee: dco_decode_u_64(arr[1]),
-      assetFee: dco_decode_u_64(arr[2]),
-      unblindedOutputs: dco_decode_list_tx_out_secrets(arr[3]),
     );
   }
 
@@ -11597,20 +11692,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
-  List<TxOutSecrets> sse_decode_list_tx_out_secrets(
-    SseDeserializer deserializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-
-    var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <TxOutSecrets>[];
-    for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_tx_out_secrets(deserializer));
-    }
-    return ans_;
-  }
-
-  @protected
   List<TxOutput> sse_decode_list_tx_output(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -11913,21 +11994,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
       kind: var_kind,
       txid: var_txid,
       timestamp: var_timestamp,
-    );
-  }
-
-  @protected
-  PayjoinTx sse_decode_payjoin_tx(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_pset = sse_decode_String(deserializer);
-    var var_networkFee = sse_decode_u_64(deserializer);
-    var var_assetFee = sse_decode_u_64(deserializer);
-    var var_unblindedOutputs = sse_decode_list_tx_out_secrets(deserializer);
-    return PayjoinTx(
-      pset: var_pset,
-      networkFee: var_networkFee,
-      assetFee: var_assetFee,
-      unblindedOutputs: var_unblindedOutputs,
     );
   }
 
@@ -14137,18 +14203,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
   }
 
   @protected
-  void sse_encode_list_tx_out_secrets(
-    List<TxOutSecrets> self,
-    SseSerializer serializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.length, serializer);
-    for (final item in self) {
-      sse_encode_tx_out_secrets(item, serializer);
-    }
-  }
-
-  @protected
   void sse_encode_list_tx_output(
     List<TxOutput> self,
     SseSerializer serializer,
@@ -14442,15 +14496,6 @@ class BullSdkApiImpl extends BullSdkApiImplPlatform implements BullSdkApi {
     sse_encode_swap_tx_kind(self.kind, serializer);
     sse_encode_opt_String(self.txid, serializer);
     sse_encode_opt_box_autoadd_u_64(self.timestamp, serializer);
-  }
-
-  @protected
-  void sse_encode_payjoin_tx(PayjoinTx self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.pset, serializer);
-    sse_encode_u_64(self.networkFee, serializer);
-    sse_encode_u_64(self.assetFee, serializer);
-    sse_encode_list_tx_out_secrets(self.unblindedOutputs, serializer);
   }
 
   @protected
@@ -15719,34 +15764,6 @@ class WalletImpl extends RustOpaque implements Wallet {
     drain: drain,
   );
 
-  /// Build a PayJoin transaction for a specific asset, even if the wallet does not contain L-BTC UTXOs.
-  /// The asset must be one of the assets supported by SideSwap, such as USDt or DePix.
-  /// This creates a coin-join PSET. The PSET includes the asset wallet inputs and change,
-  /// and the asset output to `out_address`, the L-BTC server's input and change and the asset fee output to the server.
-  /// The server fee is included in the return value for the user to review.
-  ///
-  /// To make a PayJoin transaction:
-  /// - call build_payjoin_tx
-  /// - review server fee
-  /// - call signed_pset_with_extra_details, extract_tx and broadcast_tx.
-  /// See the `test_payjoin` test for an example of how to use it:
-  Future<PayjoinTx> buildPayjoinTx({
-    required BigInt sats,
-    required String outAddress,
-    required String asset,
-    required LiquidNetwork network,
-    String? baseUrl,
-    required bool isSendAll,
-  }) => BullSdk.instance.api.lwkApiWalletWalletBuildPayjoinTx(
-    that: this,
-    sats: sats,
-    outAddress: outAddress,
-    asset: asset,
-    network: network,
-    baseUrl: baseUrl,
-    isSendAll: isSendAll,
-  );
-
   /// Build N unsigned PSETs that consolidate the wallet's confirmed L-BTC UTXOs.
   ///
   /// Each PSET sweeps up to `maximum_inputs` coins into a single output, sent to
@@ -15774,6 +15791,10 @@ class WalletImpl extends RustOpaque implements Wallet {
   Future<String> descriptor() =>
       BullSdk.instance.api.lwkApiWalletWalletDescriptor(that: this);
 
+  /// Get the policy asset (L-BTC) id of the wallet's network
+  Future<String> policyAsset() =>
+      BullSdk.instance.api.lwkApiWalletWalletPolicyAsset(that: this);
+
   /// Sign a wallet transaction, returns (pset, signed_bytes)
   Future<String> signTx({
     required LiquidNetwork network,
@@ -15784,6 +15805,18 @@ class WalletImpl extends RustOpaque implements Wallet {
     network: network,
     pset: pset,
     mnemonic: mnemonic,
+  );
+
+  /// Sign a wallet transaction with a 64-byte BIP39 seed instead of mnemonic words
+  Future<String> signTxWithSeed({
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
+  }) => BullSdk.instance.api.lwkApiWalletWalletSignTxWithSeed(
+    that: this,
+    network: network,
+    pset: pset,
+    seed: seed,
   );
 
   /// Sign a pset with extra details (used for asset transactions)
@@ -15798,9 +15831,30 @@ class WalletImpl extends RustOpaque implements Wallet {
     mnemonic: mnemonic,
   );
 
+  /// Sign a pset with extra details with a 64-byte BIP39 seed instead of mnemonic words
+  Future<String> signedPsetWithExtraDetailsWithSeed({
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
+  }) =>
+      BullSdk.instance.api.lwkApiWalletWalletSignedPsetWithExtraDetailsWithSeed(
+        that: this,
+        network: network,
+        pset: pset,
+        seed: seed,
+      );
+
   /// Syncs the wallet db with its latest state fetched from the electrum server
+  /// Returns true if an LWK update was applied, false if the scan found no changes.
+  /// Tip-only changes count as updates. Scan and persistence errors are propagated.
   /// Using None for stop_at_index will sync normally with a stop gap of 20
-  Future<void> sync_({
+  ///
+  /// ⚠️ `validate_domain` is ignored and kept only for API compatibility:
+  /// validation is always on for Liquid. The TLS certificate must be valid
+  /// for the server's domain name, so a self-signed or IP-addressed server
+  /// is rejected.
+  /// The connection uses TLS, except for a `tcp://` URL on a regtest wallet.
+  Future<bool> sync_({
     required String electrumUrl,
     required bool validateDomain,
     int? stopAtIndex,

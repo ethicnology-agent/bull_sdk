@@ -50,26 +50,6 @@ abstract class Wallet implements RustOpaqueInterface {
     required bool drain,
   });
 
-  /// Build a PayJoin transaction for a specific asset, even if the wallet does not contain L-BTC UTXOs.
-  /// The asset must be one of the assets supported by SideSwap, such as USDt or DePix.
-  /// This creates a coin-join PSET. The PSET includes the asset wallet inputs and change,
-  /// and the asset output to `out_address`, the L-BTC server's input and change and the asset fee output to the server.
-  /// The server fee is included in the return value for the user to review.
-  ///
-  /// To make a PayJoin transaction:
-  /// - call build_payjoin_tx
-  /// - review server fee
-  /// - call signed_pset_with_extra_details, extract_tx and broadcast_tx.
-  /// See the `test_payjoin` test for an example of how to use it:
-  Future<PayjoinTx> buildPayjoinTx({
-    required BigInt sats,
-    required String outAddress,
-    required String asset,
-    required LiquidNetwork network,
-    String? baseUrl,
-    required bool isSendAll,
-  });
-
   /// Build N unsigned PSETs that consolidate the wallet's confirmed L-BTC UTXOs.
   ///
   /// Each PSET sweeps up to `maximum_inputs` coins into a single output, sent to
@@ -91,21 +71,36 @@ abstract class Wallet implements RustOpaqueInterface {
   Future<String> descriptor();
 
   /// Initializes a wallet from a specific db path and descriptor
+  ///
+  /// The policy asset id is only for the regtest network, whose node may use another policy
+  /// asset than lwk's default; mainnet and testnet reject it.
   static Future<Wallet> init({
     required LiquidNetwork network,
     required String dbpath,
     required Descriptor descriptor,
+    String? policyAsset,
   }) => BullSdk.instance.api.lwkApiWalletWalletInit(
     network: network,
     dbpath: dbpath,
     descriptor: descriptor,
+    policyAsset: policyAsset,
   );
+
+  /// Get the policy asset (L-BTC) id of the wallet's network
+  Future<String> policyAsset();
 
   /// Sign a wallet transaction, returns (pset, signed_bytes)
   Future<String> signTx({
     required LiquidNetwork network,
     required String pset,
     required String mnemonic,
+  });
+
+  /// Sign a wallet transaction with a 64-byte BIP39 seed instead of mnemonic words
+  Future<String> signTxWithSeed({
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
   });
 
   /// Sign a pset with extra details (used for asset transactions)
@@ -115,9 +110,24 @@ abstract class Wallet implements RustOpaqueInterface {
     required String mnemonic,
   });
 
+  /// Sign a pset with extra details with a 64-byte BIP39 seed instead of mnemonic words
+  Future<String> signedPsetWithExtraDetailsWithSeed({
+    required LiquidNetwork network,
+    required String pset,
+    required List<int> seed,
+  });
+
   /// Syncs the wallet db with its latest state fetched from the electrum server
+  /// Returns true if an LWK update was applied, false if the scan found no changes.
+  /// Tip-only changes count as updates. Scan and persistence errors are propagated.
   /// Using None for stop_at_index will sync normally with a stop gap of 20
-  Future<void> sync_({
+  ///
+  /// ⚠️ `validate_domain` is ignored and kept only for API compatibility:
+  /// validation is always on for Liquid. The TLS certificate must be valid
+  /// for the server's domain name, so a self-signed or IP-addressed server
+  /// is rejected.
+  /// The connection uses TLS, except for a `tcp://` URL on a regtest wallet.
+  Future<bool> sync_({
     required String electrumUrl,
     required bool validateDomain,
     int? stopAtIndex,
