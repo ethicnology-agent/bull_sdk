@@ -4410,7 +4410,7 @@ fn wire__boltz__api__chain_swap__chain_swap_get_user_lockup_impl(
 fn wire__boltz__api__chain_swap__chain_swap_new_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     id: impl CstDecode<String>,
-    is_testnet: impl CstDecode<bool>,
+    network: impl CstDecode<boltz::api::types::Network>,
     direction: impl CstDecode<boltz::api::types::ChainSwapDirection>,
     refund_keys: impl CstDecode<boltz::api::secrets::KeyPair>,
     refund_index: impl CstDecode<u64>,
@@ -4435,7 +4435,7 @@ fn wire__boltz__api__chain_swap__chain_swap_new_impl(
         },
         move || {
             let api_id = id.cst_decode();
-            let api_is_testnet = is_testnet.cst_decode();
+            let api_network = network.cst_decode();
             let api_direction = direction.cst_decode();
             let api_refund_keys = refund_keys.cst_decode();
             let api_refund_index = refund_index.cst_decode();
@@ -4455,7 +4455,7 @@ fn wire__boltz__api__chain_swap__chain_swap_new_impl(
                 transform_result_dco::<_, _, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(boltz::api::chain_swap::ChainSwap::new(
                         api_id,
-                        api_is_testnet,
+                        api_network,
                         api_direction,
                         api_refund_keys,
                         api_refund_index,
@@ -4484,7 +4484,7 @@ fn wire__boltz__api__chain_swap__chain_swap_new_swap_impl(
     swap_master_key: impl CstDecode<boltz::api::secrets::SwapMasterKey>,
     index: impl CstDecode<u64>,
     amount: impl CstDecode<u64>,
-    is_testnet: impl CstDecode<bool>,
+    network: impl CstDecode<boltz::api::types::Network>,
     btc_electrum_url: impl CstDecode<String>,
     lbtc_electrum_url: impl CstDecode<String>,
     boltz_url: impl CstDecode<String>,
@@ -4501,7 +4501,7 @@ fn wire__boltz__api__chain_swap__chain_swap_new_swap_impl(
             let api_swap_master_key = swap_master_key.cst_decode();
             let api_index = index.cst_decode();
             let api_amount = amount.cst_decode();
-            let api_is_testnet = is_testnet.cst_decode();
+            let api_network = network.cst_decode();
             let api_btc_electrum_url = btc_electrum_url.cst_decode();
             let api_lbtc_electrum_url = lbtc_electrum_url.cst_decode();
             let api_boltz_url = boltz_url.cst_decode();
@@ -4514,7 +4514,7 @@ fn wire__boltz__api__chain_swap__chain_swap_new_swap_impl(
                             api_swap_master_key,
                             api_index,
                             api_amount,
-                            api_is_testnet,
+                            api_network,
                             api_btc_electrum_url,
                             api_lbtc_electrum_url,
                             api_boltz_url,
@@ -4643,6 +4643,7 @@ fn wire__boltz__api__transactions__check_lockup_outspends_impl(
     network: impl CstDecode<boltz::api::types::Chain>,
     boltz_url: impl CstDecode<String>,
     chain_swap_direction: impl CstDecode<Option<boltz::api::types::ChainSwapDirection>>,
+    explorer_url: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -4657,6 +4658,7 @@ fn wire__boltz__api__transactions__check_lockup_outspends_impl(
             let api_network = network.cst_decode();
             let api_boltz_url = boltz_url.cst_decode();
             let api_chain_swap_direction = chain_swap_direction.cst_decode();
+            let api_explorer_url = explorer_url.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, FrbWrapper<boltz::api::error::BoltzError>>(
                     (move || async move {
@@ -4667,6 +4669,7 @@ fn wire__boltz__api__transactions__check_lockup_outspends_impl(
                             api_network,
                             &api_boltz_url,
                             api_chain_swap_direction,
+                            api_explorer_url,
                         )
                         .await?;
                         Ok(output_ok)
@@ -6997,7 +7000,7 @@ const _: fn() = || {
     {
         let ChainSwap = None::<boltz::api::chain_swap::ChainSwap>.unwrap();
         let _: String = ChainSwap.id;
-        let _: bool = ChainSwap.is_testnet;
+        let _: boltz::api::types::Network = ChainSwap.network;
         let _: boltz::api::types::ChainSwapDirection = ChainSwap.direction;
         let _: boltz::api::secrets::KeyPair = ChainSwap.refund_keys;
         let _: u64 = ChainSwap.refund_index;
@@ -7399,6 +7402,8 @@ impl CstDecode<boltz::api::types::Chain> for i32 {
             1 => boltz::api::types::Chain::BitcoinTestnet,
             2 => boltz::api::types::Chain::Liquid,
             3 => boltz::api::types::Chain::LiquidTestnet,
+            4 => boltz::api::types::Chain::BitcoinRegtest,
+            5 => boltz::api::types::Chain::LiquidRegtest,
             _ => unreachable!("Invalid variant for Chain: {}", self),
         }
     }
@@ -7977,6 +7982,8 @@ impl SseDecode for boltz::api::types::Chain {
             1 => boltz::api::types::Chain::BitcoinTestnet,
             2 => boltz::api::types::Chain::Liquid,
             3 => boltz::api::types::Chain::LiquidTestnet,
+            4 => boltz::api::types::Chain::BitcoinRegtest,
+            5 => boltz::api::types::Chain::LiquidRegtest,
             _ => unreachable!("Invalid variant for Chain: {}", inner),
         };
     }
@@ -8002,7 +8009,7 @@ impl SseDecode for boltz::api::chain_swap::ChainSwap {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_id = <String>::sse_decode(deserializer);
-        let mut var_isTestnet = <bool>::sse_decode(deserializer);
+        let mut var_network = <boltz::api::types::Network>::sse_decode(deserializer);
         let mut var_direction = <boltz::api::types::ChainSwapDirection>::sse_decode(deserializer);
         let mut var_refundKeys = <boltz::api::secrets::KeyPair>::sse_decode(deserializer);
         let mut var_refundIndex = <u64>::sse_decode(deserializer);
@@ -8022,7 +8029,7 @@ impl SseDecode for boltz::api::chain_swap::ChainSwap {
         let mut var_blindingKey = <String>::sse_decode(deserializer);
         return boltz::api::chain_swap::ChainSwap {
             id: var_id,
-            is_testnet: var_isTestnet,
+            network: var_network,
             direction: var_direction,
             refund_keys: var_refundKeys,
             refund_index: var_refundIndex,
@@ -10250,6 +10257,8 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<boltz::api::types::Chain> {
             boltz::api::types::Chain::BitcoinTestnet => 1.into_dart(),
             boltz::api::types::Chain::Liquid => 2.into_dart(),
             boltz::api::types::Chain::LiquidTestnet => 3.into_dart(),
+            boltz::api::types::Chain::BitcoinRegtest => 4.into_dart(),
+            boltz::api::types::Chain::LiquidRegtest => 5.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -10293,7 +10302,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<boltz::api::chain_swap::ChainS
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.0.id.into_into_dart().into_dart(),
-            self.0.is_testnet.into_into_dart().into_dart(),
+            self.0.network.into_into_dart().into_dart(),
             self.0.direction.into_into_dart().into_dart(),
             self.0.refund_keys.into_into_dart().into_dart(),
             self.0.refund_index.into_into_dart().into_dart(),
@@ -12421,6 +12430,8 @@ impl SseEncode for boltz::api::types::Chain {
                 boltz::api::types::Chain::BitcoinTestnet => 1,
                 boltz::api::types::Chain::Liquid => 2,
                 boltz::api::types::Chain::LiquidTestnet => 3,
+                boltz::api::types::Chain::BitcoinRegtest => 4,
+                boltz::api::types::Chain::LiquidRegtest => 5,
                 _ => {
                     unimplemented!("");
                 }
@@ -12444,7 +12455,7 @@ impl SseEncode for boltz::api::chain_swap::ChainSwap {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.id, serializer);
-        <bool>::sse_encode(self.is_testnet, serializer);
+        <boltz::api::types::Network>::sse_encode(self.network, serializer);
         <boltz::api::types::ChainSwapDirection>::sse_encode(self.direction, serializer);
         <boltz::api::secrets::KeyPair>::sse_encode(self.refund_keys, serializer);
         <u64>::sse_encode(self.refund_index, serializer);
@@ -14537,7 +14548,7 @@ mod io {
         fn cst_decode(self) -> boltz::api::chain_swap::ChainSwap {
             boltz::api::chain_swap::ChainSwap {
                 id: self.id.cst_decode(),
-                is_testnet: self.is_testnet.cst_decode(),
+                network: self.network.cst_decode(),
                 direction: self.direction.cst_decode(),
                 refund_keys: self.refund_keys.cst_decode(),
                 refund_index: self.refund_index.cst_decode(),
@@ -15696,7 +15707,7 @@ mod io {
         fn new_with_null_ptr() -> Self {
             Self {
                 id: core::ptr::null_mut(),
-                is_testnet: Default::default(),
+                network: Default::default(),
                 direction: Default::default(),
                 refund_keys: Default::default(),
                 refund_index: Default::default(),
@@ -17817,7 +17828,7 @@ mod io {
     pub extern "C" fn frbgen_bull_sdk_wire__boltz__api__chain_swap__chain_swap_new(
         port_: i64,
         id: *mut wire_cst_list_prim_u_8_strict,
-        is_testnet: bool,
+        network: i32,
         direction: i32,
         refund_keys: *mut wire_cst_key_pair,
         refund_index: u64,
@@ -17837,7 +17848,7 @@ mod io {
         wire__boltz__api__chain_swap__chain_swap_new_impl(
             port_,
             id,
-            is_testnet,
+            network,
             direction,
             refund_keys,
             refund_index,
@@ -17863,7 +17874,7 @@ mod io {
         swap_master_key: *mut wire_cst_swap_master_key,
         index: u64,
         amount: u64,
-        is_testnet: bool,
+        network: i32,
         btc_electrum_url: *mut wire_cst_list_prim_u_8_strict,
         lbtc_electrum_url: *mut wire_cst_list_prim_u_8_strict,
         boltz_url: *mut wire_cst_list_prim_u_8_strict,
@@ -17875,7 +17886,7 @@ mod io {
             swap_master_key,
             index,
             amount,
-            is_testnet,
+            network,
             btc_electrum_url,
             lbtc_electrum_url,
             boltz_url,
@@ -17940,6 +17951,7 @@ mod io {
         network: i32,
         boltz_url: *mut wire_cst_list_prim_u_8_strict,
         chain_swap_direction: *mut i32,
+        explorer_url: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__boltz__api__transactions__check_lockup_outspends_impl(
             port_,
@@ -17949,6 +17961,7 @@ mod io {
             network,
             boltz_url,
             chain_swap_direction,
+            explorer_url,
         )
     }
 
@@ -19552,7 +19565,7 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_chain_swap {
         id: *mut wire_cst_list_prim_u_8_strict,
-        is_testnet: bool,
+        network: i32,
         direction: i32,
         refund_keys: wire_cst_key_pair,
         refund_index: u64,

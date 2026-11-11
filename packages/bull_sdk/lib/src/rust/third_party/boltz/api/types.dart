@@ -75,7 +75,9 @@ enum Chain {
   bitcoin,
   bitcoinTestnet,
   liquid,
-  liquidTestnet;
+  liquidTestnet,
+  bitcoinRegtest,
+  liquidRegtest;
 
   Future<bool> isTestnet() =>
       BullSdk.instance.api.boltzApiTypesChainIsTestnet(that: this);

@@ -34,6 +34,8 @@ Future<OutspendStatus> checkVout0Outspend({
 /// treating it as their claim or refund — an output being spent proves
 /// nothing about who was paid.
 ///
+/// `explorer_url` overrides the explorer for the resolved lockup chain and is required on regtest.
+///
 /// An empty report means the explorer has not indexed the lockup tx yet
 /// (e.g. polled right after broadcast): nothing is spent, retry later.
 Future<List<VoutOutspend>> checkLockupOutspends({
@@ -43,6 +45,7 @@ Future<List<VoutOutspend>> checkLockupOutspends({
   required Chain network,
   required String boltzUrl,
   ChainSwapDirection? chainSwapDirection,
+  String? explorerUrl,
 }) => BullSdk.instance.api.boltzApiTransactionsCheckLockupOutspends(
   swapId: swapId,
   swapType: swapType,
@@ -50,4 +53,5 @@ Future<List<VoutOutspend>> checkLockupOutspends({
   network: network,
   boltzUrl: boltzUrl,
   chainSwapDirection: chainSwapDirection,
+  explorerUrl: explorerUrl,
 );
