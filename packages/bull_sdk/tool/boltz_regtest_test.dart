@@ -106,16 +106,20 @@ void main() {
 
       Future<bool> lightningCaughtUp(int height) async {
         for (final node in ['cln-peer', 'boltz-cln']) {
-          final result = await Process.run('podman', [
-            '--cgroup-manager=cgroupfs',
-            'exec',
-            'bull-regtest-$node',
-            'lightning-cli',
-            '--regtest',
-            '--json',
-            '--notifications=none',
-            'getinfo',
-          ], environment: {'DBUS_SESSION_BUS_ADDRESS': 'disabled'});
+          final result = await Process.run(
+            'podman',
+            [
+              '--cgroup-manager=cgroupfs',
+              'exec',
+              'bull-regtest-$node',
+              'lightning-cli',
+              '--regtest',
+              '--json',
+              '--notifications=none',
+              'getinfo',
+            ],
+            environment: {'DBUS_SESSION_BUS_ADDRESS': 'disabled'},
+          );
           if (result.exitCode != 0 ||
               (jsonDecode(result.stdout as String)['blockheight'] as int) <
                   height) {
@@ -151,16 +155,20 @@ void main() {
             await Future<void>.delayed(const Duration(milliseconds: 100));
           }
         }
-        final result = await Process.run('podman', [
-          '--cgroup-manager=cgroupfs',
-          'exec',
-          'bull-regtest-cln-peer',
-          'lightning-cli',
-          '--regtest',
-          '--json',
-          '--notifications=none',
-          ...args,
-        ], environment: {'DBUS_SESSION_BUS_ADDRESS': 'disabled'});
+        final result = await Process.run(
+          'podman',
+          [
+            '--cgroup-manager=cgroupfs',
+            'exec',
+            'bull-regtest-cln-peer',
+            'lightning-cli',
+            '--regtest',
+            '--json',
+            '--notifications=none',
+            ...args,
+          ],
+          environment: {'DBUS_SESSION_BUS_ADDRESS': 'disabled'},
+        );
         if (result.exitCode != 0) {
           throw StateError(
             'Lightning operation failed status=${result.exitCode}',
