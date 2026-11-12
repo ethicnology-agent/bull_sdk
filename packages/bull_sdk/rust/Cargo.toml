@@ -18,8 +18,8 @@ miniscript = "12"
 bitbox = { git = "https://github.com/SatoshiPortal/bitbox-dart", rev = "b832be8ab497377ac4f9ceb9b0f5f1e830a84e5a", features = ["bull_sdk"] }
 bbqr = { git = "https://github.com/SatoshiPortal/bbqr-rust.git", rev = "e4807767d6a61cd7fd9a590f33437553595d0305", default-features = false }
 dart_bbqr = { git = "https://github.com/SatoshiPortal/bbqr-dart", rev = "b06901953ab9c0440a9c0373efcc4345f3c35d32", features = ["bull_sdk"] }
-# SatoshiPortal/boltz-dart develop + SwapMasterKey.createFromSeed (feat/swap-master-key-from-seed).
-boltz = { git = "https://github.com/SatoshiPortal/boltz-dart", rev = "40dda2bd15b1b27b6f98d1aa4af2193b13a72a24", features = ["bull_sdk"] }
+# Seed derivation plus concrete Bitcoin/Liquid regtest swap networks.
+boltz = { git = "https://github.com/SatoshiPortal/boltz-dart", rev = "3d30434e0240a629947c16a8e0419421cbaf3437", features = ["bull_sdk"] }
 # lwk-dart develop: LWK master, seed-based descriptor and signing, Liquid
 # regtest (SatoshiPortal/lwk-dart#99, which includes #88).
 lwk = { git = "https://github.com/SatoshiPortal/lwk-dart", rev = "3ce987b3c5be27dc1afc90ce6d9f8ba6d01f0dd3", features = ["bull_sdk"] }

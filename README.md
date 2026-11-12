@@ -90,3 +90,9 @@ import 'package:bull_sdk/ark.dart' as ark;
 
 await BullSdk.init();
 ```
+
+## Boltz regtest
+
+The aggregate exposes concrete Bitcoin/Liquid regtest chains and `ChainSwap.network` while retaining `SwapMasterKey.createFromSeed`. Chain-swap constructors take `network` instead of `isTestnet`; legacy persisted mainnet/testnet JSON remains readable. Regtest Electrum calls require explicit `ElectrumSettings(tls: false, ...)`, and outspend checks require an explicit explorer URL. Mainnet retains its HTTPS policy.
+
+With BULL's disposable Podman stack running and the aggregate host library built, run `fvm flutter test tool/boltz_regtest_test.dart` from `packages/bull_sdk`. The host test derives a delegated swap key from an ephemeral random seed, exercises all six swap directions, reloads native swap state and verifies confirmed receipts. It never prints or persists the seed or recovery JSON.
