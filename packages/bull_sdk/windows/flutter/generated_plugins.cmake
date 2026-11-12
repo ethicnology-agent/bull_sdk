@@ -6,8 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  onion
-  rust_lib_bull_sdk
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
