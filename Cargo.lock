@@ -454,7 +454,7 @@ dependencies = [
 [[package]]
 name = "bitbox"
 version = "0.2.0"
-source = "git+https://github.com/SatoshiPortal/bitbox-dart?rev=b832be8ab497377ac4f9ceb9b0f5f1e830a84e5a#b832be8ab497377ac4f9ceb9b0f5f1e830a84e5a"
+source = "git+https://github.com/ethicnology-agent/bitbox-dart?rev=4ef1df2acf7941699d8e15c0941ede5319af7263#4ef1df2acf7941699d8e15c0941ede5319af7263"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -668,7 +668,7 @@ checksum = "829a082bd3761fde7476dc2ed85ca56c11628948460ece621e4f56fef5046567"
 [[package]]
 name = "boltz"
 version = "0.5.2"
-source = "git+https://github.com/SatoshiPortal/boltz-dart?rev=40dda2bd15b1b27b6f98d1aa4af2193b13a72a24#40dda2bd15b1b27b6f98d1aa4af2193b13a72a24"
+source = "git+https://github.com/ethicnology-agent/boltz-dart?rev=cec1c62b0da640a190fe024d71d369f3d9d42db8#cec1c62b0da640a190fe024d71d369f3d9d42db8"
 dependencies = [
  "anyhow",
  "bip85_extended",
@@ -1369,7 +1369,7 @@ dependencies = [
 [[package]]
 name = "dart_bbqr"
 version = "0.1.0"
-source = "git+https://github.com/SatoshiPortal/bbqr-dart?rev=b06901953ab9c0440a9c0373efcc4345f3c35d32#b06901953ab9c0440a9c0373efcc4345f3c35d32"
+source = "git+https://github.com/ethicnology-agent/bbqr-dart?rev=b0a7ce9e0e6f1b9f599ccf5466d2d7073ebc582d#b0a7ce9e0e6f1b9f599ccf5466d2d7073ebc582d"
 dependencies = [
  "anyhow",
  "bbqr",
@@ -1383,7 +1383,7 @@ dependencies = [
 [[package]]
 name = "dart_bwk"
 version = "0.1.0"
-source = "git+https://github.com/pythcoiner/bwk-dart?rev=c3c01df320eeb4c0198d784e353be2f7a037beea#c3c01df320eeb4c0198d784e353be2f7a037beea"
+source = "git+https://github.com/ethicnology-agent/bwk-dart?rev=56cc6ad17d78359767cf28b2bdef37220ac45d5b#56cc6ad17d78359767cf28b2bdef37220ac45d5b"
 dependencies = [
  "bitcoin",
  "bwk",
@@ -1826,9 +1826,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.12.0"
+version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0884853aae8a6517b5b58cf36f55da487f2fe110e1686938eb29b6640aae4a5"
+checksum = "24a973d15b8fc7de9fb29cdfbec58a2ac41f6252492d3b882abfdc603e32b34f"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -1855,9 +1855,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_codegen"
-version = "2.12.0"
+version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13823e8157bada9dc828d67cd23e4bcebcfffa9313175dacad0325fc3188940c"
+checksum = "701a8e577f9f5f59f651e1e932add36ee5dfb82d0fa20215225ea177d4dbbe4b"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -1885,6 +1885,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
+ "semver",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -1900,9 +1901,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.12.0"
+version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b5ce32f35f710ced8c5aa557f023f1a624e737b5460cee2b70fcd3a8df09e1b"
+checksum = "901eec2d226107dad1c55b30f7421c4687bebcf70ed43ca44d1b447ca087b238"
 dependencies = [
  "hex",
  "md-5",
@@ -3035,7 +3036,7 @@ checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 [[package]]
 name = "lwk"
 version = "0.3.0"
-source = "git+https://github.com/SatoshiPortal/lwk-dart?rev=3ce987b3c5be27dc1afc90ce6d9f8ba6d01f0dd3#3ce987b3c5be27dc1afc90ce6d9f8ba6d01f0dd3"
+source = "git+https://github.com/ethicnology-agent/lwk-dart?rev=66d7a83c94e26551d8b09d424b8cb46af358b090#66d7a83c94e26551d8b09d424b8cb46af358b090"
 dependencies = [
  "anyhow",
  "flutter_rust_bridge",

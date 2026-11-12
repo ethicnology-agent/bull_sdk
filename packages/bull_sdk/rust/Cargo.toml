@@ -15,15 +15,15 @@ bitcoin = "0.32"
 miniscript = "12"
 # Cross-repository dependencies use immutable revisions so clean builds remain
 # reproducible.
-bitbox = { git = "https://github.com/SatoshiPortal/bitbox-dart", rev = "b832be8ab497377ac4f9ceb9b0f5f1e830a84e5a", features = ["bull_sdk"] }
+bitbox = { git = "https://github.com/ethicnology-agent/bitbox-dart", rev = "4ef1df2acf7941699d8e15c0941ede5319af7263", features = ["bull_sdk"] }
 bbqr = { git = "https://github.com/SatoshiPortal/bbqr-rust.git", rev = "e4807767d6a61cd7fd9a590f33437553595d0305", default-features = false }
-dart_bbqr = { git = "https://github.com/SatoshiPortal/bbqr-dart", rev = "b06901953ab9c0440a9c0373efcc4345f3c35d32", features = ["bull_sdk"] }
+dart_bbqr = { git = "https://github.com/ethicnology-agent/bbqr-dart", rev = "b0a7ce9e0e6f1b9f599ccf5466d2d7073ebc582d", features = ["bull_sdk"] }
 # SatoshiPortal/boltz-dart develop + SwapMasterKey.createFromSeed (feat/swap-master-key-from-seed).
-boltz = { git = "https://github.com/SatoshiPortal/boltz-dart", rev = "40dda2bd15b1b27b6f98d1aa4af2193b13a72a24", features = ["bull_sdk"] }
+boltz = { git = "https://github.com/ethicnology-agent/boltz-dart", rev = "cec1c62b0da640a190fe024d71d369f3d9d42db8", features = ["bull_sdk"] }
 # lwk-dart develop: LWK master, seed-based descriptor and signing, Liquid
 # regtest (SatoshiPortal/lwk-dart#99, which includes #88).
-lwk = { git = "https://github.com/SatoshiPortal/lwk-dart", rev = "3ce987b3c5be27dc1afc90ce6d9f8ba6d01f0dd3", features = ["bull_sdk"] }
-dart_bwk = { git = "https://github.com/pythcoiner/bwk-dart", rev = "c3c01df320eeb4c0198d784e353be2f7a037beea", package = "dart_bwk", features = ["bull_sdk"] }
+lwk = { git = "https://github.com/ethicnology-agent/lwk-dart", rev = "66d7a83c94e26551d8b09d424b8cb46af358b090", features = ["bull_sdk"] }
+dart_bwk = { git = "https://github.com/ethicnology-agent/bwk-dart", rev = "56cc6ad17d78359767cf28b2bdef37220ac45d5b", package = "dart_bwk", features = ["bull_sdk"] }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
