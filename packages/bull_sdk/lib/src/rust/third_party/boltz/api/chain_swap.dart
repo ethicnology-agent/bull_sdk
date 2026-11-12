@@ -15,7 +15,7 @@ import 'types.dart';
 /// Bitcoin-Liquid Swap Class
 class ChainSwap {
   final String id;
-  final bool isTestnet;
+  final Network network;
   final ChainSwapDirection direction;
   final KeyPair refundKeys;
   final BigInt refundIndex;
@@ -35,7 +35,7 @@ class ChainSwap {
 
   const ChainSwap({
     required this.id,
-    required this.isTestnet,
+    required this.network,
     required this.direction,
     required this.refundKeys,
     required this.refundIndex,
@@ -122,7 +122,7 @@ class ChainSwap {
   /// Manually create the class. Primarily used when recovering a swap.
   static Future<ChainSwap> newInstance({
     required String id,
-    required bool isTestnet,
+    required Network network,
     required ChainSwapDirection direction,
     required KeyPair refundKeys,
     required BigInt refundIndex,
@@ -140,7 +140,7 @@ class ChainSwap {
     required String blindingKey,
   }) => BullSdk.instance.api.boltzApiChainSwapChainSwapNew(
     id: id,
-    isTestnet: isTestnet,
+    network: network,
     direction: direction,
     refundKeys: refundKeys,
     refundIndex: refundIndex,
@@ -166,7 +166,7 @@ class ChainSwap {
     required SwapMasterKey swapMasterKey,
     required BigInt index,
     required BigInt amount,
-    required bool isTestnet,
+    required Network network,
     required String btcElectrumUrl,
     required String lbtcElectrumUrl,
     required String boltzUrl,
@@ -176,7 +176,7 @@ class ChainSwap {
     swapMasterKey: swapMasterKey,
     index: index,
     amount: amount,
-    isTestnet: isTestnet,
+    network: network,
     btcElectrumUrl: btcElectrumUrl,
     lbtcElectrumUrl: lbtcElectrumUrl,
     boltzUrl: boltzUrl,
@@ -220,7 +220,7 @@ class ChainSwap {
   @override
   int get hashCode =>
       id.hashCode ^
-      isTestnet.hashCode ^
+      network.hashCode ^
       direction.hashCode ^
       refundKeys.hashCode ^
       refundIndex.hashCode ^
@@ -244,7 +244,7 @@ class ChainSwap {
       other is ChainSwap &&
           runtimeType == other.runtimeType &&
           id == other.id &&
-          isTestnet == other.isTestnet &&
+          network == other.network &&
           direction == other.direction &&
           refundKeys == other.refundKeys &&
           refundIndex == other.refundIndex &&
