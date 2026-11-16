@@ -311,7 +311,15 @@ impl TorService {
 
     /// Bootstrap, resolving when the client is usable.
     pub async fn bootstrap(&self) -> Result<(), TorFailure> {
-        const BOOTSTRAP_TIMEOUT: Duration = Duration::from_secs(120);
+        const BOOTSTRAP_TIMEOUT_MS: u64 = 120_000;
+        self.bootstrap_with_timeout(Some(BOOTSTRAP_TIMEOUT_MS))
+            .await
+    }
+
+    /// Bootstrap with a caller-chosen deadline in milliseconds. `None` sets no
+    /// deadline: the caller bounds the attempt and cancels it with `stop`.
+    pub async fn bootstrap_with_timeout(&self, timeout_ms: Option<u64>) -> Result<(), TorFailure> {
+        let timeout = timeout_ms.map(Duration::from_millis);
         let client = self
             .client()
             .ok_or_else(|| TorFailure::not_running("service stopped before bootstrap"))?;
@@ -324,11 +332,17 @@ impl TorService {
                 let _ = changed;
                 return Err(TorFailure::not_running("service stopped during bootstrap"));
             }
-            result = tokio::time::timeout(BOOTSTRAP_TIMEOUT, client.bootstrap()) => result,
+            result = async {
+                match timeout {
+                    Some(timeout) => tokio::time::timeout(timeout, client.bootstrap()).await,
+                    None => Ok(client.bootstrap().await),
+                }
+            } => result,
         };
         match attempt {
             Err(_) => Err(TorFailure::timeout(format!(
-                "bootstrap exceeded {BOOTSTRAP_TIMEOUT:?}"
+                "bootstrap exceeded {:?}",
+                timeout.unwrap_or_default()
             ))),
             Ok(Err(e)) => {
                 // The status snapshot carries `blockage`, which is what tells

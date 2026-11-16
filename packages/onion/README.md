@@ -269,6 +269,7 @@ abstract class TorService implements RustOpaqueInterface {
                                                  required int snowflakePort});
   Future<TorSession> openSession({required int socksPort});
   Future<void> bootstrap();
+  Future<void> bootstrapWithTimeout({BigInt? timeoutMs});
   Future<TorStatus> status();
   Stream<TorStatus> watchStatus();
   Future<int> probe({required String host, required int port,
